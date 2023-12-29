@@ -1,0 +1,694 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>按键映射图</title>
+<style>
+:root {
+    font-size: 0.8rem;
+    --kw: 4rem;
+    --kh: 4rem;
+}
+
+body {
+    font-family: Consolas, sans-serif;
+    font-size: 1.1rem;
+    margin: 0px;
+    height: 100%;
+    background-color: whitesmoke;
+    overflow-y: hidden;
+    display: flex;
+    flex-flow: column;
+    /* display: grid;
+    grid-template-rows: max-content;
+    grid-auto-flow: row; */
+    width: max-content;
+}
+
+.profs {
+    display: flex;
+    gap: 5px;
+    align-content: flex-start;
+    /* border: 1px solid red; */
+    overflow-x: hidden;
+    box-sizing: border-box;
+    width: 100%;
+    height: fit-content;
+}
+
+prof {
+    display: inline-block;
+    border: 1px solid gray;
+    /* border-radius: 5px; */
+    white-space: nowrap;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.cur, prof:hover {
+    border-color: lightseagreen;
+    background-color: lightblue;
+}
+
+keyboard {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: max-content;
+    grid-auto-flow: column;
+    border: 1px solid black;
+    border-radius: 10px;
+    margin: 10px;
+    padding: 10px;
+    gap: 10px;
+    width: fit-content;
+    height: fit-content;
+}
+
+keyboard:focus {
+    outline: 3px solid gold;
+    background-color: cornsilk;
+}
+
+kb_main,
+kb_dir,
+kb_num {
+    display: grid;
+    gap: 3px;
+    width: 100%;
+    overflow-x: hidden;
+    transition: all 1s;
+}
+
+kb_main {
+    grid-template-rows: var(--kh) 10px repeat(5, var(--kh));
+}
+
+kb_dir {
+    grid-template: var(--kh) 10px repeat(5, var(--kh)) / repeat(3, var(--kw));
+}
+
+kb_num {
+    grid-template: repeat(5, var(--kh)) / repeat(4, var(--kw));
+    margin-top: calc(var(--kh) + 10px + 3px * 2);
+}
+
+kr {
+    display: grid;
+    grid-auto-flow: column;
+    height: var(--kh);
+    gap: 3px;
+}
+
+kr.Fn {
+    grid-template-columns: min-content 1fr repeat(4, min-content) 1fr repeat(4, min-content) 1fr repeat(4, min-content);
+}
+
+k,
+kk {
+    /* font-size: 0.8rem; */
+    font-weight: bold;
+    box-sizing: border-box;
+    display: inline-block;
+    border: 1px solid darkgray;
+    border-radius: 5px;
+    background-color: lightgray;
+    width: var(--kw);
+    height: var(--kh);
+    padding: 3px 0 0 3px;
+}
+
+k.set {
+    background-color: lightblue;
+    border-color: lightseagreen;
+    cursor: help;
+}
+
+kk {
+    color: gray;
+    background-color: darkgray;
+}
+
+.k15 {
+    width: calc(var(--kw) * 1.5 + 3px);
+}
+
+.k2,
+.k2h {
+    width: calc(var(--kw) * 2 + 3px);
+}
+
+.k25 {
+    width: calc(var(--kw) * 2.5 + 4px);
+}
+
+.kspace {
+    width: calc(var(--kw) * 6 + 3px * 5);
+}
+
+.k2v {
+    grid-row: span 2;
+    height: calc(var(--kh) * 2 + 3px)
+}
+
+.k2h {
+    grid-column: span 2;
+}
+
+d {
+    display: inline-block;
+    border: 1px solid transparent;
+    height: var(--kh);
+}
+
+.d3 {
+    width: calc(var(--kw) * 3 + 3px * 2);
+    grid-column: span 3;
+}
+
+kn {
+    font-weight: bold;
+    border: 1px solid darkgray;
+    border-radius: 5px;
+    background-color: lightblue;
+    height: 1.2rem;
+    text-align: center;
+    padding: 2px 8px;
+    width: fit-content;
+    justify-self: flex-end;
+}
+
+km {
+    width: fit-content;
+    height: fit-content;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    padding: 2px 5px;
+    border-radius: 5px;
+    background-color: lightgray;
+}
+
+.btngrp {
+    display: flex;
+}
+
+.btn {
+    padding: 3px;
+    border: 1px solid lightseagreen;
+    /* border-radius: 5px; */
+    cursor: pointer;
+}
+
+.btn:hover {
+    border-color: lightseagreen;
+    background-color: lightblue;
+}
+
+.tabs {
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: hidden;
+    display: grid;
+    grid-template-rows: max-content 1fr;
+    grid-auto-flow: rows;
+    height: 100%;
+    width: calc(var(--kbw) + 20px);
+}
+
+.tabbtn {
+    display: inline-block;
+    border: 1px solid gray;
+    border-bottom: 0px;
+    border-radius: 5px 5px 0 0;
+    padding: 5px 10px 0px;
+    cursor: pointer;
+    transform: translateY(30) translateX(-60);
+}
+
+#list {
+    display: grid;
+    grid-template-columns: repeat(2, max-content calc(var(--kbw) / 2 - 10rem));
+    gap: 3px;
+    align-content: flex-start;
+    padding: 10px;
+    box-sizing: border-box;
+    height: 100%;
+    overflow-y: auto;
+}
+
+#tab_json {
+    display: grid;
+    grid-template-rows: max-content 1fr;
+    grid-auto-flow: row;
+    height: 100%;
+    overflow-y: hidden;
+}
+
+#json {
+    font-size: 0.9rem;
+    font-family: Consolas, sans-serif;
+    border: 0px;
+    width: 100%;
+    height: 100%;
+    resize: none;
+}
+
+#json:focus {
+    outline: 0px;
+    background-color: cornsilk;
+}
+</style>
+</head>
+
+<body>
+<div style="display: flex;width: var(--kbw);padding: 10px;">
+    <span style="padding: 0px 5px;margin:5px;font-weight: bold;">映射配置：</span>
+    <button class="btn" style="margin-right: 5px;padding: 0px 5px;" onclick="new2()">+</button>
+    <button class="btn" style="margin-right: 5px;" onclick="scroll_l()">◀</button>
+    <div id="profs" class="profs" style="flex: 1;">
+    </div>
+    <button class="btn" style="margin-left: 5px;" onclick="scroll_r()">▶</button>
+</div>
+<div style="display: flex;">
+    <keyboard tabindex="1">
+        <kb_main>
+            <kr class="Fn">
+                <k>Esc</k><d> </d><k>F1</k><k>F2</k><k>F3</k><k>F4</k><d> </d><k>F5</k><k>F6</k><k>F7</k><k>F8</k><d> </d><k>F9</k><k>F10</k><k>F11</k><k>F12</k>
+            </kr>
+            <kr></kr>
+            <kr>
+                <k>`</k><k>1</k><k>2</k><k>3</k><k>4</k><k>5</k><k>6</k><k>7</k><k>8</k><k>9</k><k>0</k><k>-</k><k>=</k><k class="k2">Backspace</k>
+            </kr>
+            <kr>
+                <k class="k15">Tab</k><k>Q</k><k>W</k><k>E</k><k>R</k><k>T</k><k>Y</k><k>U</k><k>I</k><k>O</k><k>P</k><k>[</k><k>]</k><k class="k15">\</k>
+            </kr>
+            <kr>
+                <k class="k2">Caps</k><k>A</k><k>S</k><k>D</k><k>F</k><k>G</k><k>H</k><k>J</k><k>K</k><k>L</k><k>;</k><k>'</k><k class="k2">Enter</k>
+            </kr>
+            <kr>
+                <k class="k25">Shift</k><k>Z</k><k>X</k><k>C</k><k>V</k><k>B</k><k>N</k><k>M</k><k>,</k><k>.</k><k>/</k><k class="k25">Shift</k>
+            </kr>
+            <kr>
+                <k class="k15">Ctrl</k><k class="k15">Win</k><k class="k15">Alt</k><k class="kspace">Space</k><k class="k15">Alt</k><k class="k15">Menu</k><k class="k15">Ctrl</k>
+            </kr>
+        </kb_main>
+        <kb_dir>
+            <kk>Print Scr</kk><k>ScrollLock</k><k>Pause</k>
+            <d class="d3"> </d>
+            <k>Insert</k><k>Home</k><k>PageUp</k>
+            <k>Delete</k><k>End</k><k>PageDown</k>
+            <d class="d3"> </d>
+            <d> </d><k>Up</k><d> </d>
+            <k>Left</k><k>Down</k><k>Right</k>
+        </kb_dir>
+        <kb_num>
+            <k>NumLock</k><k>Num/</k><k>Num*</k><k>Num-</k>
+            <k>Num7</k><k>Num8</k><k>Num9</k><k class="k2v">Num+</k>
+            <k>Num4</k><k>Num5</k><k>Num6</k>
+            <k>Num1</k><k>Num2</k><k>Num3</k><k class="k2v">Enter</k>
+            <k class="k2h">Num0</k><k>Num.</k>
+        </kb_num>
+    </keyboard>
+    <div class="btngrp" style="position: absolute;padding:10px;margin-top: 10px;left: calc(var(--kbw) - 3rem - 10px);">
+        <button class="btn" onclick="collapse()">◁</button>
+        <button class="btn" onclick="expand()">▷</button>
+    </div>
+</div>
+<div class="tabs">
+    <div>
+        <span id="tabbtn_list" class="btn tabbtn" onclick="show_list_tab()">键盘映射表</span>
+        <span id="tabbtn_json" class="btn tabbtn" onclick="show_json_tab()">JSON 数据</span>
+        <!-- <span class="btn" style="position: relative;top: -5px;" onclick="clear_()">清空</span>
+        <span class="btn" style="position: relative;top: -5px;" onclick="importas()">另存为</span> -->
+        <span style="float:right;font-size:0.9rem;"><b>【Usage】</b>
+            <kn>Enter</kn>，<kn>目标键</kn> 或 鼠标双击图中目标键，设置按键映射信息
+        </span>
+    </div>
+    <div style="overflow-y: hidden;border: 1px solid gray;">
+        <div id="tab_list">
+            <div style="padding-left: 10px;font-size: 0.9rem;background-color: lightgray;">
+                当前配置：
+                <button class="btn" style="margin: 2px;" onclick="clr()">清空</button>
+                <button class="btn" style="margin: 2px;" onclick="del()">删除</button>
+                <button class="btn" style="margin: 2px;" onclick="imp2()">另存为</button>
+            </div>
+            <div id="list"></div>
+        </div>
+        <div id="tab_json">
+            <div style="padding-left: 10px;font-size: 0.9rem;background-color: lightgray;">
+                JSON 数据随上图设置实时更新。也可在下方编辑 JSON 数据后：
+                <button class="btn" style="margin: 2px;" onclick="imp()">导入至当前配置</button>
+                <button class="btn" style="margin: 2px;" onclick="imp2()">导入至新配置</button>
+            </div>
+            <textarea id="json"></textarea>
+        </div>
+    </div>
+</div>
+<script>
+let keytable = {
+    "0": [48, ''], "1": [49, ''], "2": [50, ''], "3": [51, ''], "4": [52, ''], "5": [53, ''], "6": [54, ''], "7": [55, ''], "8": [56, ''], "9": [57, ''],
+    "A": [65, ''], "B": [66, ''], "C": [67, ''], "D": [68, ''], "E": [69, ''], "F": [70, ''], "G": [71, ''], "H": [72, ''], "I": [73, ''], "J": [74, ''],
+    "K": [75, ''], "L": [76, ''], "M": [77, ''], "N": [78, ''], "O": [79, ''], "P": [80, ''], "Q": [81, ''], "R": [82, ''], "S": [83, ''], "T": [84, ''],
+    "U": [85, ''], "V": [86, ''], "W": [87, ''], "X": [88, ''], "Y": [89, ''], "Z": [90, ''],
+    ";": [186, ''], "=": [187, ''], ",": [188, ''], "-": [189, ''], ".": [190, ''], "/": [191, ''], "`": [192, ''], "[": [219, ''], "\\": [220, ''], "]": [221, ''], "'": [222, ''],
+    "F1": [112, ''], "F2": [113, ''], "F3": [114, ''], "F4": [115, ''], "F5": [116, ''], "F6": [117, ''], "F7": [118, ''], "F8": [119, ''], "F9": [120, ''], "F10": [121, ''], "F11": [122, ''], "F12": [123, ''],
+    "Alt": [18, ''], "Backspace": [8, ''], "Caps": [20, ''], "Ctrl": [17, ''], "Delete": [46, 'Del'], "Down": [40, '⇩'], "End": [35, ''], "Enter": [13, ''], "Esc": [27, ''],
+    "Home": [36, ''], "Insert": [45, 'Ins'], "Left": [37, '⇦'], "Menu": [93, ''], "Pause": [19, ''], "PageDown": [34, 'Pg Dn'], "PageUp": [33, 'Pg Up'], "Right": [39, '⇨'],
+    "ScrollLock": [145, 'Scroll Lock'], "Shift": [16, ''], "Space": [32, ''], "Tab": [9, ''], "Up": [38, '⇧'], "Win": [91, ''],
+    "NumLock": [144, 'NmLk'], "Num-": [109, '-'], "Num*": [106, '*'], "Num.": [110, '.'], "Num/": [111, '/'], "Num+": [107, '+'],
+    "Num0": [96, '0'], "Num1": [97, '1'], "Num2": [98, '2'], "Num3": [99, '3'], "Num4": [100, '4'], "Num5": [101, '5'], "Num6": [102, '6'], "Num7": [103, '7'], "Num8": [104, '8'], "Num9": [105, '9']
+};
+let keymap = {};
+let elm_kb = document.getElementsByTagName("keyboard")[0];
+let elm_kb_main = document.getElementsByTagName("kb_main")[0];
+let elm_kb_dir = document.getElementsByTagName("kb_dir")[0];
+let elm_kb_num = document.getElementsByTagName("kb_num")[0];
+let eml_tabbtn_list = document.getElementById("tabbtn_list");
+let eml_tabbtn_json = document.getElementById("tabbtn_json");
+let elm_tab_list = document.getElementById("tab_list");
+let elm_list = document.getElementById("list");
+let elm_tab_json = document.getElementById("tab_json");
+let elm_json = document.getElementById("json");
+let elms_k = document.getElementsByTagName("k");
+let elm_profs = document.getElementById("profs");
+let elms_prof = document.getElementsByTagName("prof");
+let PROF_DEFAULT = "DEFAULT";
+let prof_cur = "";
+
+// core funcs
+function _setkey(kn, str) {
+    if (kn in keytable) {
+        let key = keytable[kn];
+        if (key[2]) {
+            if (str) {
+                keymap[kn] = str;
+                key[2].title = str;
+                key[2].classList.add("set");
+            } else {
+                delete keymap[kn];
+                key[2].title = "";
+                key[2].classList.remove("set");
+            }
+        }
+    }
+}
+function setkeyByName(kn) {
+    let s = prompt(`Description of <${kn}> :`, keymap[kn] || "");
+    if (s != null) {
+        _setkey(kn, s);
+        _exp();
+    }
+    elm_kb.blur();
+}
+function setkeyByCode(kc) {
+    let keyName = "";
+    for (const kn in keytable) {
+        if (keytable[kn][0] == kc) {
+            keyName = kn;
+            break;
+        }
+    }
+    if (keyName)
+        setkeyByName(keyName);
+}
+function _exp() {
+    let s = [], j = {};
+    for (const kn in keytable) {
+        j[kn] = keymap[kn] || "";
+        if (kn in keymap) {
+            s.push(`<kn>${kn}</kn><km>${keymap[kn]}</km>`);
+        }
+    }
+    elm_json.value = JSON.stringify(j, null, 2);
+    elm_list.innerHTML = s.join('\n');
+}
+function _imp() {
+    let temp = elm_json.value || "{}";
+    _clr();
+    keymap = JSON.parse(temp);
+    for (const kn in keymap) {
+        _setkey(kn, keymap[kn]);
+    }
+    _exp();
+    show_list_tab();
+}
+function _clr() {
+    keymap = {};
+    for (const elm_k of elms_k) {
+        elm_k.title = "";
+        elm_k.classList.remove("set");
+    }
+    elm_list.innerHTML = "";
+    elm_json.value = "{}";
+}
+
+function collapse() {
+    if (elm_kb_num.style.display != "none") {
+        elm_kb_num.style.display = "none";
+    } else if (elm_kb_dir.style.width != "none") {
+        elm_kb_dir.style.display = "none";
+    }
+}
+function expand() {
+    if (elm_kb_dir.style.display == "none") {
+        elm_kb_dir.style.display = "";
+    } else if (elm_kb_num.style.display == "none") {
+        elm_kb_num.style.display = "";
+    }
+}
+function show_list_tab() {
+    elm_tab_list.style.display = "";
+    elm_tab_json.style.display = "none";
+    eml_tabbtn_list.classList.add("cur");
+    eml_tabbtn_json.classList.remove("cur");
+}
+function show_json_tab() {
+    elm_tab_list.style.display = "none";
+    elm_tab_json.style.display = "";
+    eml_tabbtn_list.classList.remove("cur");
+    eml_tabbtn_json.classList.add("cur");
+}
+function setCSS(sel, prop, val) {
+    if (!sel || !prop || !val) return false;
+    for (const sheet of document.styleSheets) {
+        for (const rule of sheet.cssRules) {
+            if (rule.selectorText === sel) {
+                rule.style.setProperty(prop, val);
+                return true;
+            }
+        }
+    }
+    document.styleSheets[document.styleSheets.length - 1].insertRule(`${sel} {${prop}: ${val}}`);
+    return true;
+}
+
+function scroll_l() {
+    elm_profs.scrollBy({top: 0, left: -100, behavior: "smooth"});
+}
+function scroll_r() {
+    elm_profs.scrollBy({top: 0, left: 100, behavior: "smooth"});
+}
+
+function sel_cur_prof() {
+    Array.prototype.forEach.call(elm_profs.children, e => (e.dataset.profile == prof_cur) ? e.classList.add("cur") : e.classList.remove("cur"));
+}
+
+// interact event handlers
+async function clr() {
+    _clr();
+    await save_profile();
+}
+async function del() {
+    _clr();
+    await delete_profile();
+    await refresh_profs();
+    await load_profile();
+}
+// import json to current profile
+async function imp() {
+    _imp();
+    await save_profile();
+}
+// import json to new profile
+async function imp2() {
+    let np = prompt("请输入新配置名：");
+    if (np != null) {
+        prof_cur = np;
+        await imp();
+        await refresh_profs();
+        await load_profile();
+    }
+}
+// create an empty new profile
+async function new2() {
+    let np = prompt("请输入新配置名：");
+    if (np != null) {
+        _clr();
+        prof_cur = np;
+        await imp();
+        await refresh_profs();
+        await load_profile();
+    }
+}
+// set key by key-press
+window.onkeydown = async (evt) => {
+    if (document.activeElement != elm_kb) {
+        if (["INPUT", "TEXTAREA"].includes(document.activeElement.tagName))
+            return;
+        if (evt.keyCode == 13) {
+            elm_kb.focus();
+        }
+        return;
+    }
+    if (evt.repeat) return;
+    evt.preventDefault();
+    evt.stopPropagation();
+    setkeyByCode(evt.keyCode);
+    await save_profile();
+}
+// set key by mouse-double-click
+elm_kb.ondblclick = async (evt) => {
+    let elm = evt.target;
+    if (elm.tagName == "K" && "keyName" in elm) {
+        setkeyByName(elm.keyName);
+        await save_profile();
+    }
+};
+// switch profile
+elm_profs.onclick = async (evt) => {
+    if (evt.target.tagName != "PROF") return;
+    if (evt.target.dataset.profile) {
+        prof_cur = evt.target.dataset.profile;
+        await load_profile();
+        sel_cur_prof();
+    }
+};
+
+
+// IO layer: browser storage
+async function _read_prof_(prof) {
+    if (prof)
+        return localStorage.getItem(prof + ".keymap") || "";
+    else {
+        console.warn("Error! Empty profile name.");
+        return "";
+    }
+}
+async function _write_prof_(prof, data) {
+    localStorage.setItem(prof + ".keymap", data);
+}
+async function _del_prof_(prof){
+    if (prof)
+        localStorage.removeItem(prof + ".keymap");
+    else
+        console.warn("Error! Empty profile name.");
+}
+async function _get_prof_list_() {
+    let s = [];
+    for (const k in localStorage) {
+        if (k.endsWith(".keymap") && !s.includes(k.slice(0, -7))) {
+            s.push(k.slice(0, -7));
+        }
+    }
+    return s;
+}
+
+// IO funcs
+async function load_profile() {
+    elm_json.value = await _read_prof_(prof_cur);
+    _imp();
+}
+async function save_profile() {
+    await _write_prof_(prof_cur || PROF_DEFAULT, elm_json.value);
+    if (!prof_cur) {
+        prof_cur = PROF_DEFAULT;
+        await refresh_profs();
+        sel_cur_prof();
+    }
+}
+async function delete_profile() {
+    await _del_prof_(prof_cur);
+    prof_cur = "";
+}
+async function refresh_profs() {
+    elm_profs.innerHTML = "";
+    let profs = await _get_prof_list_();
+    if (profs.length > 0) {
+        profs.sort();
+        if (!profs.includes(prof_cur))
+            prof_cur = profs[0];
+        profs.forEach(p => {
+            let elm = document.createElement("prof");
+            elm.dataset.profile = p;
+            if (p == prof_cur) elm.classList.add("cur");
+            elm.innerText = p;
+            elm_profs.appendChild(elm);
+        });
+    }
+}
+
+// init
+setCSS(":root", "--kbw", window.getComputedStyle(elm_kb).width);
+for (const elm of elms_k) {
+    let keyName = elm.innerHTML;
+    if (elm.innerHTML in keytable) {
+        k = keytable[keyName];
+        elm.innerHTML = k[1] || keyName;
+        elm.keyName = keyName;
+        k.push(elm);
+    }
+}
+(async () => {
+    await refresh_profs();
+    await load_profile();
+})();
+
+// If run by webwin, enable local-file profiles.
+window.on_webwin_loaded = async () => {
+    // IO layer: webwin fs
+    window._get_prof_list_ = async () => {
+        try {
+            let s = [];
+            (await webwin.fs.ls(".", "*.keymap", "file")).forEach(p => {
+                if (!s.includes(p.name.slice(0, -7)))
+                    s.push(p.name.slice(0, -7));
+            });
+            return s;
+        } catch (e) {
+            console.log(e);
+            return [];
+        }
+    };
+    window._read_prof_ = async (prof) => {
+        try {
+            return await webwin.fs.readfile(prof + ".keymap");
+        } catch (e) {
+            console.log(e);
+            return "";
+        }
+    };
+    window._write_prof_ = async (prof, data) => {
+        try {
+            await webwin.fs.writefile(prof + ".keymap", data);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+    window._del_prof_ = async (prof) => {
+        try {
+            await webwin.fs.removefile(prof + ".keymap");
+        } catch (e) {
+            console.log(e);
+        }
+    }
+    await refresh_profs();
+    await load_profile();
+};
+</script>
+<script>
+    var __appname__ = "按键映射图";
+    var __version__ = "1.0.0-beta";
+    document.title = `${__appname__} v${__version__}`;
+</script>
+</body>
+
+</html>
