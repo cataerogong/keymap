@@ -1,2 +1,12 @@
-# keymap
-A very simple page to visualize keyboard shortcuts
+# 键谱 keymap
+
+一个录入、展示按键映射信息的单网页应用。
+
+## 特点
+
+* 信息录入方便
+* 图形化展示
+* 支持多个键盘映射配置
+* 数据存放在浏览器本地
+* 支持导入导出
+* 单网页，无需联网

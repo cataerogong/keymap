@@ -93,19 +93,23 @@ kb_num {
 }
 
 kr {
-    display: grid;
-    grid-auto-flow: column;
+    /* display: grid;
+    grid-auto-flow: column; */
+    display: flex;
+    justify-content: space-between;
     height: var(--kh);
     gap: 3px;
 }
 
 kr.Fn {
+    display: grid;
+    grid-auto-flow: column;
     grid-template-columns: min-content 1fr repeat(4, min-content) 1fr repeat(4, min-content) 1fr repeat(4, min-content);
 }
 
 k,
 kk {
-    /* font-size: 0.8rem; */
+    font-size: 0.9rem;
     font-weight: bold;
     box-sizing: border-box;
     display: inline-block;
@@ -123,6 +127,7 @@ k.set {
     cursor: help;
 }
 
+k.dis,
 kk {
     color: gray;
     background-color: darkgray;
@@ -142,7 +147,7 @@ kk {
 }
 
 .kspace {
-    width: calc(var(--kw) * 6 + 3px * 5);
+    flex: 1;
 }
 
 .k2v {
@@ -165,7 +170,8 @@ d {
     grid-column: span 3;
 }
 
-kn {
+kn,
+kl {
     font-weight: bold;
     border: 1px solid darkgray;
     border-radius: 5px;
@@ -260,17 +266,15 @@ km {
 </head>
 
 <body>
-<div style="display: flex;width: var(--kbw);padding: 10px;">
-    <span style="padding: 0px 5px;margin:5px;font-weight: bold;">映射配置：</span>
-    <button class="btn" style="margin-right: 5px;padding: 0px 5px;" onclick="new2()">+</button>
-    <button class="btn" style="margin-right: 5px;" onclick="scroll_l()">◀</button>
-    <div id="profs" class="profs" style="flex: 1;">
-    </div>
-    <button class="btn" style="margin-left: 5px;" onclick="scroll_r()">▶</button>
+<div style="width: var(--kbw);padding: 10px;">
+    <span style="margin-left: 5px;font-weight: bold;">键谱：</span>
+    <select id="profs" style="width: 20rem;"></select>
+    <button class="btn" style="margin-left: 5px;padding: 0px 5px;" onclick="new2()">新建</button>
+    <span style="float:right;"><b>【*】</b><kl>Enter</kl>，<kl>目标键</kl> 或 鼠标双击目标键，设置按键映射信息</span>
 </div>
 <div style="display: flex;">
-    <keyboard tabindex="1">
-        <kb_main>
+    <keyboard id="keyboard" tabindex="1">
+        <kb_main id="kb_main">
             <kr class="Fn">
                 <k>Esc</k><d> </d><k>F1</k><k>F2</k><k>F3</k><k>F4</k><d> </d><k>F5</k><k>F6</k><k>F7</k><k>F8</k><d> </d><k>F9</k><k>F10</k><k>F11</k><k>F12</k>
             </kr>
@@ -291,17 +295,17 @@ km {
                 <k class="k15">Ctrl</k><k class="k15">Win</k><k class="k15">Alt</k><k class="kspace">Space</k><k class="k15">Alt</k><k class="k15">Menu</k><k class="k15">Ctrl</k>
             </kr>
         </kb_main>
-        <kb_dir>
-            <kk>Print Scr</kk><k>ScrollLock</k><k>Pause</k>
+        <kb_dir id="kb_dir">
+            <kk>Print Scr</kk><k>ScrLck</k><k>Pause</k>
             <d class="d3"> </d>
-            <k>Insert</k><k>Home</k><k>PageUp</k>
-            <k>Delete</k><k>End</k><k>PageDown</k>
+            <k>Ins</k><k>Home</k><k>PgUp</k>
+            <k>Del</k><k>End</k><k>PgDn</k>
             <d class="d3"> </d>
             <d> </d><k>Up</k><d> </d>
             <k>Left</k><k>Down</k><k>Right</k>
         </kb_dir>
-        <kb_num>
-            <k>NumLock</k><k>Num/</k><k>Num*</k><k>Num-</k>
+        <kb_num id="kb_num">
+            <k>NumLck</k><k>Num/</k><k>Num*</k><k>Num-</k>
             <k>Num7</k><k>Num8</k><k>Num9</k><k class="k2v">Num+</k>
             <k>Num4</k><k>Num5</k><k>Num6</k>
             <k>Num1</k><k>Num2</k><k>Num3</k><k class="k2v">Enter</k>
@@ -315,18 +319,15 @@ km {
 </div>
 <div class="tabs">
     <div>
-        <span id="tabbtn_list" class="btn tabbtn" onclick="show_list_tab()">键盘映射表</span>
+        <span id="tabbtn_list" class="btn tabbtn" onclick="show_list_tab()">按键映射表</span>
         <span id="tabbtn_json" class="btn tabbtn" onclick="show_json_tab()">JSON 数据</span>
-        <!-- <span class="btn" style="position: relative;top: -5px;" onclick="clear_()">清空</span>
-        <span class="btn" style="position: relative;top: -5px;" onclick="importas()">另存为</span> -->
-        <span style="float:right;font-size:0.9rem;"><b>【Usage】</b>
-            <kn>Enter</kn>，<kn>目标键</kn> 或 鼠标双击图中目标键，设置按键映射信息
+        <span style="display: none;">
+            <label><input type="checkbox" id="combo" />支持组合键</label>
         </span>
     </div>
     <div style="overflow-y: hidden;border: 1px solid gray;">
         <div id="tab_list">
             <div style="padding-left: 10px;font-size: 0.9rem;background-color: lightgray;">
-                当前配置：
                 <button class="btn" style="margin: 2px;" onclick="clr()">清空</button>
                 <button class="btn" style="margin: 2px;" onclick="del()">删除</button>
                 <button class="btn" style="margin: 2px;" onclick="imp2()">另存为</button>
@@ -351,17 +352,20 @@ let keytable = {
     "U": [85, ''], "V": [86, ''], "W": [87, ''], "X": [88, ''], "Y": [89, ''], "Z": [90, ''],
     ";": [186, ''], "=": [187, ''], ",": [188, ''], "-": [189, ''], ".": [190, ''], "/": [191, ''], "`": [192, ''], "[": [219, ''], "\\": [220, ''], "]": [221, ''], "'": [222, ''],
     "F1": [112, ''], "F2": [113, ''], "F3": [114, ''], "F4": [115, ''], "F5": [116, ''], "F6": [117, ''], "F7": [118, ''], "F8": [119, ''], "F9": [120, ''], "F10": [121, ''], "F11": [122, ''], "F12": [123, ''],
-    "Alt": [18, ''], "Backspace": [8, ''], "Caps": [20, ''], "Ctrl": [17, ''], "Delete": [46, 'Del'], "Down": [40, '⇩'], "End": [35, ''], "Enter": [13, ''], "Esc": [27, ''],
-    "Home": [36, ''], "Insert": [45, 'Ins'], "Left": [37, '⇦'], "Menu": [93, ''], "Pause": [19, ''], "PageDown": [34, 'Pg Dn'], "PageUp": [33, 'Pg Up'], "Right": [39, '⇨'],
-    "ScrollLock": [145, 'Scroll Lock'], "Shift": [16, ''], "Space": [32, ''], "Tab": [9, ''], "Up": [38, '⇧'], "Win": [91, ''],
-    "NumLock": [144, 'NmLk'], "Num-": [109, '-'], "Num*": [106, '*'], "Num.": [110, '.'], "Num/": [111, '/'], "Num+": [107, '+'],
+    "Alt": [18, ''], "Backspace": [8, ''], "Caps": [20, ''], "Ctrl": [17, ''], "Del": [46, ''], "Down": [40, '⇩'], "End": [35, ''], "Enter": [13, ''], "Esc": [27, ''],
+    "Home": [36, ''], "Ins": [45, ''], "Left": [37, '⇦'], "Menu": [93, ''], "Pause": [19, ''], "PgDn": [34, ''], "PgUp": [33, ''], "Right": [39, '⇨'],
+    "ScrLck": [145, ''], "Shift": [16, ''], "Space": [32, ''], "Tab": [9, ''], "Up": [38, '⇧'], "Win": [91, ''],
+    "NumLck": [144, ''], "Num-": [109, '-'], "Num*": [106, '*'], "Num.": [110, '.'], "Num/": [111, '/'], "Num+": [107, '+'],
     "Num0": [96, '0'], "Num1": [97, '1'], "Num2": [98, '2'], "Num3": [99, '3'], "Num4": [100, '4'], "Num5": [101, '5'], "Num6": [102, '6'], "Num7": [103, '7'], "Num8": [104, '8'], "Num9": [105, '9']
 };
-let keymap = {};
-let elm_kb = document.getElementsByTagName("keyboard")[0];
-let elm_kb_main = document.getElementsByTagName("kb_main")[0];
-let elm_kb_dir = document.getElementsByTagName("kb_dir")[0];
-let elm_kb_num = document.getElementsByTagName("kb_num")[0];
+const COMBO_KEY = ["Alt", "Ctrl", "Shift", "Win"];
+const new_keymap_json = `{"combine_key": false, "map": {}}`;
+const new_keymap = () => {return JSON.parse(new_keymap_json)};
+let keymap = null;
+let elm_kb = document.getElementById("keyboard");
+let elm_kb_main = document.getElementById("kb_main");
+let elm_kb_dir = document.getElementById("kb_dir");
+let elm_kb_num = document.getElementById("kb_num");
 let eml_tabbtn_list = document.getElementById("tabbtn_list");
 let eml_tabbtn_json = document.getElementById("tabbtn_json");
 let elm_tab_list = document.getElementById("tab_list");
@@ -371,74 +375,75 @@ let elm_json = document.getElementById("json");
 let elms_k = document.getElementsByTagName("k");
 let elm_profs = document.getElementById("profs");
 let elms_prof = document.getElementsByTagName("prof");
-let PROF_DEFAULT = "DEFAULT";
+let elm_combo = document.getElementById("combo");
+const DEFAULT_PROF = "DEFAULT";
 let prof_cur = "";
 
 // core funcs
 function _setkey(kn, str) {
-    if (kn in keytable) {
-        let key = keytable[kn];
+    let s = kn.split("+");
+    if (s[0] in keytable) {
+        let key = keytable[s[0]];
         if (key[2]) {
             if (str) {
-                keymap[kn] = str;
-                key[2].title = str;
+                keymap.map[kn] = str;
+                key[2].title = `<${kn}>: ${str}`;
                 key[2].classList.add("set");
             } else {
-                delete keymap[kn];
+                delete keymap.map[kn];
                 key[2].title = "";
                 key[2].classList.remove("set");
             }
         }
     }
 }
-function setkeyByName(kn) {
-    let s = prompt(`Description of <${kn}> :`, keymap[kn] || "");
+function setkey_by_name(kn) {
+    let s = prompt(`按键 <${kn}> 映射信息：`, keymap.map[kn] || "");
     if (s != null) {
         _setkey(kn, s);
-        _exp();
+        _upd_UI();
     }
     elm_kb.blur();
 }
-function setkeyByCode(kc) {
-    let keyName = "";
+function get_keyName(kc) {
     for (const kn in keytable) {
         if (keytable[kn][0] == kc) {
-            keyName = kn;
-            break;
+            return kn;
         }
     }
-    if (keyName)
-        setkeyByName(keyName);
+    return "";
 }
-function _exp() {
-    let s = [], j = {};
+function _upd_UI() {
+    let s = [], j = new_keymap();
+    j["combine-key"] = keymap["combine-key"];
     for (const kn in keytable) {
-        j[kn] = keymap[kn] || "";
-        if (kn in keymap) {
-            s.push(`<kn>${kn}</kn><km>${keymap[kn]}</km>`);
+        if (kn in keymap.map && keymap.map[kn]) {
+            j.map[kn] = keymap.map[kn];
+            s.push(`<kn data-keyname="${kn}">${kn}</kn><km data-keyname="${kn}">${keymap.map[kn]}</km>`);
         }
     }
     elm_json.value = JSON.stringify(j, null, 2);
     elm_list.innerHTML = s.join('\n');
+    elm_combo.checked = keymap["combine-key"];
+    update_elm_kb();
 }
 function _imp() {
-    let temp = elm_json.value || "{}";
+    let temp = elm_json.value || new_keymap_json;
     _clr();
     keymap = JSON.parse(temp);
-    for (const kn in keymap) {
-        _setkey(kn, keymap[kn]);
+    for (const kn in keymap.map) {
+        _setkey(kn, keymap.map[kn]);
     }
-    _exp();
+    _upd_UI();
     show_list_tab();
 }
 function _clr() {
-    keymap = {};
+    keymap = new_keymap();
     for (const elm_k of elms_k) {
         elm_k.title = "";
         elm_k.classList.remove("set");
     }
-    elm_list.innerHTML = "";
-    elm_json.value = "{}";
+    _upd_UI();
 }
 
 function collapse() {
@@ -480,16 +485,16 @@ function setCSS(sel, prop, val) {
     document.styleSheets[document.styleSheets.length - 1].insertRule(`${sel} {${prop}: ${val}}`);
     return true;
 }
-
-function scroll_l() {
-    elm_profs.scrollBy({top: 0, left: -100, behavior: "smooth"});
-}
-function scroll_r() {
-    elm_profs.scrollBy({top: 0, left: 100, behavior: "smooth"});
-}
-
-function sel_cur_prof() {
-    Array.prototype.forEach.call(elm_profs.children, e => (e.dataset.profile == prof_cur) ? e.classList.add("cur") : e.classList.remove("cur"));
+function update_elm_kb() {
+    return;
+    for (const elm of elms_k) {
+        if (COMBO_KEY.includes(elm.keyName))
+            if (elm_combo.checked) {
+                elm.classList.add("dis");
+            } else {
+                elm.classList.remove("dis");
+            }
+    }
 }
 
 // interact event handlers
@@ -542,27 +547,31 @@ window.onkeydown = async (evt) => {
     if (evt.repeat) return;
     evt.preventDefault();
     evt.stopPropagation();
-    setkeyByCode(evt.keyCode);
-    await save_profile();
+    let kn = get_keyName(evt.keyCode);
+    if (kn) {
+        if (elm_combo.checked && COMBO_KEY.includes(kn)) return;
+        setkey_by_name(kn);
+        await save_profile();
+    }
 }
 // set key by mouse-double-click
 elm_kb.ondblclick = async (evt) => {
     let elm = evt.target;
-    if (elm.tagName == "K" && "keyName" in elm) {
-        setkeyByName(elm.keyName);
+    if (elm.tagName == "K" && "keyName" in elm && !elm.classList.contains("dis")) {
+        setkey_by_name(elm.keyName);
         await save_profile();
     }
 };
 // switch profile
-elm_profs.onclick = async (evt) => {
-    if (evt.target.tagName != "PROF") return;
-    if (evt.target.dataset.profile) {
-        prof_cur = evt.target.dataset.profile;
-        await load_profile();
-        sel_cur_prof();
-    }
-};
-
+elm_profs.onchange = async (evt) => {
+    prof_cur = elm_profs.value;
+    await load_profile();
+}
+elm_combo.onchange = async (evt) => {
+    keymap["combine-key"] = elm_combo.checked;
+    _upd_UI();
+    await save_profile();
+}
 
 // IO layer: browser storage
 async function _read_prof_(prof) {
@@ -598,11 +607,10 @@ async function load_profile() {
     _imp();
 }
 async function save_profile() {
-    await _write_prof_(prof_cur || PROF_DEFAULT, elm_json.value);
+    await _write_prof_(prof_cur || DEFAULT_PROF, elm_json.value);
     if (!prof_cur) {
-        prof_cur = PROF_DEFAULT;
+        prof_cur = DEFAULT_PROF;
         await refresh_profs();
-        sel_cur_prof();
     }
 }
 async function delete_profile() {
@@ -617,23 +625,51 @@ async function refresh_profs() {
         if (!profs.includes(prof_cur))
             prof_cur = profs[0];
         profs.forEach(p => {
-            let elm = document.createElement("prof");
-            elm.dataset.profile = p;
-            if (p == prof_cur) elm.classList.add("cur");
+            // let elm = document.createElement("prof");
+            // elm.dataset.profile = p;
+            // if (p == prof_cur) elm.classList.add("cur");
+            // elm.innerText = p;
+            let elm = document.createElement("option");
+            elm.value = p;
             elm.innerText = p;
+            if (p == prof_cur) elm.selected = true;
             elm_profs.appendChild(elm);
         });
     }
 }
 
+function show_onekey_info(evt) {
+    if (evt.target.classList.contains("set")) {
+        for (const elm of document.getElementsByTagName("kn")) {
+            elm.style.display = elm.dataset.keyname == evt.target.keyName ? "" : "none";
+        }
+        for (const elm of document.getElementsByTagName("km")) {
+            elm.style.display = elm.dataset.keyname == evt.target.keyName ? "" : "none";
+        }
+    }
+}
+function show_allkey_info(evt) {
+    if (evt.target.classList.contains("set")) {
+        for (const elm of document.getElementsByTagName("kn")) {
+            elm.style.display = "";
+        }
+        for (const elm of document.getElementsByTagName("km")) {
+            elm.style.display = "";
+        }
+    }
+}
+
 // init
 setCSS(":root", "--kbw", window.getComputedStyle(elm_kb).width);
+// prepare keyboard
 for (const elm of elms_k) {
     let keyName = elm.innerHTML;
     if (elm.innerHTML in keytable) {
         k = keytable[keyName];
-        elm.innerHTML = k[1] || keyName;
+        elm.innerHTML = k[1] ? `${k[1]}<div style="color:gray;">${keyName}</div>` : keyName;
         elm.keyName = keyName;
+        elm.onmouseenter = show_onekey_info;
+        elm.onmouseleave = show_allkey_info;
         k.push(elm);
     }
 }
@@ -682,11 +718,12 @@ window.on_webwin_loaded = async () => {
     }
     await refresh_profs();
     await load_profile();
+    document.title = `${__appname__} (webwin ver) v${__version__}`;
 };
 </script>
 <script>
-    var __appname__ = "按键映射图";
-    var __version__ = "1.0.0-beta";
+    var __appname__ = "键谱";
+    var __version__ = "1.0.0-beta-2";
     document.title = `${__appname__} v${__version__}`;
 </script>
 </body>
