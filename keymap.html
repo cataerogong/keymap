@@ -2,7 +2,7 @@
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>按键映射图</title>
+<title></title>
 <style>
 :root {
     font-size: 0.8rem;
@@ -14,40 +14,30 @@ body {
     font-family: Consolas, sans-serif;
     font-size: 1.1rem;
     margin: 0px;
+    padding: 0px 10px;
     height: 100%;
     background-color: whitesmoke;
     overflow-y: hidden;
     display: flex;
     flex-flow: column;
-    /* display: grid;
-    grid-template-rows: max-content;
-    grid-auto-flow: row; */
     width: max-content;
+    gap: 10px;
 }
 
-.profs {
-    display: flex;
-    gap: 5px;
-    align-content: flex-start;
-    /* border: 1px solid red; */
-    overflow-x: hidden;
-    box-sizing: border-box;
-    width: 100%;
-    height: fit-content;
-}
-
-prof {
-    display: inline-block;
+textarea {
+    resize: none;
+    font-size: 0.9rem;
+    font-family: Consolas, sans-serif;
     border: 1px solid gray;
-    /* border-radius: 5px; */
-    white-space: nowrap;
-    padding: 5px;
-    cursor: pointer;
+    outline: 0px;
 }
 
-.cur, prof:hover {
-    border-color: lightseagreen;
-    background-color: lightblue;
+textarea:focus {
+    background-color: cornsilk;
+}
+
+input[type="checkbox"] {
+    vertical-align: bottom;
 }
 
 keyboard {
@@ -55,18 +45,30 @@ keyboard {
     display: grid;
     grid-template-columns: max-content;
     grid-auto-flow: column;
-    border: 1px solid black;
+    border: 2px solid gray;
     border-radius: 10px;
-    margin: 10px;
+    outline: 3px solid lightgray;
     padding: 10px;
     gap: 10px;
     width: fit-content;
     height: fit-content;
+    overflow: hidden;
 }
 
 keyboard:focus {
+    border-color: goldenrod;
     outline: 3px solid gold;
+    /* border-color: lightseagreen;
+    outline: 3px solid lightblue; */
     background-color: cornsilk;
+}
+
+keyboard.shrink {
+    height: 44px;
+}
+
+keyboard.shrink :is(kb_main, kb_dir, kb_num) {
+    visibility: hidden;
 }
 
 kb_main,
@@ -75,8 +77,7 @@ kb_num {
     display: grid;
     gap: 3px;
     width: 100%;
-    overflow-x: hidden;
-    transition: all 1s;
+    overflow: hidden;
 }
 
 kb_main {
@@ -127,7 +128,6 @@ k.set {
     cursor: help;
 }
 
-k.dis,
 kk {
     color: gray;
     background-color: darkgray;
@@ -170,8 +170,7 @@ d {
     grid-column: span 3;
 }
 
-kn,
-kl {
+kn {
     font-weight: bold;
     border: 1px solid darkgray;
     border-radius: 5px;
@@ -198,26 +197,33 @@ km {
 }
 
 .btn {
-    padding: 3px;
+    padding: 3px 6px;
     border: 1px solid lightseagreen;
-    /* border-radius: 5px; */
     cursor: pointer;
 }
 
-.btn:hover {
-    border-color: lightseagreen;
-    background-color: lightblue;
+.smbtn {
+    box-sizing: border-box;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 12px;
+    text-align: center;
+    padding: 0px;
+    width: 24px;
+    height: 24px;
+    outline: 1px solid lightseagreen;
+    border: 0px;
+    cursor: pointer;
 }
 
 .tabs {
-    padding: 10px;
     box-sizing: border-box;
     overflow-y: hidden;
     display: grid;
     grid-template-rows: max-content 1fr;
     grid-auto-flow: rows;
     height: 100%;
-    width: calc(var(--kbw) + 20px);
+    width: var(--kbw);
 }
 
 .tabbtn {
@@ -227,17 +233,31 @@ km {
     border-radius: 5px 5px 0 0;
     padding: 5px 10px 0px;
     cursor: pointer;
-    transform: translateY(30) translateX(-60);
+}
+
+.btn:hover,
+.smbtn:hover,
+.tabbtn:hover,
+.tabbtn.sel {
+    border-color: lightseagreen;
+    background-color: lightblue;
+}
+
+#tab_list {
+    display: grid;
+    grid-template-rows: max-content 1fr;
+    grid-auto-flow: row;
+    height: 100%;
+    overflow-y: hidden;
 }
 
 #list {
     display: grid;
-    grid-template-columns: repeat(2, max-content calc(var(--kbw) / 2 - 10rem));
+    grid-template-columns: repeat(2, max-content 1fr);
     gap: 3px;
     align-content: flex-start;
     padding: 10px;
     box-sizing: border-box;
-    height: 100%;
     overflow-y: auto;
 }
 
@@ -250,27 +270,49 @@ km {
 }
 
 #json {
-    font-size: 0.9rem;
-    font-family: Consolas, sans-serif;
     border: 0px;
     width: 100%;
     height: 100%;
-    resize: none;
 }
 
-#json:focus {
-    outline: 0px;
-    background-color: cornsilk;
+dialog {
+    display: flex;
+    flex-flow: column;
+    align-content: flex-start;
+    gap: 1rem;
+    border: 2px solid lightseagreen;
+    outline: 3px solid lightblue;
+}
+
+.kidlg {
+    width: 40rem;
+    height: 20rem;
+    top: -35rem;
+    left: -30rem;
+}
+
+.name_dlg {
+    top: -35rem;
+    left: -30rem;
+}
+
+.about {
+    font-size: 0.9rem;
+    height: fit-content;
+    width: var(--kbw);
+    color: gray;
+    padding-bottom: 2px;
+    text-align: center;
 }
 </style>
 </head>
 
 <body>
-<div style="width: var(--kbw);padding: 10px;">
+<div style="width: var(--kbw); padding: 10px 0px;">
     <span style="margin-left: 5px;font-weight: bold;">键谱：</span>
     <select id="profs" style="width: 20rem;"></select>
     <button class="btn" style="margin-left: 5px;padding: 0px 5px;" onclick="new2()">新建</button>
-    <span style="float:right;"><b>【*】</b><kl>Enter</kl>，<kl>目标键</kl> 或 鼠标双击目标键，设置按键映射信息</span>
+    <span style="float:right;"><b>【*】</b><kn>Enter</kn>，<kn>目标键</kn> 或 鼠标双击目标键，设置按键映射信息</span>
 </div>
 <div style="display: flex;">
     <keyboard id="keyboard" tabindex="1">
@@ -312,18 +354,16 @@ km {
             <k class="k2h">Num0</k><k>Num.</k>
         </kb_num>
     </keyboard>
-    <div class="btngrp" style="position: absolute;padding:10px;margin-top: 10px;left: calc(var(--kbw) - 3rem - 10px);">
-        <button class="btn" onclick="collapse()">◁</button>
-        <button class="btn" onclick="expand()">▷</button>
+    <div class="btngrp" style="position: absolute;padding:10px;margin-top: 10px;left: calc(var(--kbw) - 24px * 3 - 10px);">
+        <button class="smbtn" onclick="shorten()" title="收缩">◁</button>
+        <button class="smbtn" onclick="expand()" title="扩展">▷</button>
+        <button class="smbtn" onclick="tgl_shrink()" title="隐藏/显示">⇵</button>
     </div>
 </div>
 <div class="tabs">
     <div>
-        <span id="tabbtn_list" class="btn tabbtn" onclick="show_list_tab()">按键映射表</span>
-        <span id="tabbtn_json" class="btn tabbtn" onclick="show_json_tab()">JSON 数据</span>
-        <span style="display: none;">
-            <label><input type="checkbox" id="combo" />支持组合键</label>
-        </span>
+        <span id="tabbtn_list" class="tabbtn" onclick="show_list_tab()">按键映射表</span>
+        <span id="tabbtn_json" class="tabbtn" onclick="show_json_tab()">JSON 数据</span>
     </div>
     <div style="overflow-y: hidden;border: 1px solid gray;">
         <div id="tab_list">
@@ -337,13 +377,14 @@ km {
         <div id="tab_json">
             <div style="padding-left: 10px;font-size: 0.9rem;background-color: lightgray;">
                 JSON 数据随上图设置实时更新。也可在下方编辑 JSON 数据后：
-                <button class="btn" style="margin: 2px;" onclick="imp()">导入至当前配置</button>
-                <button class="btn" style="margin: 2px;" onclick="imp2()">导入至新配置</button>
+                <button class="btn" style="margin: 2px;" onclick="imp()">导入至当前键谱</button>
+                <button class="btn" style="margin: 2px;" onclick="imp2()">导入至新键谱</button>
             </div>
             <textarea id="json"></textarea>
         </div>
     </div>
 </div>
+<div class="about"></div>
 <script>
 let keytable = {
     "0": [48, ''], "1": [49, ''], "2": [50, ''], "3": [51, ''], "4": [52, ''], "5": [53, ''], "6": [54, ''], "7": [55, ''], "8": [56, ''], "9": [57, ''],
@@ -359,9 +400,7 @@ let keytable = {
     "Num0": [96, '0'], "Num1": [97, '1'], "Num2": [98, '2'], "Num3": [99, '3'], "Num4": [100, '4'], "Num5": [101, '5'], "Num6": [102, '6'], "Num7": [103, '7'], "Num8": [104, '8'], "Num9": [105, '9']
 };
 const COMBO_KEY = ["Alt", "Ctrl", "Shift", "Win"];
-const new_keymap_json = `{"combine_key": false, "map": {}}`;
-const new_keymap = () => {return JSON.parse(new_keymap_json)};
-let keymap = null;
+let keymap = {};
 let elm_kb = document.getElementById("keyboard");
 let elm_kb_main = document.getElementById("kb_main");
 let elm_kb_dir = document.getElementById("kb_dir");
@@ -375,32 +414,108 @@ let elm_json = document.getElementById("json");
 let elms_k = document.getElementsByTagName("k");
 let elm_profs = document.getElementById("profs");
 let elms_prof = document.getElementsByTagName("prof");
-let elm_combo = document.getElementById("combo");
 const DEFAULT_PROF = "DEFAULT";
 let prof_cur = "";
 
 // core funcs
+function get_mainkey_name(combo_str) {
+    let l = combo_str.split("+");
+    return l[l.length - 1];
+}
+
+function get_key(kn) {
+    return (kn in keymap) ? keymap[kn] : null;
+}
+
+function get_key_all(mk) {
+    let ret = {};
+    for (const kn in keymap) {
+        if (get_mainkey_name(kn) == mk) {
+            ret[kn] = keymap[kn];
+        }
+    }
+    return ret;
+}
 function _setkey(kn, str) {
-    let s = kn.split("+");
-    if (s[0] in keytable) {
-        let key = keytable[s[0]];
+    let mk = get_mainkey_name(kn);
+    if (mk in keytable) {
+        let key = keytable[mk];
         if (key[2]) {
             if (str) {
-                keymap.map[kn] = str;
-                key[2].title = `<${kn}>: ${str}`;
-                key[2].classList.add("set");
+                keymap[kn] = str;
             } else {
-                delete keymap.map[kn];
-                key[2].title = "";
-                key[2].classList.remove("set");
+                delete keymap[kn];
             }
+            let ks = get_key_all(mk);
+            key[2].title = "";
+            for (const k in ks) {
+                key[2].title += `${k}: ${ks[k]}\n`;
+            }
+            key[2].title = key[2].title.trim();
+            if (key[2].title)
+                key[2].classList.add("set");
+            else
+                key[2].classList.remove("set");
         }
     }
 }
-function setkey_by_name(kn) {
-    let s = prompt(`按键 <${kn}> 映射信息：`, keymap.map[kn] || "");
+
+let COMBO_CHK_LIST = "";
+for (const c of COMBO_KEY) COMBO_CHK_LIST += `<label><kn><input type="checkbox" value="${c}">${c}</kn></label>`;
+async function setkey_dlg(kn) {
+    return new Promise((resolver) => {
+        let html = `<dialog class="kidlg">
+            <div style="flex: 1;display: flex;gap: 5px;">
+                <div style="display: flex;flex-flow:column;gap: 10px;">
+                    <kn>${kn}</kn>${COMBO_KEY.includes(kn) ? "" : COMBO_CHK_LIST}
+                </div>
+                <textarea id="key_info" style="flex: 1;" autofocus>${keymap[kn] || ""}</textarea>
+            </div>
+                <div style="text-align: right;">
+                <button class="btn btnok">确定</button>
+                <button class="btn btncancel">取消</button>
+                </div>
+            </dialog>`;
+        let tmp = document.createElement("div");
+        tmp.innerHTML = html;
+        let dlg = tmp.children[0];
+        dlg.querySelectorAll('input[type="checkbox"]').forEach(elm => {
+            elm.onclick = (evt) => {
+                let ks = "";
+                for (const elm of dlg.querySelectorAll('input[type="checkbox"]:checked')) {
+                    ks += elm.value + "+";
+                }
+                ks += kn;
+                let inf = get_key(ks);
+                dlg.querySelector("#key_info").value = inf || "";
+            }
+        });
+        dlg.querySelector(".btnok").onclick = (evt) => {
+            let ks = "";
+            for (const elm of dlg.querySelectorAll('input[type="checkbox"]:checked')) {
+                ks += elm.value + "+";
+            }
+            ks += kn;
+            let inf = dlg.querySelector("#key_info").value;
+            dlg.remove();
+            resolver([ks, inf]);
+        };
+        dlg.querySelector(".btncancel").onclick = (evt) => {
+            dlg.remove();
+            resolver();
+        };
+        dlg.onclose = (evt) => {
+            dlg.remove();
+            resolver();
+        }
+        document.body.appendChild(dlg);
+        dlg.showModal();
+    });
+}
+async function setkey_by_name(kn) {
+    let s = await setkey_dlg(kn);
     if (s != null) {
-        _setkey(kn, s);
+        _setkey(...s);
         _upd_UI();
     }
     elm_kb.blur();
@@ -414,31 +529,44 @@ function get_keyName(kc) {
     return "";
 }
 function _upd_UI() {
-    let s = [], j = new_keymap();
-    j["combine-key"] = keymap["combine-key"];
+    let s = [];
+    let j = {};
     for (const kn in keytable) {
-        if (kn in keymap.map && keymap.map[kn]) {
-            j.map[kn] = keymap.map[kn];
-            s.push(`<kn data-keyname="${kn}">${kn}</kn><km data-keyname="${kn}">${keymap.map[kn]}</km>`);
+        let l = get_key_all(kn);
+        for (const n in l) {
+            j[n] = l[n];
+            s.push(`<kn data-mainkey="${kn}" class="kinfo">${n}</kn><km data-mainkey="${kn}" class="kinfo">${l[n]}</km>`);
         }
     }
     elm_json.value = JSON.stringify(j, null, 2);
     elm_list.innerHTML = s.join('\n');
-    elm_combo.checked = keymap["combine-key"];
-    update_elm_kb();
 }
 function _imp() {
-    let temp = elm_json.value || new_keymap_json;
-    _clr();
-    keymap = JSON.parse(temp);
-    for (const kn in keymap.map) {
-        _setkey(kn, keymap.map[kn]);
+    let temp = null;
+    try {
+        if (!elm_json.value.startsWith("{")) {
+            elm_json.value = `{${elm_json.value}}`;
+        }
+        temp = JSON.parse(elm_json.value || "{}");
+    } catch (e) {
+        console.log(e);
+        alert("导入 JSON 数据出错\n" + e);
+        return false;
     }
-    _upd_UI();
-    show_list_tab();
+    if (temp) {
+        _clr();
+        keymap = temp;
+        for (const kn in keymap) {
+            _setkey(kn, keymap[kn]);
+        }
+        _upd_UI();
+        show_list_tab();
+        return true;
+    }
+    return false;
 }
 function _clr() {
-    keymap = new_keymap();
+    keymap = {};
     for (const elm_k of elms_k) {
         elm_k.title = "";
         elm_k.classList.remove("set");
@@ -446,7 +574,7 @@ function _clr() {
     _upd_UI();
 }
 
-function collapse() {
+function shorten() {
     if (elm_kb_num.style.display != "none") {
         elm_kb_num.style.display = "none";
     } else if (elm_kb_dir.style.width != "none") {
@@ -460,17 +588,20 @@ function expand() {
         elm_kb_num.style.display = "";
     }
 }
+function tgl_shrink() {
+    elm_kb.classList.toggle("shrink");
+}
 function show_list_tab() {
     elm_tab_list.style.display = "";
     elm_tab_json.style.display = "none";
-    eml_tabbtn_list.classList.add("cur");
-    eml_tabbtn_json.classList.remove("cur");
+    eml_tabbtn_list.classList.add("sel");
+    eml_tabbtn_json.classList.remove("sel");
 }
 function show_json_tab() {
     elm_tab_list.style.display = "none";
     elm_tab_json.style.display = "";
-    eml_tabbtn_list.classList.remove("cur");
-    eml_tabbtn_json.classList.add("cur");
+    eml_tabbtn_list.classList.remove("sel");
+    eml_tabbtn_json.classList.add("sel");
 }
 function setCSS(sel, prop, val) {
     if (!sel || !prop || !val) return false;
@@ -484,17 +615,6 @@ function setCSS(sel, prop, val) {
     }
     document.styleSheets[document.styleSheets.length - 1].insertRule(`${sel} {${prop}: ${val}}`);
     return true;
-}
-function update_elm_kb() {
-    return;
-    for (const elm of elms_k) {
-        if (COMBO_KEY.includes(elm.keyName))
-            if (elm_combo.checked) {
-                elm.classList.add("dis");
-            } else {
-                elm.classList.remove("dis");
-            }
-    }
 }
 
 // interact event handlers
@@ -510,12 +630,51 @@ async function del() {
 }
 // import json to current profile
 async function imp() {
-    _imp();
-    await save_profile();
+    if (_imp())
+        await save_profile();
 }
+
+async function get_name_dlg() {
+    return new Promise((resolver) => {
+        let html = `<dialog class="name_dlg">
+            <div style="font-weight: bold">请输入键谱名：</div>
+            <div><input id="name" size="50" autofocus /></div>
+            <div style="text-align: right;">
+                <button class="btn btnok">确定</button>
+                <button class="btn btncancel">取消</button>
+            </div>
+            </dialog>`;
+        let tmp = document.createElement("div");
+        tmp.innerHTML = html;
+        let dlg = tmp.children[0];
+        dlg.querySelector(".btnok").onclick = (evt) => {
+            let elm_name = dlg.querySelector("#name");
+            let name = elm_name.value;
+            if (!name) {
+                alert("不能为空！");
+                elm_name.focus();
+                return;
+            }
+            dlg.remove();
+            resolver(name);
+        };
+        dlg.querySelector(".btncancel").onclick = (evt) => {
+            dlg.remove();
+            resolver();
+        };
+        dlg.onclose = (evt) => {
+            dlg.remove();
+            resolver();
+        }
+        document.body.appendChild(dlg);
+        dlg.showModal();
+    });
+}
+
 // import json to new profile
 async function imp2() {
-    let np = prompt("请输入新配置名：");
+    // let np = prompt("请输入新键谱名：");
+    let np = await get_name_dlg();
     if (np != null) {
         prof_cur = np;
         await imp();
@@ -525,7 +684,8 @@ async function imp2() {
 }
 // create an empty new profile
 async function new2() {
-    let np = prompt("请输入新配置名：");
+    // let np = prompt("请输入新键谱名：");
+    let np = await get_name_dlg();
     if (np != null) {
         _clr();
         prof_cur = np;
@@ -549,8 +709,7 @@ window.onkeydown = async (evt) => {
     evt.stopPropagation();
     let kn = get_keyName(evt.keyCode);
     if (kn) {
-        if (elm_combo.checked && COMBO_KEY.includes(kn)) return;
-        setkey_by_name(kn);
+        await setkey_by_name(kn);
         await save_profile();
     }
 }
@@ -558,7 +717,7 @@ window.onkeydown = async (evt) => {
 elm_kb.ondblclick = async (evt) => {
     let elm = evt.target;
     if (elm.tagName == "K" && "keyName" in elm && !elm.classList.contains("dis")) {
-        setkey_by_name(elm.keyName);
+        await setkey_by_name(elm.keyName);
         await save_profile();
     }
 };
@@ -566,11 +725,6 @@ elm_kb.ondblclick = async (evt) => {
 elm_profs.onchange = async (evt) => {
     prof_cur = elm_profs.value;
     await load_profile();
-}
-elm_combo.onchange = async (evt) => {
-    keymap["combine-key"] = elm_combo.checked;
-    _upd_UI();
-    await save_profile();
 }
 
 // IO layer: browser storage
@@ -625,10 +779,6 @@ async function refresh_profs() {
         if (!profs.includes(prof_cur))
             prof_cur = profs[0];
         profs.forEach(p => {
-            // let elm = document.createElement("prof");
-            // elm.dataset.profile = p;
-            // if (p == prof_cur) elm.classList.add("cur");
-            // elm.innerText = p;
             let elm = document.createElement("option");
             elm.value = p;
             elm.innerText = p;
@@ -638,24 +788,14 @@ async function refresh_profs() {
     }
 }
 
-function show_onekey_info(evt) {
-    if (evt.target.classList.contains("set")) {
-        for (const elm of document.getElementsByTagName("kn")) {
-            elm.style.display = elm.dataset.keyname == evt.target.keyName ? "" : "none";
-        }
-        for (const elm of document.getElementsByTagName("km")) {
-            elm.style.display = elm.dataset.keyname == evt.target.keyName ? "" : "none";
-        }
+function show_onekey_info(kn) {
+    for (const elm of elm_list.querySelectorAll(".kinfo")) {
+        elm.style.display = elm.dataset.mainkey == kn ? "" : "none";
     }
 }
-function show_allkey_info(evt) {
-    if (evt.target.classList.contains("set")) {
-        for (const elm of document.getElementsByTagName("kn")) {
-            elm.style.display = "";
-        }
-        for (const elm of document.getElementsByTagName("km")) {
-            elm.style.display = "";
-        }
+function show_allkey_info() {
+    for (const elm of elm_list.querySelectorAll(".kinfo")) {
+        elm.style.display = "";
     }
 }
 
@@ -668,8 +808,8 @@ for (const elm of elms_k) {
         k = keytable[keyName];
         elm.innerHTML = k[1] ? `${k[1]}<div style="color:gray;">${keyName}</div>` : keyName;
         elm.keyName = keyName;
-        elm.onmouseenter = show_onekey_info;
-        elm.onmouseleave = show_allkey_info;
+        elm.onmouseenter = (evt) => { if (elm.classList.contains("set")) show_onekey_info(keyName); };
+        elm.onmouseleave = (evt) => { if (evt.target.classList.contains("set")) show_allkey_info() };
         k.push(elm);
     }
 }
@@ -718,13 +858,15 @@ window.on_webwin_loaded = async () => {
     }
     await refresh_profs();
     await load_profile();
-    document.title = `${__appname__} (webwin ver) v${__version__}`;
+    document.title = `${__appname__} (webwin ver)`;
 };
 </script>
 <script>
     var __appname__ = "键谱";
-    var __version__ = "1.0.0-beta-2";
-    document.title = `${__appname__} v${__version__}`;
+    var __version__ = "1.0.0";
+    var __homepage__ = "https://github.com/cataerogong/keymap";
+    document.title = `${__appname__}`;
+    document.querySelector(".about").innerHTML = `${__appname__} v${__version__} Copyright &COPY; 2023 CataeroGong [<a href="${__homepage__}">Project Home</a>]`;
 </script>
 </body>
 
