@@ -5,15 +5,18 @@
 <title></title>
 <style>
 :root {
-    font-size: 0.8rem;
-    --kw: 4rem;
-    --kh: 4rem;
+    --ks: 0.8rem; /* key font size */
+    --kw: 3rem; /* key width */
+    --kh: 2.5rem; /* key height */
+    --col: 3; /* mapping-list columns */
+    --c0: black; /* highlight color */
+    --c1: lightblue; /* highlight bg color */
+    --c2: lightseagreen; /* border color */
 }
 
 body {
     font-family: Consolas, sans-serif;
-    font-size: 1.1rem;
-    margin: 0px;
+    margin: 0px auto;
     padding: 0px 10px;
     height: 100%;
     background-color: whitesmoke;
@@ -58,17 +61,12 @@ keyboard {
 keyboard:focus {
     border-color: goldenrod;
     outline: 3px solid gold;
-    /* border-color: lightseagreen;
-    outline: 3px solid lightblue; */
     background-color: cornsilk;
 }
 
-keyboard.shrink {
-    height: 44px;
-}
-
-keyboard.shrink :is(kb_main, kb_dir, kb_num) {
-    visibility: hidden;
+keyboard.hide {
+    padding: 0px 10px;
+    height: 0px;
 }
 
 kb_main,
@@ -110,7 +108,7 @@ kr.Fn {
 
 k,
 kk {
-    font-size: 0.9rem;
+    font-size: var(--ks);
     font-weight: bold;
     box-sizing: border-box;
     display: inline-block;
@@ -123,8 +121,9 @@ kk {
 }
 
 k.set {
-    background-color: lightblue;
-    border-color: lightseagreen;
+    color: var(--c0);
+    background-color: var(--c1);
+    border-color: var(--c2);
     cursor: help;
 }
 
@@ -171,15 +170,18 @@ d {
 }
 
 kn {
+    display: inline-block;
     font-weight: bold;
-    border: 1px solid darkgray;
+    color: var(--c0);
+    background-color: var(--c1);
+    border: 1px solid var(--c2);
     border-radius: 5px;
-    background-color: lightblue;
     height: 1.2rem;
     text-align: center;
     padding: 2px 8px;
     width: fit-content;
     justify-self: flex-end;
+    vertical-align: bottom;
 }
 
 km {
@@ -192,28 +194,31 @@ km {
     background-color: lightgray;
 }
 
-.btngrp {
-    display: flex;
-}
-
 .btn {
     padding: 3px 6px;
-    border: 1px solid lightseagreen;
+    border: 1px solid var(--c2);
     cursor: pointer;
 }
 
-.smbtn {
+.btngrp {
+    float: right;
+    border: 1px solid var(--c2);
+}
+.smbtn, .smbtn2 {
     box-sizing: border-box;
-    font-family: monospace;
     font-size: 12px;
     line-height: 12px;
     text-align: center;
-    padding: 0px;
-    width: 24px;
+    padding: 0px 3px;
     height: 24px;
-    outline: 1px solid lightseagreen;
+    min-width: 24px;
     border: 0px;
+}
+.smbtn {
     cursor: pointer;
+}
+.smbtn2 {
+    font-weight: bold;
 }
 
 .tabs {
@@ -239,8 +244,9 @@ km {
 .smbtn:hover,
 .tabbtn:hover,
 .tabbtn.sel {
-    border-color: lightseagreen;
-    background-color: lightblue;
+    border-color: var(--c2);
+    background-color: var(--c1);
+    color: var(--c0);
 }
 
 #tab_list {
@@ -253,7 +259,7 @@ km {
 
 #list {
     display: grid;
-    grid-template-columns: repeat(2, max-content 1fr);
+    grid-template-columns: repeat(var(--col), max-content 1fr);
     gap: 3px;
     align-content: flex-start;
     padding: 10px;
@@ -280,22 +286,26 @@ dialog {
     flex-flow: column;
     align-content: flex-start;
     gap: 1rem;
-    border: 2px solid lightseagreen;
-    outline: 3px solid lightblue;
+    border: 2px solid var(--c2);
+    outline: 3px solid var(--c1);
 }
 
 .kidlg {
     width: 40rem;
-    height: 20rem;
-    top: -35rem;
-    left: -30rem;
+    height: 15rem;
 }
 
-.name_dlg {
-    top: -35rem;
-    left: -30rem;
+.help {
+    cursor: help;
 }
-
+.help span {
+    height: fit-content;
+    transition: all 1s;
+    opacity: 0;
+}
+.help:hover span {
+   opacity: 1;
+}
 .about {
     font-size: 0.9rem;
     height: fit-content;
@@ -312,10 +322,10 @@ dialog {
     <span style="margin-left: 5px;font-weight: bold;">键谱：</span>
     <select id="profs" style="width: 20rem;"></select>
     <button class="btn" style="margin-left: 5px;padding: 0px 5px;" onclick="new2()">新建</button>
-    <span style="float:right;"><b>【*】</b><kn>Enter</kn>，<kn>目标键</kn> 或 鼠标双击目标键，设置按键映射信息</span>
+    <span class="help" style="float:right;"><span><kn>Enter</kn>，<kn>目标键</kn> 或 鼠标双击目标键，设置按键映射信息</span> <b>❔</b></span>
 </div>
-<div style="display: flex;">
-    <keyboard id="keyboard" tabindex="1">
+<div>
+    <keyboard id="keyboard" tabindex="-1">
         <kb_main id="kb_main">
             <kr class="Fn">
                 <k>Esc</k><d> </d><k>F1</k><k>F2</k><k>F3</k><k>F4</k><d> </d><k>F5</k><k>F6</k><k>F7</k><k>F8</k><d> </d><k>F9</k><k>F10</k><k>F11</k><k>F12</k>
@@ -354,17 +364,18 @@ dialog {
             <k class="k2h">Num0</k><k>Num.</k>
         </kb_num>
     </keyboard>
-    <div class="btngrp" style="position: absolute;padding:10px;margin-top: 10px;left: calc(var(--kbw) - 24px * 3 - 10px);">
-        <button class="smbtn" onclick="shorten()" title="收缩">◁</button>
-        <button class="smbtn" onclick="expand()" title="扩展">▷</button>
-        <button class="smbtn" onclick="tgl_shrink()" title="隐藏/显示">⇵</button>
-    </div>
 </div>
 <div class="tabs">
     <div>
         <span id="tabbtn_list" class="tabbtn" onclick="show_list_tab()">按键映射表</span>
         <span id="tabbtn_json" class="tabbtn" onclick="show_json_tab()">JSON 数据</span>
-    </div>
+        <div class="btngrp">
+            <button class="smbtn" onclick="shorten()" title="收缩">◁
+            </button><button class="smbtn" onclick="expand()" title="扩展">▷
+            </button><button class="smbtn" onclick="toggle()" title="隐藏/显示">⇵
+            </button><button class="smbtn2">键盘</button>
+        </div>
+        </div>
     <div style="overflow-y: hidden;border: 1px solid gray;">
         <div id="tab_list">
             <div style="padding-left: 10px;font-size: 0.9rem;background-color: lightgray;">
@@ -393,9 +404,9 @@ let keytable = {
     "U": [85, ''], "V": [86, ''], "W": [87, ''], "X": [88, ''], "Y": [89, ''], "Z": [90, ''],
     ";": [186, ''], "=": [187, ''], ",": [188, ''], "-": [189, ''], ".": [190, ''], "/": [191, ''], "`": [192, ''], "[": [219, ''], "\\": [220, ''], "]": [221, ''], "'": [222, ''],
     "F1": [112, ''], "F2": [113, ''], "F3": [114, ''], "F4": [115, ''], "F5": [116, ''], "F6": [117, ''], "F7": [118, ''], "F8": [119, ''], "F9": [120, ''], "F10": [121, ''], "F11": [122, ''], "F12": [123, ''],
-    "Alt": [18, ''], "Backspace": [8, ''], "Caps": [20, ''], "Ctrl": [17, ''], "Del": [46, ''], "Down": [40, '⇩'], "End": [35, ''], "Enter": [13, ''], "Esc": [27, ''],
-    "Home": [36, ''], "Ins": [45, ''], "Left": [37, '⇦'], "Menu": [93, ''], "Pause": [19, ''], "PgDn": [34, ''], "PgUp": [33, ''], "Right": [39, '⇨'],
-    "ScrLck": [145, ''], "Shift": [16, ''], "Space": [32, ''], "Tab": [9, ''], "Up": [38, '⇧'], "Win": [91, ''],
+    "Alt": [18, ''], "Backspace": [8, ''], "Caps": [20, ''], "Ctrl": [17, ''], "Del": [46, ''], "Down": [40, '↓'], "End": [35, ''], "Enter": [13, ''], "Esc": [27, ''],
+    "Home": [36, ''], "Ins": [45, ''], "Left": [37, '←'], "Menu": [93, ''], "Pause": [19, ''], "PgDn": [34, ''], "PgUp": [33, ''], "Right": [39, '→'],
+    "ScrLck": [145, ''], "Shift": [16, ''], "Space": [32, ''], "Tab": [9, ''], "Up": [38, '↑'], "Win": [91, ''],
     "NumLck": [144, ''], "Num-": [109, '-'], "Num*": [106, '*'], "Num.": [110, '.'], "Num/": [111, '/'], "Num+": [107, '+'],
     "Num0": [96, '0'], "Num1": [97, '1'], "Num2": [98, '2'], "Num3": [99, '3'], "Num4": [100, '4'], "Num5": [101, '5'], "Num6": [102, '6'], "Num7": [103, '7'], "Num8": [104, '8'], "Num9": [105, '9']
 };
@@ -588,8 +599,8 @@ function expand() {
         elm_kb_num.style.display = "";
     }
 }
-function tgl_shrink() {
-    elm_kb.classList.toggle("shrink");
+function toggle() {
+    elm_kb.classList.toggle("hide");
 }
 function show_list_tab() {
     elm_tab_list.style.display = "";
@@ -647,8 +658,8 @@ async function get_name_dlg() {
         let tmp = document.createElement("div");
         tmp.innerHTML = html;
         let dlg = tmp.children[0];
-        dlg.querySelector(".btnok").onclick = (evt) => {
-            let elm_name = dlg.querySelector("#name");
+        let elm_name = dlg.querySelector("#name");
+        function _ok() {
             let name = elm_name.value;
             if (!name) {
                 alert("不能为空！");
@@ -657,15 +668,22 @@ async function get_name_dlg() {
             }
             dlg.remove();
             resolver(name);
-        };
-        dlg.querySelector(".btncancel").onclick = (evt) => {
-            dlg.remove();
-            resolver();
-        };
-        dlg.onclose = (evt) => {
+        }
+        function _cancel() {
             dlg.remove();
             resolver();
         }
+        dlg.querySelector(".btnok").onclick = _ok;
+        elm_name.onkeydown = (evt) => {
+            if (evt.key == "Enter") {
+                evt.preventDefault();
+                evt.stopPropagation();
+                _ok();
+                return;
+            }
+        }
+        dlg.querySelector(".btncancel").onclick = _cancel;
+        dlg.onclose = _cancel;
         document.body.appendChild(dlg);
         dlg.showModal();
     });
@@ -806,7 +824,7 @@ for (const elm of elms_k) {
     let keyName = elm.innerHTML;
     if (elm.innerHTML in keytable) {
         k = keytable[keyName];
-        elm.innerHTML = k[1] ? `${k[1]}<div style="color:gray;">${keyName}</div>` : keyName;
+        elm.innerHTML = k[1] || keyName; // k[1] ? `${k[1]}<div style="color:gray;">${keyName}</div>` : keyName;
         elm.keyName = keyName;
         elm.onmouseenter = (evt) => { if (elm.classList.contains("set")) show_onekey_info(keyName); };
         elm.onmouseleave = (evt) => { if (evt.target.classList.contains("set")) show_allkey_info() };
@@ -863,7 +881,7 @@ window.on_webwin_loaded = async () => {
 </script>
 <script>
     var __appname__ = "键谱";
-    var __version__ = "1.0.0";
+    var __version__ = "1.0.1";
     var __homepage__ = "https://github.com/cataerogong/keymap";
     document.title = `${__appname__}`;
     document.querySelector(".about").innerHTML = `${__appname__} v${__version__} Copyright &COPY; 2023 CataeroGong [<a href="${__homepage__}">Project Home</a>]`;
