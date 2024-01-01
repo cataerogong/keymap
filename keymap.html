@@ -7,8 +7,8 @@
 :root {
     --ks: 0.8rem; /* key font size */
     --kw: 3rem; /* key width */
-    --kh: 2.5rem; /* key height */
-    --col: 3; /* mapping-list columns */
+    --kh: 2.3rem; /* key height */
+    --col: 2; /* mapping-list columns */
     --c0: black; /* highlight color */
     --c1: lightblue; /* highlight bg color */
     --c2: lightseagreen; /* border color */
@@ -16,6 +16,7 @@
 
 body {
     font-family: Consolas, sans-serif;
+    font-size: 0.9rem;
     margin: 0px auto;
     padding: 0px 10px;
     height: 100%;
@@ -107,7 +108,7 @@ kr.Fn {
 }
 
 k,
-kk {
+kna {
     font-size: var(--ks);
     font-weight: bold;
     box-sizing: border-box;
@@ -119,17 +120,13 @@ kk {
     height: var(--kh);
     padding: 3px 0 0 3px;
 }
-
+k {
+    cursor: pointer;
+}
 k.set {
     color: var(--c0);
     background-color: var(--c1);
     border-color: var(--c2);
-    cursor: help;
-}
-
-kk {
-    color: gray;
-    background-color: darkgray;
 }
 
 .k15 {
@@ -169,19 +166,32 @@ d {
     grid-column: span 3;
 }
 
-kn {
+kn, km {
+    box-sizing: border-box;
     display: inline-block;
+    line-height: 1rem;
+    vertical-align: middle;
+}
+kn {
     font-weight: bold;
     color: var(--c0);
     background-color: var(--c1);
     border: 1px solid var(--c2);
     border-radius: 5px;
-    height: 1.2rem;
-    text-align: center;
-    padding: 2px 8px;
+    height: fit-content;
     width: fit-content;
-    justify-self: flex-end;
-    vertical-align: bottom;
+    min-width: calc(1rem + 6px);
+    padding: 2px 5px;
+    margin: 0px 1px;
+    text-align: center;
+}
+kn.ck {
+    border-color: transparent;
+    font-weight: normal;
+}
+
+.f-end {
+    justify-self: end;
 }
 
 km {
@@ -190,6 +200,8 @@ km {
     white-space: pre-wrap;
     word-wrap: break-word;
     padding: 2px 5px;
+    margin-right: 5px;
+    border: 1px solid lightgray;
     border-radius: 5px;
     background-color: lightgray;
 }
@@ -210,7 +222,7 @@ km {
     line-height: 12px;
     text-align: center;
     padding: 0px 3px;
-    height: 24px;
+    height: 20px;
     min-width: 24px;
     border: 0px;
 }
@@ -260,7 +272,7 @@ km {
 #list {
     display: grid;
     grid-template-columns: repeat(var(--col), max-content 1fr);
-    gap: 3px;
+    gap: 3px 1px;
     align-content: flex-start;
     padding: 10px;
     box-sizing: border-box;
@@ -290,7 +302,7 @@ dialog {
     outline: 3px solid var(--c1);
 }
 
-.kidlg {
+.kmdlg {
     width: 40rem;
     height: 15rem;
 }
@@ -300,14 +312,13 @@ dialog {
 }
 .help span {
     height: fit-content;
-    transition: all 1s;
+    transition: all 0.3s;
     opacity: 0;
 }
 .help:hover span {
    opacity: 1;
 }
 .about {
-    font-size: 0.9rem;
     height: fit-content;
     width: var(--kbw);
     color: gray;
@@ -319,10 +330,10 @@ dialog {
 
 <body>
 <div style="width: var(--kbw); padding: 10px 0px;">
-    <span style="margin-left: 5px;font-weight: bold;">键谱：</span>
+    <span style="margin-left: 5px;font-weight: bold;">键谱:</span>
     <select id="profs" style="width: 20rem;"></select>
     <button class="btn" style="margin-left: 5px;padding: 0px 5px;" onclick="new2()">新建</button>
-    <span class="help" style="float:right;"><span><kn>Enter</kn>，<kn>目标键</kn> 或 鼠标双击目标键，设置按键映射信息</span> <b>❔</b></span>
+    <span class="help" style="float:right;"><span><kn>Enter</kn>，<kn>目标键</kn> 或 鼠标点击目标键，设置按键映射信息</span> <b>❔</b></span>
 </div>
 <div>
     <keyboard id="keyboard" tabindex="-1">
@@ -348,7 +359,7 @@ dialog {
             </kr>
         </kb_main>
         <kb_dir id="kb_dir">
-            <kk>Print Scr</kk><k>ScrLck</k><k>Pause</k>
+            <k>PrtScr</k><k>ScrLck</k><k>Pause</k>
             <d class="d3"> </d>
             <k>Ins</k><k>Home</k><k>PgUp</k>
             <k>Del</k><k>End</k><k>PgDn</k>
@@ -378,7 +389,7 @@ dialog {
         </div>
     <div style="overflow-y: hidden;border: 1px solid gray;">
         <div id="tab_list">
-            <div style="padding-left: 10px;font-size: 0.9rem;background-color: lightgray;">
+            <div style="padding-left: 10px;background-color: lightgray;">
                 <button class="btn" style="margin: 2px;" onclick="clr()">清空</button>
                 <button class="btn" style="margin: 2px;" onclick="del()">删除</button>
                 <button class="btn" style="margin: 2px;" onclick="imp2()">另存为</button>
@@ -386,7 +397,7 @@ dialog {
             <div id="list"></div>
         </div>
         <div id="tab_json">
-            <div style="padding-left: 10px;font-size: 0.9rem;background-color: lightgray;">
+            <div style="padding-left: 10px;background-color: lightgray;">
                 JSON 数据随上图设置实时更新。也可在下方编辑 JSON 数据后：
                 <button class="btn" style="margin: 2px;" onclick="imp()">导入至当前键谱</button>
                 <button class="btn" style="margin: 2px;" onclick="imp2()">导入至新键谱</button>
@@ -405,7 +416,7 @@ let keytable = {
     ";": [186, ''], "=": [187, ''], ",": [188, ''], "-": [189, ''], ".": [190, ''], "/": [191, ''], "`": [192, ''], "[": [219, ''], "\\": [220, ''], "]": [221, ''], "'": [222, ''],
     "F1": [112, ''], "F2": [113, ''], "F3": [114, ''], "F4": [115, ''], "F5": [116, ''], "F6": [117, ''], "F7": [118, ''], "F8": [119, ''], "F9": [120, ''], "F10": [121, ''], "F11": [122, ''], "F12": [123, ''],
     "Alt": [18, ''], "Backspace": [8, ''], "Caps": [20, ''], "Ctrl": [17, ''], "Del": [46, ''], "Down": [40, '↓'], "End": [35, ''], "Enter": [13, ''], "Esc": [27, ''],
-    "Home": [36, ''], "Ins": [45, ''], "Left": [37, '←'], "Menu": [93, ''], "Pause": [19, ''], "PgDn": [34, ''], "PgUp": [33, ''], "Right": [39, '→'],
+    "Home": [36, ''], "Ins": [45, ''], "Left": [37, '←'], "Menu": [93, ''], "Pause": [19, ''], "PgDn": [34, ''], "PgUp": [33, ''], "PrtScr": [-1, ''], "Right": [39, '→'],
     "ScrLck": [145, ''], "Shift": [16, ''], "Space": [32, ''], "Tab": [9, ''], "Up": [38, '↑'], "Win": [91, ''],
     "NumLck": [144, ''], "Num-": [109, '-'], "Num*": [106, '*'], "Num.": [110, '.'], "Num/": [111, '/'], "Num+": [107, '+'],
     "Num0": [96, '0'], "Num1": [97, '1'], "Num2": [98, '2'], "Num3": [99, '3'], "Num4": [100, '4'], "Num5": [101, '5'], "Num6": [102, '6'], "Num7": [103, '7'], "Num8": [104, '8'], "Num9": [105, '9']
@@ -429,35 +440,39 @@ const DEFAULT_PROF = "DEFAULT";
 let prof_cur = "";
 
 // core funcs
-function get_mainkey_name(combo_str) {
-    let l = combo_str.split("+");
+function get_mainkey(combo_str) {
+    let l = split_combo(combo_str);
     return l[l.length - 1];
 }
 
-function get_key(kn) {
+function split_combo(combo_str) {
+    return combo_str.replaceAll("Num+", "NumPlus").replaceAll("+", "_+_").replaceAll("NumPlus", "Num+").split("_+_");
+}
+
+function get_mapping(kn) {
     return (kn in keymap) ? keymap[kn] : null;
 }
 
-function get_key_all(mk) {
+function get_all_mappings(mk) {
     let ret = {};
     for (const kn in keymap) {
-        if (get_mainkey_name(kn) == mk) {
+        if (get_mainkey(kn) == mk) {
             ret[kn] = keymap[kn];
         }
     }
     return ret;
 }
-function _setkey(kn, str) {
-    let mk = get_mainkey_name(kn);
+function _set_mapping(kn, map_info) {
+    let mk = get_mainkey(kn);
     if (mk in keytable) {
         let key = keytable[mk];
         if (key[2]) {
-            if (str) {
-                keymap[kn] = str;
+            if (map_info) {
+                keymap[kn] = map_info;
             } else {
                 delete keymap[kn];
             }
-            let ks = get_key_all(mk);
+            let ks = get_all_mappings(mk);
             key[2].title = "";
             for (const k in ks) {
                 key[2].title += `${k}: ${ks[k]}\n`;
@@ -472,15 +487,15 @@ function _setkey(kn, str) {
 }
 
 let COMBO_CHK_LIST = "";
-for (const c of COMBO_KEY) COMBO_CHK_LIST += `<label><kn><input type="checkbox" value="${c}">${c}</kn></label>`;
-async function setkey_dlg(kn) {
+for (const c of COMBO_KEY) COMBO_CHK_LIST += `<label><kn class="ck"><input type="checkbox" value="${c}">${c}</kn></label>`;
+async function setmapping_dlg(mk) {
     return new Promise((resolver) => {
-        let html = `<dialog class="kidlg">
+        let html = `<dialog class="kmdlg">
             <div style="flex: 1;display: flex;gap: 5px;">
                 <div style="display: flex;flex-flow:column;gap: 10px;">
-                    <kn>${kn}</kn>${COMBO_KEY.includes(kn) ? "" : COMBO_CHK_LIST}
+                    <kn>${mk}</kn>${COMBO_KEY.includes(mk) ? "" : COMBO_CHK_LIST}
                 </div>
-                <textarea id="key_info" style="flex: 1;" autofocus>${keymap[kn] || ""}</textarea>
+                <textarea id="mapping" style="flex: 1;" autofocus>${keymap[mk] || ""}</textarea>
             </div>
                 <div style="text-align: right;">
                 <button class="btn btnok">确定</button>
@@ -492,24 +507,26 @@ async function setkey_dlg(kn) {
         let dlg = tmp.children[0];
         dlg.querySelectorAll('input[type="checkbox"]').forEach(elm => {
             elm.onclick = (evt) => {
-                let ks = "";
+                let kn = "";
                 for (const elm of dlg.querySelectorAll('input[type="checkbox"]:checked')) {
-                    ks += elm.value + "+";
+                    kn += elm.value + "+";
                 }
-                ks += kn;
-                let inf = get_key(ks);
-                dlg.querySelector("#key_info").value = inf || "";
+                kn += mk;
+                let inf = get_mapping(kn);
+                let m = dlg.querySelector("#mapping");
+                m.value = inf || "";
+                m.focus();
             }
         });
         dlg.querySelector(".btnok").onclick = (evt) => {
-            let ks = "";
+            let kn = "";
             for (const elm of dlg.querySelectorAll('input[type="checkbox"]:checked')) {
-                ks += elm.value + "+";
+                kn += elm.value + "+";
             }
-            ks += kn;
-            let inf = dlg.querySelector("#key_info").value;
+            kn += mk;
+            let inf = dlg.querySelector("#mapping").value;
             dlg.remove();
-            resolver([ks, inf]);
+            resolver([kn, inf]);
         };
         dlg.querySelector(".btncancel").onclick = (evt) => {
             dlg.remove();
@@ -523,15 +540,15 @@ async function setkey_dlg(kn) {
         dlg.showModal();
     });
 }
-async function setkey_by_name(kn) {
-    let s = await setkey_dlg(kn);
+async function set_mapping(kn) {
+    let s = await setmapping_dlg(kn);
     if (s != null) {
-        _setkey(...s);
+        _set_mapping(...s);
         _upd_UI();
     }
     elm_kb.blur();
 }
-function get_keyName(kc) {
+function get_key_name(kc) {
     for (const kn in keytable) {
         if (keytable[kn][0] == kc) {
             return kn;
@@ -539,14 +556,22 @@ function get_keyName(kc) {
     }
     return "";
 }
+function gen_kn_elm(kn, mk) {
+    let ck = split_combo(kn);
+    let kl = [];
+    for (const k of ck) {
+        kl.push(`<kn ${k==mk?"":' class="ck"'}>${k}</kn>`);
+    }
+    return `<span data-mainkey="${mk}" class="kinfo f-end">${kl.join("+")}</span>`;
+}
 function _upd_UI() {
     let s = [];
     let j = {};
-    for (const kn in keytable) {
-        let l = get_key_all(kn);
-        for (const n in l) {
-            j[n] = l[n];
-            s.push(`<kn data-mainkey="${kn}" class="kinfo">${n}</kn><km data-mainkey="${kn}" class="kinfo">${l[n]}</km>`);
+    for (const mk in keytable) {
+        let l = get_all_mappings(mk);
+        for (const kn in l) {
+            j[kn] = l[kn];
+            s.push(`${gen_kn_elm(kn, mk)}<km data-mainkey="${mk}" class="kinfo">${l[kn]}</km>`);
         }
     }
     elm_json.value = JSON.stringify(j, null, 2);
@@ -568,7 +593,7 @@ function _imp() {
         _clr();
         keymap = temp;
         for (const kn in keymap) {
-            _setkey(kn, keymap[kn]);
+            _set_mapping(kn, keymap[kn]);
         }
         _upd_UI();
         show_list_tab();
@@ -725,17 +750,17 @@ window.onkeydown = async (evt) => {
     if (evt.repeat) return;
     evt.preventDefault();
     evt.stopPropagation();
-    let kn = get_keyName(evt.keyCode);
+    let kn = get_key_name(evt.keyCode);
     if (kn) {
-        await setkey_by_name(kn);
+        await set_mapping(kn);
         await save_profile();
     }
 }
-// set key by mouse-double-click
-elm_kb.ondblclick = async (evt) => {
+// set key by mouse-click
+elm_kb.onclick = async (evt) => {
     let elm = evt.target;
     if (elm.tagName == "K" && "keyName" in elm && !elm.classList.contains("dis")) {
-        await setkey_by_name(elm.keyName);
+        await set_mapping(elm.keyName);
         await save_profile();
     }
 };
@@ -881,7 +906,7 @@ window.on_webwin_loaded = async () => {
 </script>
 <script>
     var __appname__ = "键谱";
-    var __version__ = "1.0.1";
+    var __version__ = "1.0.2";
     var __homepage__ = "https://github.com/cataerogong/keymap";
     document.title = `${__appname__}`;
     document.querySelector(".about").innerHTML = `${__appname__} v${__version__} Copyright &COPY; 2023 CataeroGong [<a href="${__homepage__}">Project Home</a>]`;
