@@ -901,15 +901,19 @@ window.on_webwin_loaded = async () => {
     }
     await refresh_profs();
     await load_profile();
-    document.title = `${__appname__} (webwin ver)`;
+    __appname__ += " 【精装礼盒版 *^____^* 】";
+    __init__();
 };
 </script>
 <script>
     var __appname__ = "键谱";
     var __version__ = "1.0.2";
     var __homepage__ = "https://github.com/cataerogong/keymap";
-    document.title = `${__appname__}`;
-    document.querySelector(".about").innerHTML = `${__appname__} v${__version__} Copyright &COPY; 2023 CataeroGong [<a href="${__homepage__}">Project Home</a>]`;
+    function __init__() {
+        document.title = `${__appname__}`;
+        document.querySelector(".about").innerHTML = `${__appname__} v${__version__} Copyright &COPY; 2023 CataeroGong [<a href="${__homepage__}">Project Home</a>]`;
+    }
+    __init__();
 </script>
 </body>
 
