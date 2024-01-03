@@ -879,7 +879,7 @@ window.on_webwin_loaded = async () => {
     };
     window._read_prof_ = async (prof) => {
         try {
-            return await webwin.fs.readfile(prof + ".keymap");
+            return await webwin.fs.readfile(prof + ".keymap", "utf-8");
         } catch (e) {
             console.log(e);
             return "";
@@ -887,7 +887,7 @@ window.on_webwin_loaded = async () => {
     };
     window._write_prof_ = async (prof, data) => {
         try {
-            await webwin.fs.writefile(prof + ".keymap", data);
+            await webwin.fs.writefile(prof + ".keymap", data, "w", "utf-8");
         } catch (e) {
             console.log(e);
         }
@@ -907,7 +907,7 @@ window.on_webwin_loaded = async () => {
 </script>
 <script>
     var __appname__ = "键谱";
-    var __version__ = "1.0.2";
+    var __version__ = "1.0.3";
     var __homepage__ = "https://github.com/cataerogong/keymap";
     function __init__() {
         document.title = `${__appname__}`;
