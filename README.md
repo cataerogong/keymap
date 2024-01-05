@@ -18,6 +18,8 @@
 
 ![](screenshot-2.png)
 
+![](screenshot-3.png)
+
 # [谱匣 - “键谱”网页的辅助增强程序](exe\README.md)
 
 ## 功能
