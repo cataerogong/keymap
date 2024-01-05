@@ -22,7 +22,7 @@ if exist release\keymap-%__version__%-html.zip del keymap-%__version__%-html.zip
 if exist release\keymap-%__version__%-exe-x64.zip del keymap-%__version__%-exe-x64.zip
 
 cd pack_tmp
-zip ..\release\keymap-%__version__%-html.zip keymap.html README.md LICENSE
-zip -r ..\release\keymap-%__version__%-exe-x64.zip keymap.* README* LICENSE _internal\
+..\zip ..\release\keymap-%__version__%-html.zip keymap.html README.md LICENSE
+..\zip -r ..\release\keymap-%__version__%-exe-x64.zip keymap.* README* LICENSE _internal\
 cd ..
 exit /b

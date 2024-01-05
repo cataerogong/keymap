@@ -9,13 +9,6 @@
     --c0: black; /* highlight color */
     --c1: lightblue; /* highlight bg color */
     --c2: lightseagreen; /* border color */
-    /* --ks1: 0.8;
-    --kw1: 3;
-    --kh1: 3;
-    --ks2: 0.9;
-    --kw2: 5;
-    --kh2: 5;
-    --kt2: 0.8; */
     --ks: calc(1rem * var(--ks1, 0.8)); /* key font size */
     --kw: calc(1rem * var(--kw1, 3)); /* key width */
     --kh: calc(1rem * var(--kh1, 3)); /* key height */
@@ -282,7 +275,7 @@ km {
     background-color: whitesmoke;
     width: fit-content;
     height: fit-content;
-    padding: 3px;
+    padding: 5px;
     display: grid;
     grid-template-columns: max-content 1fr;
     gap: 3px 1px;
@@ -290,6 +283,8 @@ km {
     pointer-events: none;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: opacity 0.3s;
+    max-width: calc(var(--kbw) * 0.5);
 }
 
 .btn {
@@ -299,6 +294,7 @@ km {
 }
 
 .btn.danger:hover {
+    color: black;
     border-color: red;
     background-color:lightpink;
     outline: 1px dashed red;
@@ -436,7 +432,6 @@ dialog {
     <span style="margin-left: 5px;font-weight: bold;">键谱:</span>
     <select id="profs" style="width: 20rem;"></select>
     <button class="btn" style="margin-left: 5px;padding: 0px 5px;" onclick="new2()">新建</button>
-    <span class="btn" style="float: right;padding: 0.4em;line-height: 1em;border-radius: 1em;" onclick="setting()">🛠</span>
 </div>
 <div>
     <keyboard id="keyboard" tabindex="-1">
@@ -490,6 +485,7 @@ dialog {
             </button><button class="smbtn" onclick="shorten()" title="收缩">➖
             </button><button class="smbtn" onclick="expand()" title="扩展">➕
             </button><button class="smbtn" onclick="tgl_hint()" title="切换键帽提示">🔣
+            </button><button class="smbtn" onclick="setting()" title="UI 设置">🛠
             </button>
         </div>
         <span id="tabbtn_list" class="tabbtn" onclick="show_list_tab()">按键映射表</span>
@@ -581,10 +577,10 @@ function _set_mapping(kn, map_info) {
     let mk = get_mainkey(kn);
     if (mk in keytable) {
         let key = keytable[mk];
-        // let elm_k = key[2]; // 相同键（Ctrl，Alt，Shift，Enter）只处理左边一个
-        // if (elm_k) {
-        for (i=2; i<key.length; i++) {
-            let elm_k = key[i];
+        let elm_k = key[2]; // 相同键（Ctrl，Alt，Shift，Enter）只处理左边一个
+        if (elm_k) {
+        // for (i=2; i<key.length; i++) { // 相同键（Ctrl，Alt，Shift，Enter）全部处理
+        //     let elm_k = key[i];
             if (map_info) {
                 keymap[kn] = map_info;
             } else {
@@ -704,7 +700,7 @@ function gen_kn_elm(kn, mk) {
 function _upd_UI() {
     let s = [];
     let j = {};
-    j["#config"] = keymap["#config"];
+    // sort and copy keymapping data
     for (const mk in keytable) {
         let l = get_all_mappings(mk);
         for (const kn in l) {
@@ -712,43 +708,64 @@ function _upd_UI() {
             s.push(`${gen_kn_elm(kn, mk)}<km data-mainkey="${mk}" class="kinfo">${l[kn]}</km>`);
         }
     }
+    // copy config
+    j["#config"] = keymap["#config"];
+    // copy other data which not in keytable
+    for (const k in keymap) {
+        if (!(k in j)) {
+            j[k] = keymap[k];
+        }
+    }
     elm_json.value = JSON.stringify(j, null, 2);
     elm_list.innerHTML = s.join('\n');
     setDocumentFlag("data-kbsize", between(keymap["#config"]["kbsize"], 0, 4));
     setDocumentFlag("data-kbhint", keymap["#config"]["kbhint"]);
-    let dc = default_cfg();
-    setCSS(":root", "--ks1", keymap["#config"]["ks1"] || dc["ks1"]);
-    setCSS(":root", "--kw1", keymap["#config"]["kw1"] || dc["kw1"]);
-    setCSS(":root", "--kh1", keymap["#config"]["kh1"] || dc["kh1"]);
-    setCSS(":root", "--ks2", keymap["#config"]["ks2"] || dc["ks2"]);
-    setCSS(":root", "--kw2", keymap["#config"]["kw2"] || dc["kw2"]);
-    setCSS(":root", "--kh2", keymap["#config"]["kh2"] || dc["kh2"]);
-    setCSS(":root", "--kt2", keymap["#config"]["kt2"] || dc["kt2"]);
+    setCSS(":root", "--ks1", keymap["#config"]["ks1"]);
+    setCSS(":root", "--kw1", keymap["#config"]["kw1"]);
+    setCSS(":root", "--kh1", keymap["#config"]["kh1"]);
+    setCSS(":root", "--ks2", keymap["#config"]["ks2"]);
+    setCSS(":root", "--kw2", keymap["#config"]["kw2"]);
+    setCSS(":root", "--kh2", keymap["#config"]["kh2"]);
+    setCSS(":root", "--kt2", keymap["#config"]["kt2"]);
+    setCSS(":root", "--c0", keymap["#config"]["c0"]);
+    setCSS(":root", "--c1", keymap["#config"]["c1"]);
+    setCSS(":root", "--c2", keymap["#config"]["c2"]);
     // re-calc kb width
     setCSS(":root", "--kbw", window.getComputedStyle(elm_kb).width);
 }
+function _chk_cfg(kmap) {
+    if (!("#config" in kmap)) {
+        kmap["#config"] = default_cfg();
+        return;
+    }
+    let dcfg = default_cfg();
+    let cfg = kmap["#config"];
+    for (const c in dcfg) {
+        if (!(c in cfg)) {
+            cfg[c] = dcfg[c];
+        }
+    }
+}
 function _imp() {
+    if (!elm_json.value)
+        return false;
     let temp = null;
     try {
-        temp = elm_json.value ? JSON.parse(elm_json.value): default_keymap();
-        if (!("#config" in temp))
-            temp["#config"] = default_cfg();
+        temp = JSON.parse(elm_json.value);
+        _chk_cfg(temp);
     } catch (e) {
         console.log(e);
         alert("导入 JSON 数据出错\n" + e);
         return false;
     }
-    if (temp) {
-        _clr();
-        keymap = temp;
-        for (const kn in keymap) {
-            _set_mapping(kn, keymap[kn]);
-        }
-        _upd_UI();
-        show_list_tab();
-        return true;
+    _clr();
+    keymap = temp;
+    for (const kn in keymap) {
+        _set_mapping(kn, keymap[kn]);
     }
-    return false;
+    _upd_UI();
+    show_list_tab();
+    return true;
 }
 function _clr() {
     keymap = default_keymap();
@@ -768,6 +785,10 @@ async function setting_dlg() {
         let cfg = keymap["#config"];
         let html = `<dialog class="stdlg">
             <div class="sts">
+                <div class="subttl">颜色</div>
+                <span>高亮字符</span><input type="text" id="c0" style="width: 6rem;" />
+                <span>高亮背景</span><input type="text" id="c1" style="width: 6rem;" />
+                <span>高亮边框</span><input type="text" id="c2" style="width: 6rem;" />
                 <div class="subttl">普通模式</div>
                 <span>键宽</span><input type="number" id="kw1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>键高</span><input type="number" id="kh1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
@@ -881,6 +902,8 @@ async function del() {
 }
 // import json to current profile
 async function imp() {
+    if (!elm_json.value)
+        return;
     if (_imp())
         await save_profile();
 }
@@ -931,6 +954,8 @@ async function get_name_dlg() {
 
 // import json to new profile
 async function imp2() {
+    if (!elm_json.value)
+        return;
     let np = await get_name_dlg();
     if (np != null) {
         prof_cur = np;
@@ -1054,27 +1079,32 @@ function show_onekey_info(elm_k) {
         s.push(`${gen_kn_elm(kn, elm_k.keyName)}<km>${l[kn]}</km>`);
     }
     let temp = document.createElement("span");
-    temp.innerHTML = `<div class="kms_info" style="position:absolute;box-shadow:2px 2px 5px #000;">${s.join("")}</div>`;
+    temp.innerHTML = `<div class="kms_info" style="position:absolute;box-shadow: 0px 0px 10px #000;opacity: 0;">${s.join("")}</div>`;
     let elm_kms = temp.children[0];
-    elm_kms.style.minWidth = window.getComputedStyle(elm_k).width;
-    elm_kms.style.minHeight = window.getComputedStyle(elm_k).height;
+    let std_kw = elms_k[0].offsetWidth; // first key button ("Esc") width as standard
+    let std_kh = elms_k[0].offsetHeight;
+    elm_kms.style.minWidth = std_kw; //window.getComputedStyle(elm_k).width;
+    elm_kms.style.minHeight =std_kh; //window.getComputedStyle(elm_k).height;
     document.body.appendChild(elm_kms);
-    if (elm_k.offsetLeft >= elm_kb.offsetLeft + elm_kb.offsetWidth - elm_kms.offsetWidth - 2)
-        elm_kms.style.left = elm_kb.offsetLeft + elm_kb.offsetWidth - elm_kms.offsetWidth - 2;
+    if (elm_k.offsetLeft >= elm_kb.offsetLeft + elm_kb.offsetWidth - std_kw - elm_kms.offsetWidth - 2)
+        // elm_kms.style.left = elm_kb.offsetLeft + elm_kb.offsetWidth - elm_kms.offsetWidth - 2;
+        elm_kms.style.left = elm_k.offsetLeft - elm_kms.offsetWidth;
     else
-        elm_kms.style.left = elm_k.offsetLeft;
+        // elm_kms.style.left = elm_k.offsetLeft;
+        elm_kms.style.left = elm_k.offsetLeft + std_kw;
     if (elm_k.offsetTop >= elm_kb.offsetTop + elm_kb.offsetHeight - elm_kms.offsetHeight - 2)
         elm_kms.style.top = elm_kb.offsetTop + elm_kb.offsetHeight - elm_kms.offsetHeight - 2;
     else
         elm_kms.style.top = elm_k.offsetTop;
     if (elm_kms.offsetTop <= elm_kb.offsetTop + 2) {
         elm_kms.style.top = elm_kb.offsetTop + 2;
-        elm_kms.style.height = elm_kb.offsetHeight - 4;
+        elm_kms.style.maxHeight = elm_kb.offsetHeight - 4;
     }
     if (elm_kms.offsetLeft <= elm_kb.offsetLeft + 2) {
         elm_kms.style.left = elm_kb.offsetLeft + 2;
-        elm_kms.style.width = elm_kb.offsetWidth - 4;
+        elm_kms.style.maxWidth = elm_kb.offsetWidth - 4;
     }
+    elm_kms.style.opacity = 1;
 }
 function show_allkey_info() {
     for (const elm of document.querySelectorAll(".kms_info")) {
