@@ -141,8 +141,8 @@ k {
     border: 1px solid darkgray;
     border-radius: 5px;
     background-color: lightgray;
-    width: var(--kw);
-    height: var(--kh);
+    min-width: var(--kw);
+    min-height: var(--kh);
     padding: 3px 3px;
     cursor: pointer;
     display: flex;
@@ -528,7 +528,7 @@ let keytable = {
     "Num0": [96, '0'], "Num1": [97, '1'], "Num2": [98, '2'], "Num3": [99, '3'], "Num4": [100, '4'], "Num5": [101, '5'], "Num6": [102, '6'], "Num7": [103, '7'], "Num8": [104, '8'], "Num9": [105, '9'],
     "LB": [0, ''], "RB": [0, ''], "MB": [0, ''], "WhlUp": [0, ''], "WhlDn": [0, ''], 
 };
-const COMBO_KEY = ["Alt", "Ctrl", "Shift", "Win"];
+const COMBO_KEY = ["Alt", "RAlt", "Ctrl", "RCtrl", "Shift", "RShift", "Win"];
 let elm_kb = document.getElementById("keyboard");
 let elm_kb_main = document.getElementById("kb_main");
 let elm_kb_dir = document.getElementById("kb_dir");
@@ -616,7 +616,10 @@ async function setmapping_dlg(mk) {
         let html = `<dialog class="kmdlg">
             <div style="flex: 1;display: flex;gap: 5px;">
                 <div style="display: flex;flex-flow:column;gap: 10px;">
-                    <kn>${mk}</kn>${COMBO_KEY.includes(mk) ? "" : COMBO_CHK_LIST}
+                    <kn>${mk}</kn>
+                    <div style="display:grid;grid-template-columns:max-content max-content;gap: 10px;width:fit-content;">
+                        ${COMBO_KEY.includes(mk) ? "" : COMBO_CHK_LIST}
+                    </div>
                 </div>
                 <textarea id="mapping" style="flex: 1;" autofocus>${keymap[mk] || ""}</textarea>
             </div>
@@ -1192,7 +1195,7 @@ window.on_webwin_loaded = async () => {
 </script>
 <script>
     var __appname__ = "键谱";
-    var __version__ = "1.3.0";
+    var __version__ = "1.3.1";
     var __homepage__ = "https://github.com/cataerogong/keymap";
     function __init__() {
         document.title = `${__appname__}`;
