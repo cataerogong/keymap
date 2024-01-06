@@ -450,10 +450,10 @@ dialog {
                 <k class="k2">Caps</k><k>A</k><k>S</k><k>D</k><k>F</k><k>G</k><k>H</k><k>J</k><k>K</k><k>L</k><k>;</k><k>'</k><k class="k2">Enter</k>
             </kr>
             <kr>
-                <k class="k25">Shift</k><k>Z</k><k>X</k><k>C</k><k>V</k><k>B</k><k>N</k><k>M</k><k>,</k><k>.</k><k>/</k><k class="k25">Shift</k>
+                <k class="k25">Shift</k><k>Z</k><k>X</k><k>C</k><k>V</k><k>B</k><k>N</k><k>M</k><k>,</k><k>.</k><k>/</k><k class="k25">RShift</k>
             </kr>
             <kr>
-                <k class="k15">Ctrl</k><k class="k15">Win</k><k class="k15">Alt</k><k class="kspace">Space</k><k class="k15">Alt</k><k class="k15">Menu</k><k class="k15">Ctrl</k>
+                <k class="k15">Ctrl</k><k class="k15">Win</k><k class="k15">Alt</k><k class="kspace">Space</k><k class="k15">RAlt</k><k class="k15">Menu</k><k class="k15">RCtrl</k>
             </kr>
         </kb_main>
         <kb_dir id="kb_dir">
@@ -469,7 +469,7 @@ dialog {
             <k>NumLck</k><k>Num/</k><k>Num*</k><k>Num-</k>
             <k>Num7</k><k>Num8</k><k>Num9</k><k class="k2v">Num+</k>
             <k>Num4</k><k>Num5</k><k>Num6</k>
-            <k>Num1</k><k>Num2</k><k>Num3</k><k class="k2v">Enter</k>
+            <k>Num1</k><k>Num2</k><k>Num3</k><k class="k2v">REnter</k>
             <k class="k2h">Num0</k><k>Num.</k>
         </kb_num>
         <kb_ext><d>Fn:</d>
@@ -521,9 +521,9 @@ let keytable = {
     "F1": [112, ''], "F2": [113, ''], "F3": [114, ''], "F4": [115, ''], "F5": [116, ''], "F6": [117, ''], "F7": [118, ''], "F8": [119, ''], "F9": [120, ''], "F10": [121, ''],
     "F11": [122, ''], "F12": [123, ''], "F13": [0, ''], "F14": [0, ''], "F15": [0, ''], "F16": [0, ''], "F17": [0, ''], "F18": [0, ''], "F19": [0, ''], "F20": [0, ''],
     "F21": [0, ''], "F22": [0, ''], "F23": [0, ''], "F24": [0, ''], "F25": [0, ''], "F26": [0, ''], "F27": [0, ''], "F28": [0, ''], "F29": [0, ''], "F30": [0, ''],
-    "Alt": [18, ''], "Backspace": [8, ''], "Caps": [20, ''], "Ctrl": [17, ''], "Del": [46, ''], "Down": [40, '↓'], "End": [35, ''], "Enter": [13, ''], "Esc": [27, ''],
+    "Alt": [18, ''], "RAlt": [0, ''], "Backspace": [8, ''], "Caps": [20, ''], "Ctrl": [17, ''], "RCtrl": [0, ''], "Del": [46, ''], "Down": [40, '↓'], "End": [35, ''], "Enter": [13, ''], "REnter": [0, ''], "Esc": [27, ''],
     "Home": [36, ''], "Ins": [45, ''], "Left": [37, '←'], "Menu": [93, ''], "Pause": [19, ''], "PgDn": [34, ''], "PgUp": [33, ''], "PrtScr": [-1, ''], "Right": [39, '→'],
-    "ScrLck": [145, ''], "Shift": [16, ''], "Space": [32, ''], "Tab": [9, ''], "Up": [38, '↑'], "Win": [91, ''],
+    "ScrLck": [145, ''], "Shift": [16, ''], "RShift": [0, ''], "Space": [32, ''], "Tab": [9, ''], "Up": [38, '↑'], "Win": [91, ''],
     "NumLck": [144, ''], "Num-": [109, '-'], "Num*": [106, '*'], "Num.": [110, '.'], "Num/": [111, '/'], "Num+": [107, '+'],
     "Num0": [96, '0'], "Num1": [97, '1'], "Num2": [98, '2'], "Num3": [99, '3'], "Num4": [100, '4'], "Num5": [101, '5'], "Num6": [102, '6'], "Num7": [103, '7'], "Num8": [104, '8'], "Num9": [105, '9'],
     "LB": [0, ''], "RB": [0, ''], "MB": [0, ''], "WhlUp": [0, ''], "WhlDn": [0, ''], 
@@ -1192,7 +1192,7 @@ window.on_webwin_loaded = async () => {
 </script>
 <script>
     var __appname__ = "键谱";
-    var __version__ = "1.2.0";
+    var __version__ = "1.3.0";
     var __homepage__ = "https://github.com/cataerogong/keymap";
     function __init__() {
         document.title = `${__appname__}`;
