@@ -37,7 +37,16 @@ var Util = {
     },
 
     fill_obj(dst, src) {
-        for (const k in src)  if (!(k in dst)) dst[k] = src[k];
+        for (const k in src) {
+            if (!(k in dst))
+                dst[k] = src[k];
+        }
+    },
+
+    copy_obj(dst, src) {
+        for (const k in src) {
+            dst[k] = src[k];
+        }
     },
 
     gen_combo_kn_elm(kn) {
@@ -207,6 +216,8 @@ var UI = {
 
     update() {
         console.log("UI.update()");
+        this.elm("#btn_prof").innerText = Keymap.Name || "+ 新建";
+        this.elm("#btn_prof").title = Keymap.Name;
         this.Keyboard.update();
         this.List.update();
         this.Json.update();
@@ -234,9 +245,63 @@ var UI = {
         this.setCSS("--kbw", window.getComputedStyle(this.elm("#tab_kb")).width);
     },
 
+    async onKeyDown(evt) {
+        console.dir(evt);
+        if (evt.target != document.body)
+            return;
+        let handled = true;
+        let upd = true;
+        switch (evt.key) {
+            case "`":
+                await this.changeLayer(0);
+                break;
+            case "1":
+            case "2":
+            case "3":
+            case "4":
+                await this.changeLayer(parseInt(evt.key));
+                break;
+            case "q":
+                await this.setSize(1);
+                break;
+            case "w":
+                await this.setSize(2);
+                break;
+            case "e":
+                await this.setSize(3);
+                break;
+            case "r":
+                await this.setSize(4);
+                break;
+            case "a":
+                await this.changeView("kb");
+                break;
+            case "s":
+                await this.changeView("list");
+                break;
+            case "d":
+                this.setFlag("view", "json");
+                upd = false;
+                break;
+            case "f":
+                await this.toggleHint();
+                break;
+            default:
+                handled = false;
+        }
+        if (handled) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            if (upd)
+                this.update();
+        }
+    },
+
     async init() {
-        this.elm("#profs").onchange = async (evt) => { await this.load(evt.target.value); this.update(); };
-        this.elm("#btn_new").onclick = async (evt) => { await this.new(); this.update(); };
+        // this.elm("#profs").onchange = async (evt) => { await this.load(evt.target.value); this.update(); };
+        // this.elm("#btn_new").onclick = async (evt) => { await this.new(); this.update(); };
+        document.body.onkeydown = async (evt) => { await this.onKeyDown(evt); };
+        this.elm("#btn_prof").onmouseenter = async (evt) => { await this.showProfileList(); }
         this.elm("#tabbtn_kb").onclick = async (evt) => { await this.changeView("kb"); this.update(); };
         this.elm("#tabbtn_list").onclick = async (evt) => { await this.changeView("list"); this.update(); };
         this.elm("#tabbtn_json").onclick = (evt) => { this.setFlag("view", "json"); };
@@ -254,33 +319,60 @@ var UI = {
         this.elm("#btn_imp").onclick = async (evt) => { await this.import(); this.update(); };
         this.elm("#btn_imp2").onclick = async (evt) => { await this.import2(); this.update(); };
 
-        Keymap.init();
         this.Keyboard.init();
 
-        await this.listProfiles();
-        // await this.load();
+        await this.loadFirstProf();
         this.update();
     },
 
-    async listProfiles() {
-        let elm_profs = this.elm("#profs");
-        elm_profs.innerHTML = "";
-        let profs = await _PROFILE_.all();
-        if (profs.length > 0) {
-            profs.sort();
-            if (!profs.includes(Keymap.Name)) {
-                await Keymap.load(profs[0]);
-            }
-            profs.forEach(p => {
-                let elm = document.createElement("option");
-                elm.value = p;
-                elm.innerText = p;
-                if (p == Keymap.Name) elm.selected = true;
-                elm_profs.appendChild(elm);
-            });
+    async loadFirstProf() {
+        let l = await _PROFILE_.all();
+        if (l.length > 0) {
+            l.sort();
+            await Keymap.load(l[0]);
         } else {
             Keymap.init();
         }
+    },
+
+    async showProfileList() {
+        function hideList() {
+            for (const e of document.querySelectorAll(".prof_list")) {
+                e.remove();
+            }
+        }
+        function genProf(prof, add_cls, onclick) {
+            let elm = document.createElement("DIV");
+            elm.classList.add("prof_name");
+            if (add_cls) elm.classList.add(...add_cls);
+            if (onclick) elm.onclick = onclick;
+            elm.innerHTML = prof;
+            elm.title = prof;
+            return elm;
+        }
+
+        hideList();
+        let s = [];
+        let l = await _PROFILE_.all();
+        if (l.length > 0) {
+            l.sort();
+            s.push(genProf(Keymap.Name, ["prof_cur"]));
+            for (const p of l) {
+                if (p != Keymap.Name)
+                    s.push(genProf(p, null, async () => {hideList(); await this.load(p); this.update();}));
+            }
+        }
+        s.push(genProf("+ 新建", ["prof_new"], async () => {hideList(); await this.new(); this.update();}));
+        let temp = document.createElement("span");
+        temp.innerHTML = `<div class="prof_list" style="position:absolute;box-shadow: 0px 0px 10px #000;opacity: 0;"></div>`;
+        let elm_list = temp.children[0];
+        elm_list.append(...s);
+        elm_list.onmouseleave = hideList;
+        let elm_prof = this.elm("#btn_prof");
+        document.body.appendChild(elm_list);
+        elm_list.style.left = elm_prof.offsetLeft - 5;
+        elm_list.style.top = elm_prof.offsetTop - 5;
+        elm_list.style.opacity = 1;
     },
 
     // Data Operation Methods
@@ -289,21 +381,16 @@ var UI = {
         if (name) {
             Keymap.init(name);
             await Keymap.save();
-            await this.listProfiles();
         }
     },
 
     async save(force = true) {
-        let n = false;
         if (!Keymap.Name) {
             if (!force) return;
             Keymap.Name = await get_name_dlg();
-            n = true;
         }
         if (!Keymap.Name) return;
         await Keymap.save();
-        if (n)
-            await this.listProfiles();
     },
 
     async load(name) {
@@ -312,7 +399,7 @@ var UI = {
 
     async delete() {
         await Keymap.del();
-        await this.listProfiles();
+        await this.loadFirstProf();
     },
 
     async import() {
@@ -334,7 +421,6 @@ var UI = {
                 return;
             Keymap.Name = name;
             await this.save();
-            await this.listProfiles();
         }
     },
 
@@ -372,8 +458,18 @@ var UI = {
         await this.save(false);
     },
 
+    async setSize(s) {
+        Keymap.Config.kbsize = Util.between(s, 1, 4);
+        await this.save(false);
+    },
+
     async toggleHint() {
         Keymap.Config.kbhint = !Keymap.Config.kbhint;
+        await this.save(false);
+    },
+
+    async setHint(b) {
+        Keymap.Config.kbhint = Boolean(b);
         await this.save(false);
     },
 
@@ -386,7 +482,7 @@ var UI = {
     async setMapping(mk) {
         let s = await setmapping_dlg(mk);
         if (s != null) {
-            if (s != []) {
+            if (s.length > 0) {
                 Keymap.setMapping(...s);
             } else {
                 for (const kn in Keymap.getAllMappings(mk)) {
@@ -400,6 +496,7 @@ var UI = {
 }
 
 UI.Keyboard = {
+    _inited: false,
     Elm: UI.elm("#keyboard"),
 
     get Ks() {
@@ -448,6 +545,8 @@ UI.Keyboard = {
     },
 
     init() {
+        if (this._inited) return;
+        this._inited = true;
         for (const elm of this.Ks) {
             let mk = elm.innerHTML;
             if (mk in KeyTable) {
@@ -679,7 +778,7 @@ async function setting_dlg() {
             resolver(true);
         };
         dlg.querySelector(".btnclr").onclick = (evt) => {
-            Keymap["#config"] = Keymap._default_cfg;
+            Util.copy_obj(Keymap.Config, Keymap._default_cfg);
             dlg.remove();
             resolver(true);
         };
@@ -774,7 +873,7 @@ window.on_webwin_loaded = async () => {
 };
 
 var __appname__ = "键谱";
-var __version__ = "1.3.1";
+var __version__ = "2.0.0-beta";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 
 async function __init__() {

@@ -450,6 +450,7 @@ km {
     padding: 10px;
     box-sizing: border-box;
     height: 100%;
+    width: 100%;
     overflow-y: auto;
 }
 
@@ -499,33 +500,76 @@ dialog {
     text-align: center;
 }
 
-.prof_list {
-    outline: 1px solid red;
+.prof_name {
+    outline: 1px solid var(--c2);
+    border-radius: 5px;
+    padding: 3px 1em;
+    /* text-align: center; */
+    width: 20em;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
+.prof_name:hover {
+    font-weight: bold;
     background-color: var(--c1);
-    margin: 0px 1rem;
-    height: 100%;
-    z-index: 3;
-    transition: 1s;
 }
-.prof_list:hover {
-    height: 10rem;
+.prof_list {
+    box-sizing: content-box;
+    outline: 1px solid var(--c2);
+    border-radius: 5px;
+    background-color: whitesmoke;
+    width: 22em;
+    height: fit-content;
+    max-height: calc(var(--kh) * 5);
+    padding: 5px;
+    display: flex;
+    flex-flow: column;
+    gap: 5px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: opacity 0.3s;
+    z-index: 2;
 }
-
+.prof_cur {
+    font-weight: bold;
+    background-color: var(--c1);
+}
+.prof_new {
+    /* color: var(--c2); */
+}
+.rnd {
+    border-radius: 5px;
+}
+.cap {
+    font-family: sans-serif;
+    font-size: 1.1rem;
+    font-weight: bold;
+    padding: 5px 3rem;
+    color: gray;
+    background-color: lightgray;
+}
 </style>
 </head>
 
 <body>
-<div style="padding: 10px 0px;">
-    <span style="margin-left: 5px;font-weight: bold;">键谱:</span>
-    <select id="profs" style="width: 20rem;"></select>
-    <button id="btn_new" class="btn" style="margin: 2px;padding: 0px 5px;">新建</button>
+<div class="cap">
+    <span>键谱</span>
+    <span style="font-size: 75%;">—— 让“记录快捷键”变得简单</span>
 </div>
-<div style="display: flex;gap: 3px; height: 2rem;">
-    <span id="tabbtn_kb" class="tabbtn">键盘图</span>
-    <span id="tabbtn_list" class="tabbtn">按键映射表</span>
-    <div class="prof_list" style="flex: 1;">
+<div style="display: flex;gap: 3px;height: 2rem;margin-top:10px;">
+    <span id="tabbtn_kb" class="tabbtn">键图</span>
+    <span id="tabbtn_list" class="tabbtn">键表</span>
+    <div style="flex: 1;display: flex;align-items:center;padding: 2px 0px;gap:2px;">
+        <span style="flex: 1;text-align: right;font-weight: bold;">键谱：</span>
+        <div id="btn_prof" class="prof_name prof_cur" style="margin-right: 5px;"></div>
+        <button id="btn_clr" class="btn rnd danger">清空</button>
+        <button id="btn_del" class="btn rnd danger">删除</button>
+        <button id="btn_saveas" class="btn rnd">另存为</button>
+            <span style="flex: 1;">&nbsp;</span>
     </div>
-    <span id="tabbtn_json" class="tabbtn">JSON 数据</span>
+    <span id="tabbtn_json" class="tabbtn">数据</span>
 </div>
 <div id="kb_ops">
     <span>&nbsp;键盘层：</span>
@@ -536,16 +580,12 @@ dialog {
     <button id="btn_l4" class="btn">4</button>
     <span>&nbsp;</span>
     <button id="btn_l_clr" class="btn danger">清空本层</button>
-    <span style="flex:1;">&nbsp;</span>
+    <span style="flex: 1;">&nbsp;</span>
     <button id="btn_shorten" class="smbtn kb_op" title="收缩">➖</button>
     <button id="btn_expand" class="smbtn kb_op" title="扩展">➕</button>
     <button id="btn_hint" class="smbtn kb_op" title="切换键帽提示">🔣</button>
     <button id="btn_setting" class="smbtn kb_op" title="UI 设置">🛠</button>
-    <span style="flex:1;">&nbsp;</span>
-    键谱：
-    <button id="btn_clr" class="btn danger" style="margin: 2px;">清空</button>
-    <button id="btn_del" class="btn danger" style="margin: 2px;">删除</button>
-    <button id="btn_saveas" class="btn" style="margin: 2px;">另存为</button>
+    <span style="flex: 1;">&nbsp;</span>
     <span>&nbsp;</span>
 </div>
 <div id="json_ops">
