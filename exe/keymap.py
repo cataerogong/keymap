@@ -1,3 +1,4 @@
+import os
 from webwin import WebWinApp
 
 class KeymapApp(WebWinApp):
@@ -14,6 +15,7 @@ class KeymapApp(WebWinApp):
         self.argparser.add_argument('-H', choices=['0', '1'], help='键帽提示（关闭/打开）')
 
 app = KeymapApp()
+os.chdir(app.PROG_DIR)
 app.args.webroot = app.PROG_DIR
 app.args.mainpage = "keymap.html"
 app.run()

@@ -5,7 +5,7 @@
 <title></title>
 <style>
 :root {
-    --col: 2; /* mapping-list columns */
+    --cols: 2; /* mapping-list columns */
     --c0: black; /* highlight color */
     --c1: lightblue; /* highlight bg color */
     --c2: lightseagreen; /* border color */
@@ -408,34 +408,42 @@ km {
     display: flex;
     flex-flow: column;
     box-sizing: border-box;
-    height: 100%;
+    height: 0px;
     width: 100%;
     overflow-y: hidden;
-    border: 1px solid gray;
+    border-style: solid;
+    border-color: gray;
+    border-width: 0px 1px;
     background-color: whitesmoke;
 }
 
 #tab_kb {
-    position: absolute;
+    /* position: absolute; */
     width: fit-content;
-    height: 100%;
+    /* height: 100%; */
 }
 #tab_list {
-    position: absolute;
+    /* position: absolute; */
 }
 #tab_json {
-    position: absolute;
+    /* position: absolute; */
 }
 
-[data-view="k"] #tab_kb,
+/* [data-view="k"] #tab_kb,
 [data-view="l"] #tab_list,
 [data-view="j"] #tab_json {
     z-index: 1;
+} */
+[data-view="k"] #tab_kb,
+[data-view="l"] #tab_list,
+[data-view="j"] #tab_json {
+    height: 100%;
+    border-bottom-width: 1px;
 }
 
 #list {
     display: grid;
-    grid-template-columns: repeat(var(--col), max-content 1fr);
+    grid-template-columns: repeat(var(--cols), max-content 1fr);
     gap: 3px 1px;
     align-content: flex-start;
     padding: 10px;
@@ -541,6 +549,7 @@ dialog {
     border-radius: 5px;
 }
 .cap {
+    box-sizing: border-box;
     font-family: sans-serif;
     font-size: 1.1rem;
     font-weight: bold;
@@ -548,20 +557,59 @@ dialog {
     color: gray;
     background-color: lightgray;
 }
+#row_tabbar {
+    display: flex;
+    gap: 3px;
+    margin-top: 10px;
+}
 #comment {
     flex: 1;
-    border: 0px solid red;
     padding: 10px;
+}
+
+[data-ui="print"] #row_cap {
+    position: absolute;
+    width: var(--kbw);
+    /* padding: 0px 3rem; */
+}
+[data-ui="print"] #row_tabbar {
+    visibility: hidden;
+    margin-top: 0px;
+}
+[data-ui="print"] #prof_name {
+    visibility: visible;
+    /* position: absolute;
+    left: calc(var(--kbw) - 20rem); */
+    transform: translateX(calc(var(--kbw) / 2 - 50%));
+    pointer-events: none;
+}
+[data-ui="print"] :is(#kb_ops, #comment, #json_ops, #tab_json) {
+    display: none;
+}
+[data-ui="print"] :is(#tab_kb, #tab_list) {
+    height: fit-content;
+    border-width: 1px;
+}
+[data-ui="print"] body {
+    height: fit-content;
+    overflow: auto;
+}
+.CLICK {
+    cursor: pointer;
 }
 </style>
 </head>
 
 <body>
-<div class="cap">
+<div id="row_cap" class="cap">
     <span>键谱</span>
-    <span style="font-size: 75%;">—— 让“记录、展示快捷键”变得简单</span>
+    <span style="font-size: 75%;">
+        —— 让“记录、展示快捷键”变得
+        <span class="CLICK" onclick="UI.setFlag('ui', '')">简</span>
+        <span class="CLICK" onclick="UI.setFlag('ui', 'print')">单</span>
+    </span>
 </div>
-<div style="display: flex;gap: 3px;height: 2rem;margin-top:10px;">
+<div id="row_tabbar">
     <span id="tabbtn_kb" class="tabbtn BIND-CLICK">键图</span>
     <span id="tabbtn_list" class="tabbtn BIND-CLICK">键表</span>
     <div style="flex: 1;display: flex;align-items:center;padding: 2px 0px;gap:2px;">
@@ -570,7 +618,7 @@ dialog {
         <button id="btn_clr" class="btn rnd danger BIND-CLICK">清空</button>
         <button id="btn_del" class="btn rnd danger BIND-CLICK">删除</button>
         <button id="btn_saveas" class="btn rnd BIND-CLICK">另存为</button>
-            <span style="flex: 1;">&nbsp;</span>
+        <span style="flex: 1;">&nbsp;</span>
     </div>
     <span id="tabbtn_json" class="tabbtn BIND-CLICK">数据</span>
 </div>
@@ -591,12 +639,7 @@ dialog {
     <span style="flex: 1;">&nbsp;</span>
     <span>&nbsp;</span>
 </div>
-<div id="json_ops">
-    &nbsp;JSON 数据随上图设置实时更新。也可在下方编辑 JSON 数据后：
-    <button id="btn_imp" class="btn BIND-CLICK" style="margin: 2px;">导入至当前键谱</button>
-    <button id="btn_imp2" class="btn BIND-CLICK" style="margin: 2px;">导入至新键谱</button>
-</div>
-<div style="position: relative;height: 100%;">
+<!-- <div style="position: relative;height: 100%;"> -->
 <div id="tab_kb" class="tab">
     <keyboard id="keyboard">
         <kb_main id="kb_main">
@@ -647,10 +690,15 @@ dialog {
 <div id="tab_list" class="tab">
     <div id="list"></div>
 </div>
+<div id="json_ops">
+    &nbsp;JSON 数据随上图设置实时更新。也可在下方编辑 JSON 数据后：
+    <button id="btn_imp" class="btn BIND-CLICK" style="margin: 2px;">导入至当前键谱</button>
+    <button id="btn_imp2" class="btn BIND-CLICK" style="margin: 2px;">导入至新键谱</button>
+</div>
 <div id="tab_json" class="tab">
     <textarea id="json"></textarea>
 </div>
-</div>
+<!-- </div> -->
 <div class="about"></div>
 
 <script>
@@ -692,7 +740,7 @@ var Util = {
         return true;
     },
 
-    fill_obj(dst, src) {
+    patch_obj(dst, src) {
         for (const k in src) {
             if (!(k in dst))
                 dst[k] = src[k];
@@ -700,9 +748,10 @@ var Util = {
     },
 
     copy_obj(dst, src) {
-        for (const k in src) {
-            dst[k] = src[k];
-        }
+        // for (const k in src) {
+        //     dst[k] = src[k];
+        // }
+        Object.assign(dst, src);
     },
 
     gen_combo_kn_elm(kn) {
@@ -766,6 +815,7 @@ var Keymap = {
     _locked: false,
 
     _default_cfg: {
+        "layers": 5,
         "view": "k",
         "kbsize": 3,
         "kbhint": false,
@@ -779,10 +829,11 @@ var Keymap = {
         "c0": "black",
         "c1": "lightblue",
         "c2": "lightseagreen",
+        "cols": 2,
     },
 
     get _default_keymap() {
-        return JSON.parse(`{"#0": {}, "#1": {}, "#2": {}, "#3": {}, "#4": {}, "#config": ${JSON.stringify(this._default_cfg)}}`);
+        return JSON.parse(`{"#config": ${JSON.stringify(this._default_cfg)}}`);
     },
 
     init(name = "") {
@@ -796,7 +847,7 @@ var Keymap = {
         // check config
         if (!("#config" in kmap))
             kmap["#config"] = {};
-        Util.fill_obj(kmap["#config"], this._default_cfg);
+        Util.patch_obj(kmap["#config"], this._default_cfg);
         // check layers
         for (let i=0; i<=4; i++) {
             if (!(("#"+i) in kmap))
@@ -804,7 +855,7 @@ var Keymap = {
         }
         // migrate data v1 to v2
         for (const k in kmap) {
-            if (["#config", "#0", "#1", "#2", "#3", "#4"].includes(k)) continue;
+            if (k[0] == "#") continue;
             if (k.startsWith("#layer-")) {
                 let ln = k.slice(7);
                 Object.assign(kmap["#"+ln], kmap[k]);
@@ -851,9 +902,12 @@ var Keymap = {
     },
 
     set CurLayer(ln) {
-        if (0 <= ln && ln <= 4) {
-            this._cur_layer = ln;
-        } else {
+        this.checkLayer(ln);
+        this._cur_layer = ln;
+    },
+
+    checkLayer(ln) {
+        if (ln < 0 || ln >= this.Config.layers) {
             throw RangeError("Layer # error: " + ln);
         }
     },
@@ -861,12 +915,16 @@ var Keymap = {
     Layer(ln = null) {
         if (ln == null)
             ln = this.CurLayer;
+        this.checkLayer(ln);
+        if (!(("#"+ln) in this._data))
+            this._data["#"+ln] = {}
         return this._data["#"+ln];
     },
 
     clearLayer(ln = null) {
         if (ln == null)
             ln = this.CurLayer;
+        this.checkLayer(ln);
         this._data["#"+ln] = {};
     },
 
@@ -977,6 +1035,7 @@ var UI = {
         this.setCSS("--c0", cfg["c0"]);
         this.setCSS("--c1", cfg["c1"]);
         this.setCSS("--c2", cfg["c2"]);
+        this.setCSS("--cols", cfg["cols"]);
         this.resize();
     },
 
@@ -1549,6 +1608,8 @@ async function setting_dlg() {
                 <span>键高</span><input type="number" id="kh2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>字母大小</span><input type="number" id="ks2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>提示大小</span><input type="number" id="kt2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <div class="subttl">键谱列表</div>
+                <span>分列数</span><input type="number" id="cols" min="1" max="10" step="1" style="width: 3rem;" />
             </div>
             <div style="text-align: right;">
                 <button class="btn btnclr danger" style="float:left;">Reset UI</button>
