@@ -553,15 +553,36 @@ dialog {
     border: 0px solid red;
     padding: 10px;
 }
+.print {
+    font-weight: normal;
+    font-size: 120%;
+    cursor: pointer;
+}
+
+[data-ui="simple"] :is(#kb_ops, #json_ops)
+{
+    display: none !important;
+}
+[data-ui="simple"] #row_tabbtn {
+    visibility: hidden;
+}
+[data-ui="simple"] #prof_name {
+    visibility: visible !important;
+}
+[data-ui="simple"] #row_cap {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    color: darkgray;
+}
 </style>
 </head>
 
 <body>
-<div class="cap">
+<div id="row_cap" class="cap">
     <span>键谱</span>
-    <span style="font-size: 75%;">—— 让“记录、展示快捷键”变得简单</span>
+    <span style="font-size: 75%;">—— 让“记录、展示快捷键”变得 <span id="to_print" class="print BIND-CLICK">简单</span></span>
 </div>
-<div style="display: flex;gap: 3px;height: 2rem;margin-top:10px;">
+<div id="row_tabbtn" style="display: flex;gap: 3px;height: 2rem;margin-top:10px;">
     <span id="tabbtn_kb" class="tabbtn BIND-CLICK">键图</span>
     <span id="tabbtn_list" class="tabbtn BIND-CLICK">键表</span>
     <div style="flex: 1;display: flex;align-items:center;padding: 2px 0px;gap:2px;">
@@ -940,6 +961,14 @@ var UI = {
             document.documentElement.setAttribute("data-" + name, value);
     },
 
+    toggleFlag(name, value) {
+        if (document.documentElement.getAttribute("data-" + name)) {
+            this.setFlag(name, "");
+        } else {
+            this.setFlag(name, value);
+        }
+    },
+
     setCSS(prop, val) {
         if (!prop || !val) return false;
         for (const sheet of document.styleSheets) {
@@ -1086,6 +1115,10 @@ var UI = {
             break;
             case "btn_imp":
                 await this.import();
+            break;
+            case "to_print":
+                this.toggleFlag("ui", "simple");
+                udf = false;
             break;
             default:
                 upd = false;
