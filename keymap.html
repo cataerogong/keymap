@@ -35,9 +35,7 @@ body {
     overflow-y: hidden;
     display: flex;
     flex-flow: column;
-    /* width: max-content; */
     width: var(--kbw);
-    /* gap: 10px; */
 }
 
 textarea {
@@ -71,7 +69,7 @@ keyboard {
     gap: 10px;
     width: fit-content;
     height: fit-content;
-    overflow: hidden;
+    overflow-y: hidden;
     margin: 5px;
 }
 
@@ -296,8 +294,6 @@ km {
     color: black;
     border-color: red;
     background-color:lightpink;
-    outline: 1px dashed red;
-    outline-offset: 1px;
 }
 
 .smbtn {
@@ -372,9 +368,9 @@ km {
 .smbtn:hover,
 .tabbtn:hover,
 .tabbtn.sel,
-[data-view="kb"] #tabbtn_kb,
-[data-view="list"] #tabbtn_list,
-[data-view="json"] #tabbtn_json {
+[data-view="k"] #tabbtn_kb,
+[data-view="l"] #tabbtn_list,
+[data-view="j"] #tabbtn_json {
     border-color: var(--c2);
     background-color: var(--c1);
     color: var(--c0);
@@ -393,23 +389,24 @@ km {
     align-items: center;
 }
 
-[data-view="kb"] #json_ops,
-[data-view="list"] #json_ops {
+[data-view="k"] #json_ops,
+[data-view="l"] #json_ops {
     display: none;
 }
-[data-view="json"] #kb_ops {
+[data-view="j"] #kb_ops {
     display: none;
 }
 
 .kb_op {
     visibility: hidden;
 }
-[data-view="kb"] .kb_op {
+[data-view="k"] .kb_op {
     visibility: visible;
 }
 
 .tab {
     display: flex;
+    flex-flow: column;
     box-sizing: border-box;
     height: 100%;
     width: 100%;
@@ -422,7 +419,6 @@ km {
     position: absolute;
     width: fit-content;
     height: 100%;
-    /* overflow-y: auto; */
 }
 #tab_list {
     position: absolute;
@@ -431,14 +427,9 @@ km {
     position: absolute;
 }
 
-/* [data-view="kb"] :is(#tab_list, #tab_json),
-[data-view="list"] :is(#tab_kb, #tab_json),
-[data-view="json"] :is(#tab_kb, #tab_list) {
-    display: none;
-} */
-[data-view="kb"] #tab_kb,
-[data-view="list"] #tab_list,
-[data-view="json"] #tab_json {
+[data-view="k"] #tab_kb,
+[data-view="l"] #tab_list,
+[data-view="j"] #tab_json {
     z-index: 1;
 }
 
@@ -474,6 +465,11 @@ dialog {
     height: 20rem;
 }
 
+.name_dlg input[type="text"] {
+    font-size: 1rem;
+    height: 1.6em;
+}
+
 .stdlg .sts {
     display: grid;
     grid-auto-flow: row;
@@ -501,14 +497,13 @@ dialog {
 }
 
 .prof_name {
-    outline: 1px solid var(--c2);
+    border: 1px solid var(--c2);
     border-radius: 5px;
     padding: 3px 1em;
-    /* text-align: center; */
     width: 20em;
     cursor: pointer;
     white-space: nowrap;
-    overflow-x: hidden;
+    overflow: hidden;
     text-overflow: ellipsis;
 }
 .prof_name:hover {
@@ -521,23 +516,26 @@ dialog {
     border-radius: 5px;
     background-color: whitesmoke;
     width: 22em;
-    height: fit-content;
-    max-height: calc(var(--kh) * 5);
+    /* height: fit-content; */
+    max-height: 90%;
     padding: 5px;
-    display: flex;
-    flex-flow: column;
-    gap: 5px;
     overflow-y: auto;
     overflow-x: hidden;
     transition: opacity 0.3s;
     z-index: 2;
 }
+.prof_list .prof_name {
+    margin-bottom: 5px;
+}
 .prof_cur {
     font-weight: bold;
     background-color: var(--c1);
 }
-.prof_new {
+.prof_cmd {
     /* color: var(--c2); */
+    background-color: cornsilk;
+    border-color: goldenrod;
+    font-weight: bold;
 }
 .rnd {
     border-radius: 5px;
@@ -550,48 +548,53 @@ dialog {
     color: gray;
     background-color: lightgray;
 }
+#comment {
+    flex: 1;
+    border: 0px solid red;
+    padding: 10px;
+}
 </style>
 </head>
 
 <body>
 <div class="cap">
     <span>键谱</span>
-    <span style="font-size: 75%;">—— 让“记录快捷键”变得简单</span>
+    <span style="font-size: 75%;">—— 让“记录、展示快捷键”变得简单</span>
 </div>
 <div style="display: flex;gap: 3px;height: 2rem;margin-top:10px;">
-    <span id="tabbtn_kb" class="tabbtn">键图</span>
-    <span id="tabbtn_list" class="tabbtn">键表</span>
+    <span id="tabbtn_kb" class="tabbtn BIND-CLICK">键图</span>
+    <span id="tabbtn_list" class="tabbtn BIND-CLICK">键表</span>
     <div style="flex: 1;display: flex;align-items:center;padding: 2px 0px;gap:2px;">
         <span style="flex: 1;text-align: right;font-weight: bold;">键谱：</span>
-        <div id="btn_prof" class="prof_name prof_cur" style="margin-right: 5px;"></div>
-        <button id="btn_clr" class="btn rnd danger">清空</button>
-        <button id="btn_del" class="btn rnd danger">删除</button>
-        <button id="btn_saveas" class="btn rnd">另存为</button>
+        <div id="prof_name" class="prof_name prof_cur" style="margin-right: 5px;"></div>
+        <button id="btn_clr" class="btn rnd danger BIND-CLICK">清空</button>
+        <button id="btn_del" class="btn rnd danger BIND-CLICK">删除</button>
+        <button id="btn_saveas" class="btn rnd BIND-CLICK">另存为</button>
             <span style="flex: 1;">&nbsp;</span>
     </div>
-    <span id="tabbtn_json" class="tabbtn">数据</span>
+    <span id="tabbtn_json" class="tabbtn BIND-CLICK">数据</span>
 </div>
 <div id="kb_ops">
     <span>&nbsp;键盘层：</span>
-    <button id="btn_l0" class="btn">0</button>
-    <button id="btn_l1" class="btn">1</button>
-    <button id="btn_l2" class="btn">2</button>
-    <button id="btn_l3" class="btn">3</button>
-    <button id="btn_l4" class="btn">4</button>
+    <button id="btn_l0" class="btn BIND-CLICK">0</button>
+    <button id="btn_l1" class="btn BIND-CLICK">1</button>
+    <button id="btn_l2" class="btn BIND-CLICK">2</button>
+    <button id="btn_l3" class="btn BIND-CLICK">3</button>
+    <button id="btn_l4" class="btn BIND-CLICK">4</button>
     <span>&nbsp;</span>
-    <button id="btn_l_clr" class="btn danger">清空本层</button>
+    <button id="btn_l_clr" class="btn danger BIND-CLICK">清空本层</button>
     <span style="flex: 1;">&nbsp;</span>
-    <button id="btn_shorten" class="smbtn kb_op" title="收缩">➖</button>
-    <button id="btn_expand" class="smbtn kb_op" title="扩展">➕</button>
-    <button id="btn_hint" class="smbtn kb_op" title="切换键帽提示">🔣</button>
-    <button id="btn_setting" class="smbtn kb_op" title="UI 设置">🛠</button>
+    <button id="btn_shorten" class="smbtn kb_op BIND-CLICK" title="收缩">➖</button>
+    <button id="btn_expand" class="smbtn kb_op BIND-CLICK" title="扩展">➕</button>
+    <button id="btn_hint" class="smbtn kb_op BIND-CLICK" title="键帽提示">🔣</button>
+    <button id="btn_setting" class="smbtn kb_op BIND-CLICK" title="UI 设置">🛠</button>
     <span style="flex: 1;">&nbsp;</span>
     <span>&nbsp;</span>
 </div>
 <div id="json_ops">
     &nbsp;JSON 数据随上图设置实时更新。也可在下方编辑 JSON 数据后：
-    <button id="btn_imp" class="btn" style="margin: 2px;">导入至当前键谱</button>
-    <button id="btn_imp2" class="btn" style="margin: 2px;">导入至新键谱</button>
+    <button id="btn_imp" class="btn BIND-CLICK" style="margin: 2px;">导入至当前键谱</button>
+    <button id="btn_imp2" class="btn BIND-CLICK" style="margin: 2px;">导入至新键谱</button>
 </div>
 <div style="position: relative;height: 100%;">
 <div id="tab_kb" class="tab">
@@ -638,6 +641,8 @@ dialog {
             <d style="margin-left: 10px;">鼠标:</d><k>LB</k><k>RB</k><k>MB</k><k>WhlUp</k><k>WhlDn</k>
         </kb_ext>
     </keyboard>
+    <div></div>
+    <textarea id="comment" placeholder="备注"></textarea>
 </div>
 <div id="tab_list" class="tab">
     <div id="list"></div>
@@ -648,7 +653,1030 @@ dialog {
 </div>
 <div class="about"></div>
 
-<script src="keymap.js"></script>
+<script>
+let KeyTable = {
+    "0": [48, ''], "1": [49, ''], "2": [50, ''], "3": [51, ''], "4": [52, ''], "5": [53, ''], "6": [54, ''], "7": [55, ''], "8": [56, ''], "9": [57, ''],
+    "A": [65, ''], "B": [66, ''], "C": [67, ''], "D": [68, ''], "E": [69, ''], "F": [70, ''], "G": [71, ''], "H": [72, ''], "I": [73, ''], "J": [74, ''],
+    "K": [75, ''], "L": [76, ''], "M": [77, ''], "N": [78, ''], "O": [79, ''], "P": [80, ''], "Q": [81, ''], "R": [82, ''], "S": [83, ''], "T": [84, ''],
+    "U": [85, ''], "V": [86, ''], "W": [87, ''], "X": [88, ''], "Y": [89, ''], "Z": [90, ''],
+    ";": [186, ''], "=": [187, ''], ",": [188, ''], "-": [189, ''], ".": [190, ''], "/": [191, ''], "`": [192, ''], "[": [219, ''], "\\": [220, ''], "]": [221, ''], "'": [222, ''],
+    "F1": [112, ''], "F2": [113, ''], "F3": [114, ''], "F4": [115, ''], "F5": [116, ''], "F6": [117, ''], "F7": [118, ''], "F8": [119, ''], "F9": [120, ''], "F10": [121, ''],
+    "F11": [122, ''], "F12": [123, ''], "F13": [0, ''], "F14": [0, ''], "F15": [0, ''], "F16": [0, ''], "F17": [0, ''], "F18": [0, ''], "F19": [0, ''], "F20": [0, ''],
+    "F21": [0, ''], "F22": [0, ''], "F23": [0, ''], "F24": [0, ''], "F25": [0, ''], "F26": [0, ''], "F27": [0, ''], "F28": [0, ''], "F29": [0, ''], "F30": [0, ''],
+    "Alt": [18, ''], "RAlt": [0, ''], "Backspace": [8, ''], "Caps": [20, ''], "Ctrl": [17, ''], "RCtrl": [0, ''], "Del": [46, ''], "Down": [40, '↓'], "End": [35, ''], "Enter": [13, ''], "REnter": [0, ''], "Esc": [27, ''],
+    "Home": [36, ''], "Ins": [45, ''], "Left": [37, '←'], "Menu": [93, ''], "Pause": [19, ''], "PgDn": [34, ''], "PgUp": [33, ''], "PrtScr": [-1, ''], "Right": [39, '→'],
+    "ScrLck": [145, ''], "Shift": [16, ''], "RShift": [0, ''], "Space": [32, ''], "Tab": [9, ''], "Up": [38, '↑'], "Win": [91, ''],
+    "NumLck": [144, ''], "Num-": [109, '-'], "Num*": [106, '*'], "Num.": [110, '.'], "Num/": [111, '/'], "Num+": [107, '+'],
+    "Num0": [96, '0'], "Num1": [97, '1'], "Num2": [98, '2'], "Num3": [99, '3'], "Num4": [100, '4'], "Num5": [101, '5'], "Num6": [102, '6'], "Num7": [103, '7'], "Num8": [104, '8'], "Num9": [105, '9'],
+    "LB": [0, ''], "RB": [0, ''], "MB": [0, ''], "WhlUp": [0, ''], "WhlDn": [0, ''], 
+};
+const COMBO_KEY = ["Alt", "RAlt", "Ctrl", "RCtrl", "Shift", "RShift", "Win"];
+const DEFAULT_PROF = "DEFAULT";
+
+var Util = {
+    split_combo(combo_str) {
+        return combo_str.replaceAll("Num+", "NumPlus").replaceAll("+", "_+_").replaceAll("NumPlus", "Num+").split("_+_");
+    },
+
+    get_mainkey(combo_str) {
+        let l = this.split_combo(combo_str);
+        return l[l.length - 1];
+    },
+
+    between(v, min, max) {
+        return (v < min) ? min : ((v > max) ? max : v);
+    },
+
+    is_empty_obj(obj) {
+        for (const v in obj) return false;
+        return true;
+    },
+
+    fill_obj(dst, src) {
+        for (const k in src) {
+            if (!(k in dst))
+                dst[k] = src[k];
+        }
+    },
+
+    copy_obj(dst, src) {
+        for (const k in src) {
+            dst[k] = src[k];
+        }
+    },
+
+    gen_combo_kn_elm(kn) {
+        let ck = this.split_combo(kn);
+        let mk = ck[ck.length - 1];
+        let l = [];
+        for (const k of ck) {
+            l.push(`<kn ${k==mk?"":' class="ck"'}>${k}</kn>`);
+        }
+        return `<span data-mainkey="${mk}" class="kinfo f-end">${l.join("+")}</span>`;
+    },
+};
+
+const NEW_KEYMAP = "+ 新建";
+const HELP_KEYMAP = "* 帮助";
+const HELP = `【备注】这里是备注框，可以为每个键盘层备注信息。
+
+【试验】这是一个虚拟的键谱，你可以在这里试验各种操作，重新载入“${HELP_KEYMAP}”即可恢复原样。
+
+【帮助】
+  * 鼠标指向顶部的“键谱名”，可以新建和切换键谱。
+  * 点击键盘图中的按键，可以录入按键映射信息。
+  * 组合键：在录入时可以选择组合修饰键（Alt、Ctrl、Shift、Win）。
+  * 一个按键上可以录入多组组合键。
+  * 映射信息以"* "（星号+空格）开头的组合键定义为主映射，在“键帽提示”模式下会在键帽上显示第一行文字，并且主映射的组合键会直接显示在键帽上。
+
+【谱匣】通过谱匣程序使用键谱时，可以使用命令行参数(-PLVSH)自定义载入的键谱及界面。
+  -P 键谱名
+  -L 键盘层 : [0~5]
+  -V 视图 : [k/l/j] 键图 / 键表 / 数据
+  -S 键盘大小 : [1~4] 60% / 80% / 100% / 扩展
+  -H 键帽提示 : [0/1] 关闭 / 打开
+  示例：打开键谱“Photoshop”，切换到层2，显示键图，60%键盘大小，打开键帽提示。
+    keymap.exe -P Photoshop -L 2 -V k -S 1 -H 1
+`;
+const KeymapHelp = {
+    "#NAME": HELP_KEYMAP,
+    "1": "* 键盘层 1",
+    "2": "* 键盘层 2",
+    "3": "* 键盘层 3",
+    "4": "* 键盘层 4",
+    "`": "* 键盘层 0",
+    "Q": "* 60% 键盘 ",
+    "W": "* 80% 键盘",
+    "E": "* 标准键盘",
+    "R": "* 扩展键盘",
+    "Tab": "* 键帽提示",
+    "A": "* 键图",
+    "S": "* 键表",
+    "D": "* 数据",
+    "K": "* 键图",
+    "L": "* 键表",
+    "J": "* 数据",
+    "#comment": HELP
+};
+
+var Keymap = {
+    Name: "",
+    _data: null,
+    _cur_layer: 0,
+    _locked: false,
+
+    _default_cfg: {
+        "view": "k",
+        "kbsize": 3,
+        "kbhint": false,
+        "ks1": 0.8,
+        "kw1": 3,
+        "kh1": 3,
+        "ks2": 0.9,
+        "kw2": 5,
+        "kh2": 5,
+        "kt2": 0.8,
+        "c0": "black",
+        "c1": "lightblue",
+        "c2": "lightseagreen",
+    },
+
+    get _default_keymap() {
+        return JSON.parse(`{"#0": {}, "#1": {}, "#2": {}, "#3": {}, "#4": {}, "#config": ${JSON.stringify(this._default_cfg)}}`);
+    },
+
+    init(name = "") {
+        this.Name = name;
+        this._data = this._default_keymap;
+        this._cur_layer = 0;
+        this._locked = false;
+    },
+
+    fixStruct(kmap) {
+        // check config
+        if (!("#config" in kmap))
+            kmap["#config"] = {};
+        Util.fill_obj(kmap["#config"], this._default_cfg);
+        // check layers
+        for (let i=0; i<=4; i++) {
+            if (!(("#"+i) in kmap))
+            kmap["#"+i] = {};
+        }
+        // migrate data v1 to v2
+        for (const k in kmap) {
+            if (["#config", "#0", "#1", "#2", "#3", "#4"].includes(k)) continue;
+            if (k.startsWith("#layer-")) {
+                let ln = k.slice(7);
+                Object.assign(kmap["#"+ln], kmap[k]);
+            } else {
+                if (kmap[k])
+                    kmap["#0"][k] = kmap[k];
+            }
+            delete kmap[k];
+        }
+    },
+
+    loadJSON(json_str) {
+        if (!json_str)
+            return false;
+        let temp = null;
+        try {
+            temp = JSON.parse(json_str);
+            this.fixStruct(temp);
+        } catch (e) {
+            console.log(e);
+            return false;
+        }
+        this._data = temp;
+        this._cur_layer = 0;
+        // this._locked = false;
+        return true;
+    },
+
+    clear() {
+        this._data = this._default_keymap;
+        this._cur_layer = 0;
+    },
+
+    get JSON() {
+        return JSON.stringify(this._data, null, 2);
+    },
+
+    get Config() {
+        return this._data["#config"];
+    },
+
+    get CurLayer() {
+        return this._cur_layer;
+    },
+
+    set CurLayer(ln) {
+        if (0 <= ln && ln <= 4) {
+            this._cur_layer = ln;
+        } else {
+            throw RangeError("Layer # error: " + ln);
+        }
+    },
+
+    Layer(ln = null) {
+        if (ln == null)
+            ln = this.CurLayer;
+        return this._data["#"+ln];
+    },
+
+    clearLayer(ln = null) {
+        if (ln == null)
+            ln = this.CurLayer;
+        this._data["#"+ln] = {};
+    },
+
+    getMapping(kn, ln = null) {
+        return (kn in this.Layer(ln)) ? this.Layer(ln)[kn] : null;
+    },
+
+    getAllMappings(mk, ln = null) {
+        let ret = {};
+        for (const kn in this.Layer(ln)) {
+            if (Util.get_mainkey(kn) == mk && this.Layer(ln)[kn]) {
+                ret[kn] = this.Layer(ln)[kn];
+            }
+        }
+        return ret;
+    },
+
+    setMapping(kn, info, ln = null) {
+        if (info) {
+            this.Layer(ln)[kn] = info;
+        } else {
+            delete this.Layer(ln)[kn];
+        }
+    },
+
+    // Storage Methods
+    async load(name = null) {
+        this.init();
+        this.Name = name || this.Name;
+        if (!this.Name) {
+            return false;
+        }
+        let json_ = await _PROFILE_.read(this.Name);
+        return Boolean(json_ && this.loadJSON(json_));
+    },
+    async save() {
+        if (this._locked) return;
+        if (!this.Name) return;
+        await _PROFILE_.write(this.Name, this.JSON);
+    },
+    async del() {
+        if (this._locked) return;
+        if (!this.Name) return;
+        await _PROFILE_.del(this.Name);
+        this.init();
+    },
+    loadHelp() {
+        this.loadJSON(JSON.stringify(KeymapHelp));
+        this.Name = KeymapHelp["#NAME"];
+        this._cur_layer = 0;
+        this._locked = true;
+        this.Config.view = "k";
+        this.Config.kbsize = 1;
+        this.Config.kbhint = true;
+    },
+}
+
+var UI = {
+    elm(sel) {
+        return document.querySelector(sel);
+    },
+
+    elms(sel) {
+        return document.querySelectorAll(sel);
+    },
+
+    setFlag(name, value) {
+        if (value === null)
+            document.documentElement.removeAttribute("data-" + name);
+        else
+            document.documentElement.setAttribute("data-" + name, value);
+    },
+
+    setCSS(prop, val) {
+        if (!prop || !val) return false;
+        for (const sheet of document.styleSheets) {
+            for (const rule of sheet.cssRules) {
+                if (rule.selectorText === ":root") {
+                    rule.style.setProperty(prop, val);
+                    return true;
+                }
+            }
+        }
+        document.styleSheets[document.styleSheets.length - 1].insertRule(`${sel} {${prop}: ${val}}`);
+        return true;
+    },
+
+    update() {
+        this.elm("#prof_name").innerText = Keymap.Name || NEW_KEYMAP;
+        this.elm("#prof_name").title = Keymap.Name;
+        this.Keyboard.update();
+        this.List.update();
+        this.Json.update();
+
+        this.setFlag('layer', Keymap.CurLayer);
+        let cfg = Keymap.Config;
+        cfg.kbsize = Util.between(cfg.kbsize, 1, 4);
+        this.setFlag("view", cfg.view);
+        this.setFlag("kbsize", cfg.kbsize);
+        this.setFlag("kbhint", cfg.kbhint);
+        this.setCSS("--ks1", cfg["ks1"]);
+        this.setCSS("--kw1", cfg["kw1"]);
+        this.setCSS("--kh1", cfg["kh1"]);
+        this.setCSS("--ks2", cfg["ks2"]);
+        this.setCSS("--kw2", cfg["kw2"]);
+        this.setCSS("--kh2", cfg["kh2"]);
+        this.setCSS("--kt2", cfg["kt2"]);
+        this.setCSS("--c0", cfg["c0"]);
+        this.setCSS("--c1", cfg["c1"]);
+        this.setCSS("--c2", cfg["c2"]);
+        this.resize();
+    },
+
+    resize() {
+        this.setCSS("--kbw", window.getComputedStyle(this.elm("#tab_kb")).width);
+    },
+
+    async onKeyDown(evt) {
+        if (evt.target != document.body)
+            return;
+        let handled = true;
+        let upd = true;
+        switch (evt.key) {
+            case "`":
+                await this.changeLayer(0);
+                break;
+            case "1":
+            case "2":
+            case "3":
+            case "4":
+                await this.changeLayer(parseInt(evt.key));
+                break;
+            case "q":
+                await this.setSize(1);
+                break;
+            case "w":
+                await this.setSize(2);
+                break;
+            case "e":
+                await this.setSize(3);
+                break;
+            case "r":
+                await this.setSize(4);
+                break;
+            case "a":
+            case "k":
+                await this.changeView("k");
+                break;
+            case "s":
+            case "l":
+                await this.changeView("l");
+                break;
+            case "d":
+            case "j":
+                this.setFlag("view", "j");
+                upd = false;
+                break;
+            case "Tab":
+                await this.toggleHint();
+                break;
+            default:
+                handled = false;
+        }
+        if (handled) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            if (upd)
+                this.update();
+        }
+    },
+
+    async onClick(evt, elm) {
+        let upd = true;
+        elm.blur();
+        switch (elm.id) {
+            case "tabbtn_kb":
+                await this.changeView("k");
+            break;
+            case "tabbtn_list":
+                await this.changeView("l");
+            break;
+            case "tabbtn_json":
+                this.setFlag("view", "j");
+                upd = false;
+            break;
+            case "btn_l0":
+            case "btn_l1":
+            case "btn_l2":
+            case "btn_l3":
+            case "btn_l4":
+                await this.changeLayer(parseInt(elm.id[elm.id.length-1]));
+            break;
+            case "btn_l_clr":
+                await this.clearLayer();
+            break;
+            case "btn_shorten":
+                await this.changeSize(-1);
+            break;
+            case "btn_expand":
+                await this.changeSize(+1);
+            break;
+            case "btn_hint":
+                await this.toggleHint();
+            break;
+            case "btn_setting":
+                await this.setting();
+            break;
+            case "btn_clr":
+                await this.clear();
+            break;
+            case "btn_del":
+                await this.delete();
+            break;
+            case "btn_saveas":
+            case "btn_imp2":
+                await this.import2();
+            break;
+            case "btn_imp":
+                await this.import();
+            break;
+            default:
+                upd = false;
+                console.log("Unhandled click-event. Elm: ", elm);
+        }
+        evt.preventDefault();
+        evt.stopPropagation();
+        if (upd)
+            this.update();
+    },
+
+    async init() {
+        document.body.onkeydown = async (evt) => { await this.onKeyDown(evt); };
+        this.elm("#prof_name").onmouseenter = async (evt) => { await this.showProfileList(); }
+        for (const elm of this.elms(".BIND-CLICK")) {
+            elm.onclick = async (evt) => { await this.onClick(evt, elm); };
+        }
+        this.elm("#comment").onblur = async (evt) => { Keymap.setMapping("#comment", this.elm("#comment").value); await this.save(); this.update(); }
+
+        this.Keyboard.init();
+
+        await this.loadFirstProf();
+        this.update();
+    },
+
+    async loadFirstProf() {
+        let l = await _PROFILE_.all();
+        if (l.length > 0) {
+            l.sort((a, b) => a.localeCompare(b, "zh"));
+            await Keymap.load(l[0]);
+        } else {
+            // Keymap.init();
+            Keymap.loadHelp();
+        }
+    },
+
+    async showProfileList() {
+        function hideList() {
+            for (const e of document.querySelectorAll(".prof_list")) {
+                e.remove();
+            }
+        }
+        function genProf(prof, add_cls, onclick) {
+            let elm = document.createElement("DIV");
+            elm.classList.add("prof_name");
+            if (add_cls) elm.classList.add(...add_cls);
+            if (onclick) elm.onclick = onclick;
+            elm.innerHTML = prof;
+            elm.title = prof;
+            return elm;
+        }
+
+        hideList();
+
+        let elm_new = genProf(NEW_KEYMAP, ["prof_cmd"], async () => {hideList(); await this.new(); this.update();});
+        let s = [];
+        s.push(elm_new);
+        let l = await _PROFILE_.all();
+        if (l.length > 0) {
+            l.sort((a, b) => a.localeCompare(b, "zh"));
+            for (const p of l) {
+                s.push(genProf(p, null, async () => {hideList(); await this.load(p); this.update();}));
+            }
+        }
+        s.push(genProf(KeymapHelp["#NAME"], ["prof_cmd"], async () => {hideList(); Keymap.loadHelp(); this.update();}));
+        let temp = document.createElement("span");
+        temp.innerHTML = `<div class="prof_list" style="position:absolute;box-shadow: 0px 0px 10px #000;opacity: 0;"></div>`;
+        let elm_list = temp.children[0];
+        elm_list.append(...s);
+        elm_list.onmouseleave = hideList;
+        let elm_prof = this.elm("#prof_name");
+        document.body.appendChild(elm_list);
+        elm_list.style.left = elm_prof.offsetLeft - 5;
+        elm_list.style.top = elm_prof.offsetTop - 5 - elm_new.offsetHeight - 5;
+        elm_list.style.opacity = 1;
+    },
+
+    // Data Operation Methods
+    async new() {
+        let name = await get_name_dlg();
+        if (name) {
+            Keymap.init(name);
+            await Keymap.save();
+        }
+    },
+
+    async save(force = true) {
+        if (!Keymap.Name) {
+            if (!force) return;
+            Keymap.Name = await get_name_dlg();
+        }
+        if (!Keymap.Name) return;
+        await Keymap.save();
+    },
+
+    async load(name) {
+        if (!await Keymap.load(name)) {
+            alert("无法载入键谱：" + name);
+            await this.loadFirstProf();
+        }
+    },
+
+    async delete() {
+        await Keymap.del();
+        await this.loadFirstProf();
+    },
+
+    async import() {
+        let json_ = this.Json.Value;
+        if (!json_)
+            return;
+        if (Keymap.loadJSON(json_)) {
+            await this.save();
+        }
+    },
+
+    async import2() {
+        let json_ = this.Json.Value;
+        if (!json_)
+            return;
+        let name = await get_name_dlg();
+        if (name) {
+            Keymap.init();
+            if (!Keymap.loadJSON(json_))
+                return;
+            Keymap.Name = name;
+            await this.save();
+        }
+    },
+
+    async clear() {
+        Keymap.clear();
+        await this.save(false);
+    },
+
+    async clearLayer() {
+        Keymap.clearLayer();
+        await this.save(false);
+    },
+
+    // UI Operation Methods
+
+    async changeView(view) {
+        if (view == "k" || view == "l") {
+            Keymap.Config.view = view;
+            await this.save(false);
+        }
+    },
+
+    async changeLayer(ln) {
+        if (ln < 0 || ln > 4) return;
+        Keymap.CurLayer = ln;
+        // await this.save(false);
+    },
+
+    async changeSize(delta) {
+        Keymap.Config.kbsize = Util.between(Keymap.Config.kbsize + delta, 1, 4);
+        await this.save(false);
+    },
+
+    async setSize(s) {
+        Keymap.Config.kbsize = Util.between(s, 1, 4);
+        await this.save(false);
+    },
+
+    async toggleHint() {
+        Keymap.Config.kbhint = !Keymap.Config.kbhint;
+        await this.save(false);
+    },
+
+    async setHint(b) {
+        Keymap.Config.kbhint = Boolean(b);
+        await this.save(false);
+    },
+
+    async setting() {
+        await setting_dlg();
+        await this.save();
+    },
+
+    // Keymapping Methods
+    async setMapping(mk) {
+        let s = await setmapping_dlg(mk);
+        if (s != null) {
+            if (s.length > 0) {
+                Keymap.setMapping(...s);
+            } else {
+                for (const kn in Keymap.getAllMappings(mk)) {
+                    Keymap.setMapping(kn, "");
+                }
+            }
+            await this.save();
+            this.update();
+        }
+    },
+}
+
+UI.Keyboard = {
+    _inited: false,
+    Elm: UI.elm("#keyboard"),
+
+    get Ks() {
+        return this.Elm.querySelectorAll("k");
+    },
+
+    showTip(elm_k) {
+        if (!elm_k.classList.contains("set")) return;
+        this.clearTips();
+        let s = [];
+        let l = Keymap.getAllMappings(elm_k.keyName);
+        for (const kn in l) {
+            s.push(`${Util.gen_combo_kn_elm(kn, elm_k.keyName)}<km>${l[kn]}</km>`);
+        }
+        let temp = document.createElement("span");
+        temp.innerHTML = `<div class="kms_info" style="position:absolute;box-shadow: 0px 0px 10px #000;opacity: 0;">${s.join("")}</div>`;
+        let elm_tip = temp.children[0];
+        let std_kw = this.Ks[0].offsetWidth; // first key button ("Esc") width as standard
+        let std_kh = this.Ks[0].offsetHeight;
+        elm_tip.style.minWidth = std_kw;
+        elm_tip.style.minHeight =std_kh;
+        this.Elm.appendChild(elm_tip);
+        if (elm_k.offsetLeft > this.Elm.offsetWidth - std_kw - elm_tip.offsetWidth)
+            elm_tip.style.left = elm_k.offsetLeft - elm_tip.offsetWidth;
+        else
+            elm_tip.style.left = elm_k.offsetLeft + std_kw;
+        if (elm_k.offsetTop > this.Elm.offsetHeight - elm_tip.offsetHeight)
+            elm_tip.style.top = this.Elm.offsetHeight - elm_tip.offsetHeight;
+        else
+            elm_tip.style.top = elm_k.offsetTop;
+        if (elm_tip.offsetTop < 2) {
+            elm_tip.style.top = 2;
+            elm_tip.style.maxHeight = this.Elm.offsetHeight - 4;
+        }
+        if (elm_tip.offsetLeft < 2) {
+            elm_tip.style.left = 2;
+            elm_tip.style.maxWidth = this.Elm.offsetWidth - 4;
+        }
+        elm_tip.style.opacity = 1;
+    },
+
+    clearTips() {
+        for (const e of document.querySelectorAll(".kms_info")) {
+            e.remove();
+        }
+    },
+
+    init() {
+        if (this._inited) return;
+        this._inited = true;
+        for (const elm of this.Ks) {
+            let mk = elm.innerHTML;
+            if (mk in KeyTable) {
+                k = KeyTable[mk];
+                elm.innerHTML = `<div class="ktn">${k[1] || mk}</div><div class="ktr">${k[1] || mk}</div><div class="ktm"></div>`;
+                elm.keyName = mk;
+                elm.onmouseenter = (evt) => { this.showTip(elm) };
+                elm.onmouseleave = (evt) => { this.clearTips() };
+                elm.onclick = (evt) => { UI.setMapping(mk); };
+                k.push(elm);
+            } else {
+                elm.classList.add("dis");
+            }
+        }
+    },
+
+    reset() {
+        for (const elm_k of this.Ks) {
+            elm_k.title = "";
+            elm_k.querySelector(".ktr").innerHTML = KeyTable[elm_k.keyName][1] || elm_k.keyName;
+            elm_k.querySelector(".ktm").innerHTML = "";
+            elm_k.classList.remove("set");
+        }
+    },
+
+    updateK(elm_k) {
+        let mk = elm_k.keyName;
+        let elm_ktr = elm_k.querySelector(".ktr");
+        elm_ktr.innerHTML = KeyTable[mk][1] || mk;
+        let elm_ktm = elm_k.querySelector(".ktm");
+        elm_ktm.innerHTML = "";
+        let ks = Keymap.getAllMappings(mk);
+        if (Util.is_empty_obj(ks)) {
+            elm_k.classList.remove("set");
+            elm_k.title = "";
+        } else {
+            elm_k.classList.add("set");
+            for (const k in ks) {
+                let ktm = ks[k];
+                if (ktm.startsWith("* ")) {
+                    elm_ktr.innerHTML = (k != mk) ? k : mk;
+                    elm_ktm.innerHTML = ktm.split('\n')[0].substr(2);
+                }
+            }
+        }
+    },
+
+    update() {
+        for (const elm_k of this.Ks) {
+            this.updateK(elm_k);
+        }
+        UI.elm("#comment").value = Keymap.getMapping("#comment");
+    },
+};
+
+UI.List = {
+    Elm: UI.elm("#list"),
+
+    update() {
+        let s = [];
+        for (const mk in KeyTable) {
+            let l = Keymap.getAllMappings(mk);
+            for (const kn in l) {
+                s.push(`${Util.gen_combo_kn_elm(kn)}<km data-mainkey="${mk}" class="kinfo">${l[kn]}</km>`);
+            }
+        }
+        this.Elm.innerHTML = s.join('\n');
+    },
+};
+
+UI.Json = {
+    Elm: UI.elm("#json"),
+
+    get Value() {
+        return this.Elm.value;
+    },
+
+    update() {
+        this.Elm.value = Keymap.JSON;
+    },
+};
+
+async function get_name_dlg() {
+    return new Promise((resolver) => {
+        let html = `<dialog class="name_dlg">
+            <div style="font-weight: bold">请输入键谱名：</div>
+            <div><input type="text" id="name" size="50" autofocus /></div>
+            <div style="text-align: right;">
+                <button class="btn btnok">确定</button>
+                <button class="btn btncancel">取消</button>
+            </div>
+            </dialog>`;
+        let tmp = document.createElement("div");
+        tmp.innerHTML = html;
+        let dlg = tmp.children[0];
+        let elm_name = dlg.querySelector("#name");
+        function _ok() {
+            let name = elm_name.value;
+            if (!name) {
+                alert("不能为空！");
+                elm_name.focus();
+                return;
+            }
+            if (name.search(/[\*\?\\\/\:\"\<\>\|]/) >= 0) {
+                alert(`名字中不能包含 \* \? \\ \/ \: \" \< \> \|`);
+                elm_name.focus();
+                return;
+            }
+            dlg.remove();
+            resolver(name.trim());
+        }
+        function _cancel() {
+            dlg.remove();
+            resolver();
+        }
+        dlg.querySelector(".btnok").onclick = _ok;
+        elm_name.onkeydown = (evt) => {
+            if (evt.key == "Enter") {
+                evt.preventDefault();
+                evt.stopPropagation();
+                _ok();
+                return;
+            }
+        }
+        dlg.querySelector(".btncancel").onclick = _cancel;
+        dlg.onclose = _cancel;
+        document.body.appendChild(dlg);
+        dlg.showModal();
+    });
+};
+
+let COMBO_CHK_LIST = "";
+for (const c of COMBO_KEY) COMBO_CHK_LIST += `<label><kn class="ck"><input type="checkbox" value="${c}">${c}</kn></label>`;
+
+async function setmapping_dlg(mk) {
+    return new Promise((resolver) => {
+        let html = `<dialog class="kmdlg">
+            <div style="flex: 1;display: flex;gap: 5px;">
+                <div style="display: flex;flex-flow:column;gap: 10px;">
+                    <kn>${mk}</kn>
+                    <div style="display:grid;grid-template-columns:max-content max-content;gap: 10px;width:fit-content;">
+                        ${COMBO_KEY.includes(mk) ? "" : COMBO_CHK_LIST}
+                    </div>
+                </div>
+                <textarea id="mapping" style="flex: 1;" autofocus>${Keymap.getMapping(mk) || ""}</textarea>
+            </div>
+            <div style="text-align: right;">
+                <button class="btn btnclr danger" style="float:left;">清空本键所有映射信息</button>
+                <button class="btn btnok">确定</button>
+                <button class="btn btncancel">取消</button>
+            </div>
+            </dialog>`;
+        let tmp = document.createElement("div");
+        tmp.innerHTML = html;
+        let dlg = tmp.children[0];
+        dlg.querySelectorAll('input[type="checkbox"]').forEach(elm => {
+            elm.onclick = (evt) => {
+                let kn = "";
+                for (const elm of dlg.querySelectorAll('input[type="checkbox"]:checked')) {
+                    kn += elm.value + "+";
+                }
+                kn += mk;
+                let inf = Keymap.getMapping(kn);
+                let m = dlg.querySelector("#mapping");
+                m.value = inf || "";
+                m.focus();
+            }
+        });
+        dlg.querySelector(".btnok").onclick = (evt) => {
+            let kn = "";
+            for (const elm of dlg.querySelectorAll('input[type="checkbox"]:checked')) {
+                kn += elm.value + "+";
+            }
+            kn += mk;
+            let inf = dlg.querySelector("#mapping").value;
+            dlg.remove();
+            resolver([kn, inf]);
+        };
+        dlg.querySelector(".btnclr").onclick = (evt) => {
+            dlg.remove();
+            resolver([]);
+        };
+        dlg.querySelector(".btncancel").onclick = (evt) => {
+            dlg.remove();
+            resolver();
+        };
+        dlg.onclose = (evt) => {
+            dlg.remove();
+            resolver();
+        }
+        document.body.appendChild(dlg);
+        dlg.showModal();
+    });
+}
+
+async function setting_dlg() {
+    return new Promise((resolver) => {
+        let dcfg = Keymap._default_cfg;
+        let cfg = Keymap.Config;
+        let html = `<dialog class="stdlg">
+            <div class="sts">
+                <div class="subttl">颜色</div>
+                <span>高亮字符</span><input type="text" id="c0" style="width: 6rem;" />
+                <span>高亮背景</span><input type="text" id="c1" style="width: 6rem;" />
+                <span>高亮边框</span><input type="text" id="c2" style="width: 6rem;" />
+                <div class="subttl">普通模式</div>
+                <span>键宽</span><input type="number" id="kw1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>键高</span><input type="number" id="kh1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>字母大小</span><input type="number" id="ks1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <div class="subttl">键帽提示模式</div>
+                <span>键宽</span><input type="number" id="kw2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>键高</span><input type="number" id="kh2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>字母大小</span><input type="number" id="ks2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>提示大小</span><input type="number" id="kt2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+            </div>
+            <div style="text-align: right;">
+                <button class="btn btnclr danger" style="float:left;">Reset UI</button>
+                <button class="btn btnok">确定</button>
+                <button class="btn btncancel">取消</button>
+            </div>
+            </dialog>`;
+        let tmp = document.createElement("div");
+        tmp.innerHTML = html;
+        let dlg = tmp.children[0];
+        for (const c of dlg.querySelectorAll("input")) {
+            c.value = cfg[c.id] || dcfg[c.id];
+        }
+        dlg.querySelector(".btnok").onclick = (evt) => {
+            for (const c of dlg.querySelectorAll("input")) {
+                cfg[c.id] = c.value;
+            }
+            dlg.remove();
+            resolver(true);
+        };
+        dlg.querySelector(".btnclr").onclick = (evt) => {
+            Util.copy_obj(Keymap.Config, Keymap._default_cfg);
+            dlg.remove();
+            resolver(true);
+        };
+        dlg.querySelector(".btncancel").onclick = (evt) => {
+            dlg.remove();
+            resolver();
+        };
+        dlg.onclose = (evt) => {
+            dlg.remove();
+            resolver();
+        }
+        document.body.appendChild(dlg);
+        dlg.showModal();
+    })
+};
+
+// IO layer: browser storage
+var _PROFILE_ = {
+    async read(prof) {
+        if (prof)
+            return localStorage.getItem(prof + ".keymap") || "";
+        else {
+            console.warn("Error! Empty profile name.");
+            return "";
+        }
+    },
+    async write(prof, data) {
+        if (prof)
+            localStorage.setItem(prof + ".keymap", data);
+        else
+            console.warn("Error! Empty profile name.");
+    },
+    async del(prof){
+        if (prof)
+            localStorage.removeItem(prof + ".keymap");
+        else
+            console.warn("Error! Empty profile name.");
+    },
+    async all() {
+        let s = [];
+        for (const k in localStorage) {
+            if (k.endsWith(".keymap")) {
+                s.push(k.slice(0, -7));
+            }
+        }
+        return s;
+    },
+};
+
+// If run by webwin, enable local-file profiles.
+window.on_webwin_loaded = async () => {
+    // IO layer: webwin fs
+    window._PROFILE_ = {
+        async read(prof) {
+            try {
+                return await webwin.fs.readfile(prof + ".keymap", "utf-8");
+            } catch (e) {
+                console.log(e);
+                return "";
+            }
+        },
+        async write(prof, data) {
+            try {
+                await webwin.fs.writefile(prof + ".keymap", data, "w", "utf-8");
+            } catch (e) {
+                console.log(e);
+            }
+        },
+        async del(prof) {
+            try {
+                await webwin.fs.removefile(prof + ".keymap");
+            } catch (e) {
+                console.log(e);
+            }
+        },
+        async all() {
+            try {
+                let s = [];
+                (await webwin.fs.ls(".", "*.keymap", "file")).forEach(p => {
+                    s.push(p.name.slice(0, -7));
+                });
+                return s;
+            } catch (e) {
+                console.log(e);
+                return [];
+            }
+        },
+    }
+    __loader__ = " 【精装礼盒版 *^____^* 】";
+    await __init__();
+};
+
+var __appname__ = "键谱";
+var __version__ = "2.0.0";
+var __homepage__ = "https://github.com/cataerogong/keymap";
+var __loader__ = "";
+
+async function __init__() {
+    document.title = `${__appname__}`;
+    document.querySelector(".about").innerHTML = `${__appname__} v${__version__} ${__loader__} Copyright &COPY; 2023 CataeroGong [<a href="${__homepage__}">Project Home</a>]`;
+    await UI.init();
+}
+
+__init__();
+
+</script>
 </body>
 
 </html>
