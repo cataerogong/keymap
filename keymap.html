@@ -1,4 +1,4 @@
-<html>
+<html data-layout="pc">
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -9,6 +9,8 @@
     --c0: black; /* highlight color */
     --c1: lightblue; /* highlight bg color */
     --c2: lightseagreen; /* border color */
+    --c3: black; /* unset fore color */
+    --c4: lightgray; /* unset bg color */
     --bdc: gray;
     --ks: calc(1rem * var(--ks1, 0.8)); /* key font size */
     --kw: calc(1rem * var(--kw1, 3)); /* key width */
@@ -41,8 +43,10 @@ textarea {
     resize: none;
     font-size: 0.9rem;
     font-family: Consolas, sans-serif;
-    border: 1px solid gray;
+    border: 0px solid gray;
     outline: 0px;
+    background-color: whitesmoke;
+    padding: 5px;
 }
 
 textarea:focus {
@@ -55,9 +59,8 @@ input[type="checkbox"] {
 
 keyboard {
     box-sizing: border-box;
-    display: grid;
-    grid-template-columns: repeat(3, max-content);
-    grid-auto-flow: row;
+    display: flex;
+    flex-flow: column;
     border: 2px solid var(--bdc);
     border-radius: 10px;
     background-color: var(--bdc);
@@ -70,16 +73,25 @@ keyboard {
     margin: 5px;
 }
 keyboard:hover {
-    box-shadow: 0px 0px 5px var(--bdc);
+    box-shadow: 0px 0px 5px var(--c2);
+    border-color: var(--c2);
+    background-color: var(--c1);
 }
 
+kb_pc,
 kb_main,
 kb_dir,
-kb_num {
+kb_num,
+kb_mac {
     display: grid;
     gap: 3px;
     width: 100%;
     overflow: hidden;
+}
+kb_pc {
+    grid-template-columns: repeat(3, max-content);
+    grid-auto-flow: row;
+    gap: 10px;
 }
 
 kb_main {
@@ -88,7 +100,18 @@ kb_main {
 }
 
 kb_dir {
-    grid-template: var(--kh) 10px repeat(5, var(--kh)) / repeat(3, var(--kw));
+    /* grid-template: var(--kh) 10px repeat(5, var(--kh)) / repeat(3, var(--kw)); */
+    grid-template-rows: var(--kh) 10px repeat(5, var(--kh));
+    grid-auto-rows: var(--kh);
+}
+
+kb_num {
+    grid-template: repeat(5, var(--kh)) / repeat(4, var(--kw));
+    margin-top: calc(var(--kh) + 10px + 3px * 2);
+}
+
+kb_mac {
+    grid-template-rows: repeat(6, max-content);
 }
 
 kb_ext {
@@ -97,13 +120,8 @@ kb_ext {
     flex-wrap: wrap;
     gap: 3px;
     border-radius: 5px;
-    border: 1px dashed var(--c2);
+    border: 1px dashed darkgray;
     padding: 3px;
-}
-
-kb_num {
-    grid-template: repeat(5, var(--kh)) / repeat(4, var(--kw));
-    margin-top: calc(var(--kh) + 10px + 3px * 2);
 }
 
 kr {
@@ -113,36 +131,43 @@ kr {
     gap: 3px;
 }
 
+[data-layout="mac"] kr {
+    gap: 5px;
+}
+
 kr.Fn {
     display: grid;
     grid-auto-flow: column;
     grid-template-columns: min-content 1fr repeat(4, min-content) 1fr repeat(4, min-content) 1fr repeat(4, min-content);
 }
 
-[data-kbsize="1"] kb_dir,
-[data-kbsize="1"] kb_num,
-[data-kbsize="2"] kb_num,
-[data-kbsize="1"] kb_ext,
-[data-kbsize="2"] kb_ext,
-[data-kbsize="3"] kb_ext {
+[data-layout="pc"][data-kbsize="1"] kb_dir,
+[data-layout="pc"][data-kbsize="1"] kb_num,
+[data-layout="pc"][data-kbsize="2"] kb_num,
+[data-layout="pc"][data-kbsize="1"] kb_ext,
+[data-layout="pc"][data-kbsize="2"] kb_ext,
+[data-layout="pc"][data-kbsize="3"] kb_ext,
+[data-layout="mac"][data-kbsize="1"] kb_ext {
     display: none;
 }
 
-k {
-    color: black;
+k, .k {
+    color: var(--c3);
     font-size: var(--ks);
     font-weight: bold;
     box-sizing: border-box;
     display: inline-block;
     border: 1px solid darkgray;
     border-radius: 5px;
-    background-color: lightgray;
+    background-color: var(--c4);
     width: var(--kw);
     height: var(--kh);
     padding: 3px 3px;
-    cursor: pointer;
     display: flex;
     flex-flow: column;
+}
+k {
+    cursor: pointer;
 }
 k.set {
     color: var(--c0);
@@ -152,6 +177,10 @@ k.set {
 
 .k1 {
     width: var(--kw);
+}
+
+.k13 {
+    width: calc(var(--kw) * 1.3 + 3px);
 }
 
 .k15 {
@@ -171,9 +200,26 @@ k.set {
     flex: 1;
 }
 
+.kmacfn {
+    flex: 1;
+    height: calc(var(--kh) / 2);
+}
+
+[data-kbhint="true"] .kmacfn {
+    height: var(--kh);
+}
+
 .k2v {
     grid-row: span 2;
     height: calc(var(--kh) * 2 + 3px)
+}
+
+.k05 {
+    width: calc(var(--kw) / 2);
+}
+
+.k05v {
+    height: calc(var(--kh) / 2);
 }
 
 .k2h {
@@ -184,6 +230,10 @@ d {
     display: inline-block;
     border: 1px solid transparent;
     height: var(--kh);
+}
+
+.d1 {
+    min-width: var(--kw);
 }
 
 .d3 {
@@ -261,7 +311,7 @@ km {
 }
 [data-kbhint="true"] .ktr,
 [data-kbhint="true"] .ktm {
-    display: unset;
+    display: initial;
 }
 
 .kms_info {
@@ -279,14 +329,17 @@ km {
     pointer-events: none;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: opacity 0.3s;
     max-width: calc(var(--kbw) * 0.5);
+    position: absolute;
+    box-shadow: 0px 3px 5px #000;
+    opacity: 0;
+    transition: opacity 0.3s;
     z-index: 2;
 }
 
 .btn {
     padding: 3px 6px;
-    border: 1px solid var(--c2);
+    border: 1px solid var(--ui-bdc);
     cursor: pointer;
 }
 
@@ -305,7 +358,7 @@ km {
     padding: 0px 3px;
     height: 20px;
     min-width: 24px;
-    border: 1px solid var(--c2);
+    border: 1px solid var(--ui-bdc);
 }
 .smbtn {
     cursor: pointer;
@@ -384,7 +437,7 @@ km {
 }
 
 #tab_kb {
-    /* position: absolute; */
+    position: relative;
     width: fit-content;
     /* height: 100%; */
 }
@@ -471,7 +524,7 @@ dialog {
     height: fit-content;
     color: gray;
     padding-bottom: 2px;
-    text-align: center;
+    text-align: right;
 }
 
 .prof_name {
@@ -519,7 +572,7 @@ dialog {
 .rnd {
     border-radius: 5px;
 }
-.cap {
+#row_cap {
     box-sizing: border-box;
     font-family: sans-serif;
     font-size: 1.1rem;
@@ -528,7 +581,10 @@ dialog {
     padding: 0px 3rem;
     color: gray;
     background-color: lightgray;
-    transition: all 0.3s;
+    text-align: right;
+}
+.slogan {
+    font-size: 75%;
 }
 #row_tabbar {
     display: flex;
@@ -537,7 +593,6 @@ dialog {
 }
 #comment {
     flex: 1;
-    padding: 10px;
 }
 
 [data-ui="single"] body {
@@ -547,13 +602,15 @@ dialog {
 [data-ui="single"] #row_cap {
     position: absolute;
     width: var(--kbw);
-    padding-left: 27rem;
 }
 [data-ui="single"] #row_tabbar {
     height: 2rem;
     margin-top: 0px;
     pointer-events: none;
     transform: translateX(0px);
+}
+[data-ui="single"] #prof_name {
+    pointer-events: all;
 }
 [data-ui="single"] :is(#row_tabbar .BIND-CLICK, #kb_ops, #comment, #json_ops, #tab_json) {
     display: none;
@@ -576,21 +633,30 @@ dialog {
     font-size: unset;
     cursor: unset;
 }
+[data-layout="mac"] kb_pc {
+    display: none;
+}
+[data-layout="pc"] kb_mac {
+    display: none;
+}
+
 </style>
 </head>
 
 <body>
-<div id="row_cap" class="cap">
-    <span>键谱</span>
-    <span style="font-size: 75%;">
-        —— 让“记录、展示快捷键”变得
-        <span id="btn_ui_tab" class="BIND-CLICK">简</span>
-        <span id="btn_ui_single" class="BIND-CLICK">单</span>
-    </span>
+<div id="row_cap">
+    <div style="height:2rem;">
+        <span>键谱</span>
+        <span class="slogan">
+            —— 让“记录、展示快捷键”变得
+            <span id="btn_ui_tab" class="BIND-CLICK">简</span>
+            <span id="btn_ui_single" class="BIND-CLICK">单</span>
+        </span>
+    </div>
 </div>
 <div id="row_tabbar">
     <div style="flex: 1;display: flex;padding: 2px 0px;gap:2px;">
-        <span style="text-align: start;font-weight: bold;padding: 3px 0px;">&nbsp;键谱：</span>
+        <span style="font-weight: bold;padding: 3px 10px;font-size:1rem;">键谱</span>
         <div id="prof_name" class="prof_name prof_cur" style="margin-right: 5px;"></div>
         <button id="btn_clr" class="btn rnd danger BIND-CLICK">清空</button>
         <button id="btn_del" class="btn rnd danger BIND-CLICK">删除</button>
@@ -607,6 +673,7 @@ dialog {
     <button id="btn_shorten" class="smbtn kb_op BIND-CLICK" title="收缩">➖</button>
     <button id="btn_expand" class="smbtn kb_op BIND-CLICK" title="扩展">➕</button>
     <button id="btn_hint" class="smbtn kb_op BIND-CLICK" title="键帽提示">🔣</button>
+    <button id="btn_layout" class="smbtn kb_op BIND-CLICK" title="Mac键盘">🍏</button>
     <span>&nbsp;键盘层:</span>
     <span id="layer_btns"></span>
     <span>&nbsp;</span>
@@ -616,43 +683,91 @@ dialog {
 <!-- <div style="position: relative;height: 100%;"> -->
 <div id="tab_kb" class="tab">
     <keyboard id="keyboard">
-        <kb_main id="kb_main">
-            <kr class="Fn">
-                <k>Esc</k><d> </d><k>F1</k><k>F2</k><k>F3</k><k>F4</k><d> </d><k>F5</k><k>F6</k><k>F7</k><k>F8</k><d> </d><k>F9</k><k>F10</k><k>F11</k><k>F12</k>
+        <kb_pc>
+            <kb_main>
+                <kr class="Fn">
+                    <k>Esc</k><d> </d><k>F1</k><k>F2</k><k>F3</k><k>F4</k><d> </d><k>F5</k><k>F6</k><k>F7</k><k>F8</k><d> </d><k>F9</k><k>F10</k><k>F11</k><k>F12</k>
+                </kr>
+                <div></div>
+                <kr>
+                    <k>`</k><k>1</k><k>2</k><k>3</k><k>4</k><k>5</k><k>6</k><k>7</k><k>8</k><k>9</k><k>0</k><k>-</k><k>=</k><k class="k2">Backspace</k>
+                </kr>
+                <kr>
+                    <k class="k15">Tab</k><k>Q</k><k>W</k><k>E</k><k>R</k><k>T</k><k>Y</k><k>U</k><k>I</k><k>O</k><k>P</k><k>[</k><k>]</k><k class="k15">\</k>
+                </kr>
+                <kr>
+                    <k class="k2">Caps</k><k>A</k><k>S</k><k>D</k><k>F</k><k>G</k><k>H</k><k>J</k><k>K</k><k>L</k><k>;</k><k>'</k><k class="k2">Enter</k>
+                </kr>
+                <kr>
+                    <k class="k25">Shift</k><k>Z</k><k>X</k><k>C</k><k>V</k><k>B</k><k>N</k><k>M</k><k>,</k><k>.</k><k>/</k><k class="k25">RShift</k>
+                </kr>
+                <kr>
+                    <k class="k15">Ctrl</k><k class="k15">Win</k><k class="k15">Alt</k>
+                    <k class="kspace">Space</k>
+                    <k class="k15">RAlt</k><k class="k15">Menu</k><k class="k15">RCtrl</k>
+                </kr>
+            </kb_main>
+            <kb_dir>
+                <kr>
+                    <k>PrtScr</k><k>ScrLck</k><k>Pause</k>
+                </kr>
+                <kr></kr>
+                <kr>
+                    <k>Ins</k><k>Home</k><k>PgUp</k>
+                </kr>
+                <kr>
+                    <k>Del</k><k>End</k><k>PgDn</k>
+                </kr>
+                <kr> </kr>
+                <kr>
+                    <d> </d><k>Up</k><d> </d>
+                </kr>
+                <kr>
+                    <k>Left</k><k>Down</k><k>Right</k>
+                </kr>
+            </kb_dir>
+            <kb_num>
+                <k>NumLck</k><k>Num/</k><k>Num*</k><k>Num-</k>
+                <k>Num7</k><k>Num8</k><k>Num9</k><k class="k2v">Num+</k>
+                <k>Num4</k><k>Num5</k><k>Num6</k>
+                <k>Num1</k><k>Num2</k><k>Num3</k><k class="k2v">REnter</k>
+                <k class="k2h">Num0</k><k>Num.</k>
+            </kb_num>
+        </kb_pc>
+        <kb_mac>
+            <kr class="kmacfn">
+                <k class="kmacfn">esc</k>
+                <k class="kmacfn">F1</k><k class="kmacfn">F2</k><k class="kmacfn">F3</k><k class="kmacfn">F4</k><k class="kmacfn">F5</k><k class="kmacfn">F6</k>
+                <k class="kmacfn">F7</k><k class="kmacfn">F8</k><k class="kmacfn">F9</k><k class="kmacfn">F10</k><k class="kmacfn">F11</k><k class="kmacfn">F12</k>
+                <d class="k k05 k05v"> </d>
             </kr>
-            <kr></kr>
             <kr>
-                <k>`</k><k>1</k><k>2</k><k>3</k><k>4</k><k>5</k><k>6</k><k>7</k><k>8</k><k>9</k><k>0</k><k>-</k><k>=</k><k class="k2">Backspace</k>
+                <k>`</k><k>1</k><k>2</k><k>3</k><k>4</k><k>5</k><k>6</k><k>7</k><k>8</k><k>9</k><k>0</k><k>-</k><k>=</k><k class="k15">delete</k>
             </kr>
             <kr>
-                <k class="k15">Tab</k><k>Q</k><k>W</k><k>E</k><k>R</k><k>T</k><k>Y</k><k>U</k><k>I</k><k>O</k><k>P</k><k>[</k><k>]</k><k class="k15">\</k>
+                <k class="k15">tab</k><k>Q</k><k>W</k><k>E</k><k>R</k><k>T</k><k>Y</k><k>U</k><k>I</k><k>O</k><k>P</k><k>[</k><k>]</k><k>\</k>
             </kr>
             <kr>
-                <k class="k2">Caps</k><k>A</k><k>S</k><k>D</k><k>F</k><k>G</k><k>H</k><k>J</k><k>K</k><k>L</k><k>;</k><k>'</k><k class="k2">Enter</k>
+                <k class="kspace">capslock</k><k>A</k><k>S</k><k>D</k><k>F</k><k>G</k><k>H</k><k>J</k><k>K</k><k>L</k><k>;</k><k>'</k><k class="kspace">return</k>
             </kr>
             <kr>
-                <k class="k25">Shift</k><k>Z</k><k>X</k><k>C</k><k>V</k><k>B</k><k>N</k><k>M</k><k>,</k><k>.</k><k>/</k><k class="k25">RShift</k>
+                <k class="kspace">shift</k><k>Z</k><k>X</k><k>C</k><k>V</k><k>B</k><k>N</k><k>M</k><k>,</k><k>.</k><k>/</k><k class="kspace">r-shift</k>
             </kr>
             <kr>
-                <k class="k15">Ctrl</k><k class="k15">Win</k><k class="k15">Alt</k><k class="kspace">Space</k><k class="k15">RAlt</k><k class="k15">Menu</k><k class="k15">RCtrl</k>
+                <k>fn</k>
+                <k>control</k><k>option</k><k class="k13">command</k>
+                <k class="kspace">Space</k>
+                <k class="k15">r-command</k><k>r-option</k>
+                <div>
+                    <kr class="k05v">
+                        <d class="k05v"> </d><k class="k05v">Up</k class="k05v"><d> </d>
+                    </kr>
+                    <kr class="k05v">
+                        <k class="k05v">Left</k><k class="k05v">Down</k><k class="k05v">Right</k>
+                    </kr>
+                </div>
             </kr>
-        </kb_main>
-        <kb_dir id="kb_dir">
-            <k>PrtScr</k><k>ScrLck</k><k>Pause</k>
-            <d class="d3"> </d>
-            <k>Ins</k><k>Home</k><k>PgUp</k>
-            <k>Del</k><k>End</k><k>PgDn</k>
-            <d class="d3"> </d>
-            <d> </d><k>Up</k><d> </d>
-            <k>Left</k><k>Down</k><k>Right</k>
-        </kb_dir>
-        <kb_num id="kb_num">
-            <k>NumLck</k><k>Num/</k><k>Num*</k><k>Num-</k>
-            <k>Num7</k><k>Num8</k><k>Num9</k><k class="k2v">Num+</k>
-            <k>Num4</k><k>Num5</k><k>Num6</k>
-            <k>Num1</k><k>Num2</k><k>Num3</k><k class="k2v">REnter</k>
-            <k class="k2h">Num0</k><k>Num.</k>
-        </kb_num>
+        </kb_mac>
         <kb_ext>
             <!-- <d class="k1">Fn:</d>
             <k>F13</k><k>F14</k><k>F15</k><k>F16</k><k>F17</k><k>F18</k><k>F19</k><k>F20</k><k>F21</k><k>F22</k><k>F23</k><k>F24</k>
@@ -660,7 +775,6 @@ dialog {
             <d class="k1">鼠标:</d><k>LB</k><k>RB</k><k>MB</k><k>WhlUp</k><k>WhlDn</k> -->
         </kb_ext>
     </keyboard>
-    <div></div>
     <textarea id="comment" placeholder="备注"></textarea>
 </div>
 <div id="tab_list" class="tab">
