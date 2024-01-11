@@ -134,7 +134,7 @@ const KeymapHelp = {
         "view": "k",
         "kbsize": 4,
         "kbhint": true,
-        "extkeys": ["#Fn", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20", "/", "#鼠标", "LB", "RB", "MB", "WhlUp", "WhlDn"],
+        "extkeys": ["#Fn", "F13", "F14", "F15", "F16", "#", "F17", "F18", "F19", "F20", "#", "F21", "F22", "F23", "F24", "/", "#鼠标", "LB", "RB", "MB", "WhlUp", "WhlDn"],
         "modkeys": ["RAlt", "RCtrl", "RShift", "Caps"],
     }
 };
@@ -582,6 +582,7 @@ var UI = {
                 break;
             case "btn_setting":
                 await this.setting();
+                this.Keyboard.build();
                 break;
             case "btn_clr":
                 await this.clear();
