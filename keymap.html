@@ -582,6 +582,10 @@ dialog {
     <button id="btn_l3" class="btn BIND-CLICK">3</button>
     <button id="btn_l4" class="btn BIND-CLICK">4</button>
     <span>&nbsp;</span>
+    <input type="text" id="new_layer_name" size="30">
+    <span>&nbsp;</span>
+    <button id="btn_rename_layer" class="btn danger BIND-CLICK">重命名图层</button>
+    <span>&nbsp;</span>
     <button id="btn_l_clr" class="btn danger BIND-CLICK">清空本层</button>
     <span style="flex: 1;">&nbsp;</span>
     <button id="btn_shorten" class="smbtn kb_op BIND-CLICK" title="收缩">➖</button>
@@ -763,6 +767,8 @@ var Keymap = {
     Name: "",
     _data: null,
     _cur_layer: 0,
+    _layer_count: 5,
+    _layer_name: ["0","1","2","3","4"],
     _locked: false,
 
     _default_cfg: {
@@ -779,6 +785,7 @@ var Keymap = {
         "c0": "black",
         "c1": "lightblue",
         "c2": "lightseagreen",
+        "layer_name": ["0","1","2","3","4"],
     },
 
     get _default_keymap() {
@@ -790,6 +797,12 @@ var Keymap = {
         this._data = this._default_keymap;
         this._cur_layer = 0;
         this._locked = false;
+    },
+
+    updateLayerName() {
+        for (i = 0; i < this._layer_count; i++) {
+            document.getElementById("btn_l" + i).innerHTML = this._layer_name[i];
+        }
     },
 
     fixStruct(kmap) {
@@ -862,6 +875,15 @@ var Keymap = {
         if (ln == null)
             ln = this.CurLayer;
         return this._data["#"+ln];
+    },
+
+    //Rename layer
+    renameLayer() {
+        let newLayerName = document.getElementById("new_layer_name").value;
+        if (newLayerName == "")
+            return;
+        document.getElementById("btn_l" + this._cur_layer).innerHTML = newLayerName;
+        this._layer_name[this._cur_layer] = newLayerName;
     },
 
     clearLayer(ln = null) {
@@ -978,6 +1000,10 @@ var UI = {
         this.setCSS("--c1", cfg["c1"]);
         this.setCSS("--c2", cfg["c2"]);
         this.resize();
+        //Read layer name from cfg
+        Keymap._layer_name = cfg.layer_name;
+        //Update layer name
+        Keymap.updateLayerName();
     },
 
     resize() {
@@ -1058,6 +1084,9 @@ var UI = {
             case "btn_l3":
             case "btn_l4":
                 await this.changeLayer(parseInt(elm.id[elm.id.length-1]));
+            break;
+            case "btn_rename_layer":
+                await this.renameLayer();
             break;
             case "btn_l_clr":
                 await this.clearLayer();
@@ -1218,6 +1247,12 @@ var UI = {
 
     async clear() {
         Keymap.clear();
+        await this.save(false);
+    },
+
+    //Rename layer
+    async renameLayer() {
+        Keymap.renameLayer();
         await this.save(false);
     },
 
