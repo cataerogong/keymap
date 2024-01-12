@@ -88,30 +88,41 @@ kb_mac {
     width: 100%;
     overflow: hidden;
 }
-kb_pc {
+kb_pc,
+kb_mac {
     grid-template-columns: repeat(3, max-content);
     grid-auto-flow: row;
     gap: 10px;
 }
 
-kb_main {
+kb_pc kb_main {
     grid-template-rows: var(--kh) 10px repeat(5, var(--kh));
     grid-auto-rows: var(--kh);
 }
 
-kb_dir {
+kb_pc kb_dir {
     /* grid-template: var(--kh) 10px repeat(5, var(--kh)) / repeat(3, var(--kw)); */
     grid-template-rows: var(--kh) 10px repeat(5, var(--kh));
     grid-auto-rows: var(--kh);
 }
 
-kb_num {
+kb_pc kb_num {
     grid-template: repeat(5, var(--kh)) / repeat(4, var(--kw));
     margin-top: calc(var(--kh) + 10px + 3px * 2);
 }
 
-kb_mac {
-    grid-template-rows: repeat(6, max-content);
+kb_mac kb_main {
+    grid-template-rows: repeat(6, var(--kh));
+    grid-auto-rows: var(--kh);
+}
+
+kb_mac kb_dir {
+    grid-template-rows: repeat(6, var(--kh));
+    grid-auto-rows: var(--kh);
+}
+
+kb_mac kb_num {
+    grid-template: repeat(6, var(--kh)) / repeat(4, var(--kw));
 }
 
 kb_ext {
@@ -141,13 +152,12 @@ kr.Fn {
     grid-template-columns: min-content 1fr repeat(4, min-content) 1fr repeat(4, min-content) 1fr repeat(4, min-content);
 }
 
-[data-layout="pc"][data-kbsize="1"] kb_dir,
-[data-layout="pc"][data-kbsize="1"] kb_num,
-[data-layout="pc"][data-kbsize="2"] kb_num,
-[data-layout="pc"][data-kbsize="1"] kb_ext,
-[data-layout="pc"][data-kbsize="2"] kb_ext,
-[data-layout="pc"][data-kbsize="3"] kb_ext,
-[data-layout="mac"][data-kbsize="1"] kb_ext {
+[data-kbsize="1"] kb_dir,
+[data-kbsize="1"] kb_num,
+[data-kbsize="2"] kb_num,
+[data-kbsize="1"] kb_ext,
+[data-kbsize="2"] kb_ext,
+[data-kbsize="3"] kb_ext {
     display: none;
 }
 
@@ -198,15 +208,6 @@ k.set {
 
 .kspace {
     flex: 1;
-}
-
-.kmacfn {
-    flex: 1;
-    height: calc(var(--kh) / 2);
-}
-
-[data-kbhint="true"] .kmacfn {
-    height: var(--kh);
 }
 
 .k2v {
@@ -271,6 +272,11 @@ kn.ck {
     border-color: transparent;
     font-weight: normal;
 }
+.na {
+    color: gray !important;
+    background-color: whitesmoke !important;
+    border: 1px solid red !important;
+}
 
 .f-end {
     justify-self: end;
@@ -314,6 +320,10 @@ km {
     display: initial;
 }
 [data-kbhint="true"] #btn_hint {
+    background-color: var(--ui-bdc);
+}
+
+[data-showall="true"] #btn_showall {
     background-color: var(--ui-bdc);
 }
 
@@ -679,7 +689,8 @@ dialog {
     <button id="btn_shorten" class="smbtn kb_op BIND-CLICK" title="收缩">➖</button>
     <button id="btn_expand" class="smbtn kb_op BIND-CLICK" title="扩展">➕</button>
     <button id="btn_hint" class="smbtn kb_op BIND-CLICK" title="键帽提示">🔣</button>
-    <button id="btn_layout" class="smbtn kb_op BIND-CLICK" title="Mac键盘">🍏</button>
+    <button id="btn_layout" class="smbtn kb_op BIND-CLICK" title="布局(PC/Mac)">🍏</button>
+    <button id="btn_showall" class="smbtn kb_op BIND-CLICK" title="所有映射">All</button>
     <span>&nbsp;键盘层:</span>
     <span id="layer_btns"></span>
     <span>&nbsp;</span>
@@ -741,38 +752,54 @@ dialog {
             </kb_num>
         </kb_pc>
         <kb_mac>
-            <kr class="kmacfn">
-                <k class="kmacfn">esc</k>
-                <k class="kmacfn">F1</k><k class="kmacfn">F2</k><k class="kmacfn">F3</k><k class="kmacfn">F4</k><k class="kmacfn">F5</k><k class="kmacfn">F6</k>
-                <k class="kmacfn">F7</k><k class="kmacfn">F8</k><k class="kmacfn">F9</k><k class="kmacfn">F10</k><k class="kmacfn">F11</k><k class="kmacfn">F12</k>
-                <d class="k k05 k05v"> </d>
-            </kr>
-            <kr>
-                <k>`</k><k>1</k><k>2</k><k>3</k><k>4</k><k>5</k><k>6</k><k>7</k><k>8</k><k>9</k><k>0</k><k>-</k><k>=</k><k class="k15">delete</k>
-            </kr>
-            <kr>
-                <k class="k15">tab</k><k>Q</k><k>W</k><k>E</k><k>R</k><k>T</k><k>Y</k><k>U</k><k>I</k><k>O</k><k>P</k><k>[</k><k>]</k><k>\</k>
-            </kr>
-            <kr>
-                <k class="kspace">capslock</k><k>A</k><k>S</k><k>D</k><k>F</k><k>G</k><k>H</k><k>J</k><k>K</k><k>L</k><k>;</k><k>'</k><k class="kspace">return</k>
-            </kr>
-            <kr>
-                <k class="kspace">shift</k><k>Z</k><k>X</k><k>C</k><k>V</k><k>B</k><k>N</k><k>M</k><k>,</k><k>.</k><k>/</k><k class="kspace">r-shift</k>
-            </kr>
-            <kr>
-                <k>fn</k>
-                <k>control</k><k>option</k><k class="k13">command</k>
-                <k class="kspace">Space</k>
-                <k class="k15">r-command</k><k>r-option</k>
-                <div>
-                    <kr class="k05v">
-                        <d class="k05v"> </d><k class="k05v">Up</k class="k05v"><d> </d>
-                    </kr>
-                    <kr class="k05v">
-                        <k class="k05v">Left</k><k class="k05v">Down</k><k class="k05v">Right</k>
-                    </kr>
-                </div>
-            </kr>
+            <kb_main>
+                <kr>
+                    <k class="kspace">esc</k><k>F1</k><k>F2</k><k>F3</k><k>F4</k><k>F5</k><k>F6</k><k>F7</k><k>F8</k><k>F9</k><k>F10</k><k>F11</k><k>F12</k><d class="k"> </d>
+                </kr>
+                <kr>
+                    <k>`</k><k>1</k><k>2</k><k>3</k><k>4</k><k>5</k><k>6</k><k>7</k><k>8</k><k>9</k><k>0</k><k>-</k><k>=</k><k class="k15">del</k>
+                </kr>
+                <kr>
+                    <k class="k15">tab</k><k>Q</k><k>W</k><k>E</k><k>R</k><k>T</k><k>Y</k><k>U</k><k>I</k><k>O</k><k>P</k><k>[</k><k>]</k><k>\</k>
+                </kr>
+                <kr>
+                    <k class="kspace">caps</k><k>A</k><k>S</k><k>D</k><k>F</k><k>G</k><k>H</k><k>J</k><k>K</k><k>L</k><k>;</k><k>'</k><k class="kspace">return</k>
+                </kr>
+                <kr>
+                    <k class="kspace">shift</k><k>Z</k><k>X</k><k>C</k><k>V</k><k>B</k><k>N</k><k>M</k><k>,</k><k>.</k><k>/</k><k class="kspace">r-shift</k>
+                </kr>
+                <kr>
+                    <k class="k15">ctrl</k><k class="k13">opt</k><k class="k15">cmd</k>
+                    <k class="kspace">Space</k>
+                    <k class="k15">r-cmd</k><k class="k13">r-opt</k><k class="k15">r-ctrl</k>
+                </kr>
+            </kb_main>
+            <kb_dir>
+                <kr>
+                    <k>F13</k><k>F14</k><k>F15</k>
+                </kr>
+                <kr>
+                    <k>fn</k><k>home</k><k>pgup</k>
+                </kr>
+                <kr>
+                    <k>fwd-del</k><k>end</k><k>pgdn</k>
+                </kr>
+                <kr> </kr>
+                <kr>
+                    <d> </d><k>Up</k><d> </d>
+                </kr>
+                <kr>
+                    <k>Left</k><k>Down</k><k>Right</k>
+                </kr>
+            </kb_dir>
+            <kb_num>
+                <k>F16</k><k>F17</k><k>F18</k><k>F19</k>
+                <k>clear</k><k>Num=</k><k>Num/</k><k>Num*</k>
+                <k>Num7</k><k>Num8</k><k>Num9</k><k>Num-</k>
+                <k>Num4</k><k>Num5</k><k>Num6</k><k>Num+</k>
+                <k>Num1</k><k>Num2</k><k>Num3</k><k class="k2v">enter</k>
+                <k class="k2h">Num0</k><k>Num.</k>
+            </kb_num>
         </kb_mac>
         <kb_ext>
             <!-- <d class="k1">Fn:</d>

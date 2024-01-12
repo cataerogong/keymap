@@ -1,4 +1,4 @@
-const KEY_TABLE = {
+const KEY_TABLE_COMMON = {
     // "0": [''], "1": [''], "2": [''], "3": [''], "4": [''], "5": [''], "6": [''], "7": [''], "8": [''], "9": [''],
     // "A": [''], "B": [''], "C": [''], "D": [''], "E": [''], "F": [''], "G": [''], "H": [''], "I": [''], "J": [''],
     // "K": [''], "L": [''], "M": [''], "N": [''], "O": [''], "P": [''], "Q": [''], "R": [''], "S": [''], "T": [''],
@@ -18,19 +18,29 @@ const KEY_TABLE = {
     "U": '', "V": '', "W": '', "X": '', "Y": '', "Z": '',
     ";": '', "=": '', ",": '', "-": '', ".": '', "/": '', "`": '', "[": '', "\\": '', "]": '', "'": '',
     "F1": '', "F2": '', "F3": '', "F4": '', "F5": '', "F6": '', "F7": '', "F8": '', "F9": '', "F10": '', "F11": '', "F12": '',
-    "Esc": '', "Tab": '', "Shift": '', "RShift": '', "Backspace": '', "Caps": '', "Enter": '', "REnter": '', "Space": '',
-    "PrtScr": '', "ScrLck": '', "Pause": '', "Ins": '', "Del": '', "Home": '', "End": '', "PgUp": '', "PgDn": '',
     "Up": '↑', "Down": '↓', "Left": '←', "Right": '→',
     "NumLck": '', "Num-": '-', "Num*": '*', "Num.": '.', "Num/": '/', "Num+": '+',
     "Num0": '0', "Num1": '1', "Num2": '2', "Num3": '3', "Num4": '4', "Num5": '5', "Num6": '6', "Num7": '7', "Num8": '8', "Num9": '9',
-    "Alt": '', "RAlt": '', "Ctrl": '', "RCtrl": '', "Win": '', "Menu": '',
-    "esc": '', "delete": '', "tab": '', "capslock": '', "return": '', "shift": '', "r-shift": '',
-    "control": 'ctrl', "option": '', "command": '', "r-option": 'r-opt', "r-command": '', "fn": '',
+    "Space": '',
     // "F13": '', "F14": '', "F15": '', "F16": '', "F17": '', "F18": '', "F19": '', "F20": '', "F21": '', "F22": '', "F23": '', "F24": '', "F25": '', "F26": '', "F27": '', "F28": '', "F29": '', "F30": '',
     // "LB": '', "RB": '', "MB": '', "WhlUp": '', "WhlDn": '', 
 };
+const KEY_TABLE_PC = Object.assign({}, KEY_TABLE_COMMON, {
+    "Esc": '', "Tab": '', "Shift": '', "RShift": '', "Backspace": '', "Caps": '', "Enter": '', "REnter": '',
+    "Ins": '', "Del": '',  "Home": '', "End": '', "PgUp": '', "PgDn": '',
+    "Alt": '', "RAlt": '', "Ctrl": '', "RCtrl": '', "Win": '', "Menu": '',
+    "PrtScr": '', "ScrLck": '', "Pause": '',
+});
+const KEY_TABLE_MAC = Object.assign({}, KEY_TABLE_COMMON, {
+    "esc": '', "del": 'delete', "tab": '', "caps": 'caps lock', "return": '', "shift": '', "r-shift": '',
+    "ctrl": 'control', "opt": 'option', "cmd": 'command', "r-ctrl": 'r-control', "r-opt": 'r-option', "r-cmd": 'r-command',
+    "fn": '', "home": '', "end": '', "pgup": 'page up', "pgdn": 'page down', "fwd-del": '[x&gt;',
+    "clear": '', "enter": '', "Num=": '=',
+    "F13": '', "F14": '', "F15": '', "F16": '', "F17": '', "F18": '', "F19": '', 
+});
+const KEY_TABLE_ALL = Object.assign({}, KEY_TABLE_COMMON, KEY_TABLE_PC, KEY_TABLE_MAC);
 const MOD_KEYS_PC = ["Alt", "Ctrl", "Shift", "Win"];
-const MOD_KEYS_MAC = ["fn", "control", "option", "command", "shift"];
+const MOD_KEYS_MAC = ["fn", "ctrl", "opt", "cmd", "shift"];
 // const DEFAULT_PROF = "DEFAULT";
 
 var Util = {
@@ -59,13 +69,6 @@ var Util = {
         }
     },
 
-    copy_obj(dst, src) {
-        // for (const k in src) {
-        //     dst[k] = src[k];
-        // }
-        Object.assign(dst, src);
-    },
-
     gen_combo_kn_elm(kn) {
         let ck = this.split_combo(kn);
         let mk = ck[ck.length - 1];
@@ -83,12 +86,14 @@ const HELP = `【备注】这里是备注框，可以为每个键盘层备注信
 
 【试验】这是一个虚拟的键谱，你可以在这里试验各种操作，重新载入“${HELP_KEYMAP}”即可恢复原样。
 
-【帮助】
-  * 鼠标指向顶部的“键谱名”，可以新建和切换键谱。
+【帮助】（层 1 有更多帮助，按 1 切换）
+  * 点击顶部的“键谱名”，可以新建和切换键谱。
   * 点击键盘图中的按键，可以录入按键映射信息。
-  * 组合键：在录入时可以选择组合修饰键（Alt、Ctrl、Shift、Win）。
+  * 组合键：在录入时可以选择组合修饰键（Alt、Ctrl、Shift、Win ...）。
   * 一个按键上可以录入多组组合键。
   * 映射信息以"* "（星号+空格）开头的组合键定义为主映射，在“键帽提示”模式下会在键帽上显示第一行文字，并且主映射的组合键会直接显示在键帽上。
+  * 可以自定义扩展键、修饰键。
+  * 可以设置键盘层数，无上限（嗯，大概吧）。
   * 每个键谱的当前状态都会实时保存（除了“当前键盘层”），在下次打开时会自动恢复。因此，可以为每个键谱设置不同的显示风格。
 
 【谱匣】通过谱匣程序使用键谱时，可以使用命令行参数(-PLVSH)自定义载入的键谱及界面。不需提供所有参数，未提供的参数会按键谱中保存的状态显示。
@@ -100,9 +105,32 @@ const HELP = `【备注】这里是备注框，可以为每个键盘层备注信
   示例：打开键谱“Photoshop”，切换到层2，显示键图，60%键盘大小，打开键帽提示。
     keymap.exe -P Photoshop -L 2 -V k -S 1 -H 1
 `;
+const HELP1 = `指向各个按键可以看到不同信息。
+
+* 键盘布局：按 m 切换布局
+  PC 和 Mac 有些键是不同的，基本上除字母键、Fn键外的键都不同。
+
+* “所有映射”开关：按 f 切换
+  显示/隐藏 包含“非本键盘按键”的映射信息
+  当组合键中包含有“非本键盘按键”时，受本开关控制。
+  受影响：键表，映射信息设置时的修饰键列表，指向按键时显示的映射信息
+
+* 自定义扩展键：
+  * 每个键名以英文逗号(,)分隔
+  * 以 # 开头的会以纯文字显示在界面上
+  * 单独的一个 / 表示在界面显示时换行
+
+* 自定义修饰键：
+  * 每个键名以英文逗号(,)分隔
+  * 获取键名：鼠标点击按键，弹出的设置映射信息对话框内左上角
+  * 支持使用扩展键作为修饰键
+  * 甚至可以指定不存在的键名作为修饰键
+    这种修饰键只在“所有映射”开关打开时才使用，包含这种修饰键的映射信息也只在“所有映射”开关打开时才可见。
+`;
 const KeymapHelp = {
     "#NAME": HELP_KEYMAP,
     "#0": {
+        "`": "* 键盘层 0",
         "1": "* 键盘层 1",
         "2": "* 键盘层 2",
         "3": "* 键盘层 3",
@@ -112,30 +140,46 @@ const KeymapHelp = {
         "7": "* 键盘层 7",
         "8": "* 键盘层 8",
         "9": "* 键盘层 9",
-        "`": "* 键盘层 0",
-        "Q": "* 60% 键盘 ",
+        "Q": "* 60% 键盘",
         "W": "* 80% 键盘",
         "E": "* 标准键盘",
         "R": "* 扩展键盘",
-        "Tab": "* 切换键帽提示",
-        "tab": "* 切换键帽提示",
+        "Tab": "* 键帽提示\n  切换：键帽提示模式（大键）/普通模式（小键）",
+        "tab": "* 键帽提示\n  切换：键帽提示模式（大键）/普通模式（小键）",
         "A": "* 键图",
         "S": "* 键表",
         "D": "* 数据",
         "K": "* 键图",
         "L": "* 键表",
         "J": "* 数据",
-        "P": "* 切换打印模式",
-        "M": "* 切换布局\n切换 PC / Mac 键盘布局",
+        "P": "* 打印模式\n  切换：打印模式/普通模式",
+        "M": "* 键盘布局\n  切换：PC / Mac 键盘布局",
+        "F": "* 全部映射\n  切换：显示/隐藏 包含“非本键盘按键”的映射信息\n  当组合键中包含有“非本键盘按键”时，受本开关控制。",
         "#comment": HELP
+    },
+    "#1": {
+        "Space": "* 多组映射",
+        "Alt+Space": "组合键1(PC)",
+        "Alt+Shift+Space": "组合键2(PC)",
+        "opt+Space": "组合键3(Mac)",
+        "opt+shift+Space": "组合键4(Mac)",
+        "LB": "* 自定义扩展键",
+        "Caps+A": "* 自定义修饰键(PC)\n  可以在设置中增加自定义修饰键。",
+        "caps+A": "* 自定义修饰键(Mac)\n  可以在设置中增加自定义修饰键。",
+        "Tab": "* 这是 PC 布局",
+        "tab": "* 这是 Mac 布局",
+        "Alt": "* 这是 PC 布局",
+        "cmd": "* 这是 Mac 布局",
+        "#comment": HELP1
     },
     "#config": {
         "layout": "pc",
         "view": "k",
         "kbsize": 4,
         "kbhint": true,
-        "extkeys": ["#Fn", "F13", "F14", "F15", "F16", "#", "F17", "F18", "F19", "F20", "#", "F21", "F22", "F23", "F24", "/", "#鼠标", "LB", "RB", "MB", "WhlUp", "WhlDn"],
-        "modkeys": ["RAlt", "RCtrl", "RShift", "Caps"],
+        "extkeys": ["#鼠标", "LB", "RB", "MB", "WhlUp", "WhlDn",
+                    "/", "#扩展", "Ext-1", "Ext-2", "Ext-3", "Ext-4"],
+        "modkeys": ["RAlt", "RCtrl", "RShift", "Caps", "r-ctrl", "r-opt", "r-cmd", "caps"],
     }
 };
 
@@ -147,7 +191,6 @@ var Keymap = {
 
     _keytable: {},
     _extkeys: [],
-    _layout: "",
 
     _default_cfg: {
         "layout": "pc",
@@ -155,6 +198,7 @@ var Keymap = {
         "view": "k",
         "kbsize": 3,
         "kbhint": false,
+        "showall": false,
         "ks1": 0.8,
         "kw1": 3,
         "kh1": 3,
@@ -183,30 +227,6 @@ var Keymap = {
         this._virtual = false;
     },
 
-    // fixStruct(kmap) {
-    //     // check config
-    //     if (!("#config" in kmap))
-    //         kmap["#config"] = {};
-    //     Util.patch_obj(kmap["#config"], this._default_cfg);
-    //     // check layers
-    //     for (let i=0; i<=4; i++) {
-    //         if (!(("#"+i) in kmap))
-    //         kmap["#"+i] = {};
-    //     }
-    //     // migrate data v1 to v2
-    //     for (const k in kmap) {
-    //         if (k.startsWith("#layer-")) {
-    //             let ln = k.slice(7);
-    //             Object.assign(kmap["#"+ln], kmap[k]);
-    //         } else {
-    //             if (k[0] == "#") continue;
-    //             if (kmap[k])
-    //                 kmap["#0"][k] = kmap[k];
-    //         }
-    //         delete kmap[k];
-    //     }
-    // },
-
     loadJSON(json_str) {
         if (!json_str)
             return false;
@@ -218,30 +238,17 @@ var Keymap = {
             console.log(e);
             return false;
         }
-        // this._data = temp;
         this._data = this._default_keymap;
         for (const k in temp) {
             if (!temp[k]) continue;
             if (k.toLowerCase() == "#config") {
-                Util.copy_obj(this.Config, temp[k]);
-            // } else if (k.toLowerCase().startsWith("#layer-")) {
-            //     let ln = k.slice(7);
-            //     Util.copy_obj(this.data["#"+ln], temp[k]);
+                Object.assign(this.Config, temp[k]);
             } else if (k[0] != "#") {
                 this.Layer(0)[k] = temp[k];
             } else {
                 this._data[k] = temp[k];
             }
         }
-        // // keytable
-        // for (const k in KEY_TABLE) {
-        //     // this._keytable[k] = Object.assign([], KEY_TABLE[k]);
-        //     this._keytable = Object.assign({}, KEY_TABLE);
-        // }
-        // // extkeys
-        // this.ExtKeys = this.Config.extkeys;
-        // this._cur_layer = 0;
-        // this._locked = false;
         return true;
     },
 
@@ -303,7 +310,7 @@ var Keymap = {
     getAllMappings(mk, ln = null) {
         let ret = {};
         for (const kn in this.Layer(ln)) {
-            if (Util.get_mainkey(kn) == mk && this.Layer(ln)[kn]) {
+            if (Util.get_mainkey(kn) == mk && this.Layer(ln)[kn] && this.isKBKeys(kn)) {
                 ret[kn] = this.Layer(ln)[kn];
             }
         }
@@ -347,31 +354,10 @@ var Keymap = {
         this._virtual = true;
     },
 
-    // get KeyTable() {
-    //     return this._keytable;
-    // },
-
-    // // 自定义扩展键
-    // get ExtKeys() {
-    //     return this._extkeys;
-    // },
-    // set ExtKeys(v) {
-    //     let temp = [];
-    //     for (const k of v) {
-    //         if (k)
-    //             temp.push(k)
-    //     }
-    //     this.Config.extkeys = temp;
-    //     this._extkeys = Object.assign([], this.Config.extkeys);
-    //     for (const k of this._extkeys) {
-    //         this._keytable[k] = '';
-    //     }
-    // },
     get KeyTable() {
-        if (this._layout != this.Config.layout || this._extkeys != this.Config.extkeys) {
-            this._layout = this.Config.layout;
+        if (this._extkeys != this.Config.extkeys) {
             this._extkeys = this.Config.extkeys;
-            this._keytable = Object.assign({}, KEY_TABLE);
+            this._keytable = Object.assign({}, KEY_TABLE_ALL);
             for (const k of this.Config.extkeys) {
                 this._keytable[k] = '';
             }
@@ -381,13 +367,44 @@ var Keymap = {
 
     // 自定义修饰键
     get ModKeys() {
-        return (this.Config.layout == "mac" ? MOD_KEYS_MAC : MOD_KEYS_PC).concat(this.Config.modkeys);
+        let mkeys = [];
+        for (const mk of (this.Config.layout == "mac" ? MOD_KEYS_MAC : MOD_KEYS_PC).concat(this.Config.modkeys)) {
+            if (this.isKBKeys(mk)) {
+                mkeys.push(mk);
+            }
+        }
+        console.log(mkeys)
+        return mkeys;
     },
 
     isModKey(k) {
         return this.ModKeys.includes(k);
     },
-}
+
+    getLayoutKeyTable() {
+        let ktable = Object.assign({}, (this.Config.layout == "mac" ? KEY_TABLE_MAC : KEY_TABLE_PC));
+        for (const xk of this.Config.extkeys) {
+            ktable[xk] = "";
+        }
+        return ktable;
+    },
+
+    isKBKey(k) {
+        if (this.Config.showall) return true;
+        let ks = Util.split_combo(combo_str);
+        return k in this.getLayoutKeyTable();
+    },
+
+    isKBKeys(combo_str) {
+        if (this.Config.showall) return true;
+        let ks = Util.split_combo(combo_str);
+        let ktable = this.getLayoutKeyTable();
+        for (const k of ks) {
+            if (!(k in ktable))
+                return false;
+        }
+        return true;
+    },}
 
 var UI = {
     elm(sel) {
@@ -457,6 +474,7 @@ var UI = {
         this.setFlag("kbsize", cfg.kbsize);
         this.setFlag("kbhint", cfg.kbhint);
         this.setFlag("layout", cfg.layout);
+        this.setFlag("showall", cfg.showall);
         this.setCSS("--ks1", cfg["ks1"]);
         this.setCSS("--kw1", cfg["kw1"]);
         this.setCSS("--kh1", cfg["kh1"]);
@@ -532,6 +550,9 @@ var UI = {
             case "m":
                 this.toggleKBType();
                 break;
+            case "f":
+                this.toggleShowAll();
+                break;
             default:
                 handled = false;
         }
@@ -580,6 +601,9 @@ var UI = {
             case "btn_layout":
                 await this.toggleKBType();
                 break;
+            case "btn_showall":
+                await this.toggleShowAll();
+                break;
             case "btn_setting":
                 await this.setting();
                 this.Keyboard.build();
@@ -610,7 +634,7 @@ var UI = {
     async init() {
         Keymap.init();
         document.body.onkeydown = async (evt) => { await this.onKeyDown(evt); };
-        this.elm("#prof_name").onmouseenter = async (evt) => { await this.showProfileList(); }
+        this.elm("#prof_name").onclick = async (evt) => { await this.showProfileList(); }
         this.elm("#comment").onchange = async (evt) => { Keymap.setMapping("#comment", this.elm("#comment").value); await this.save(); this.update(); }
 
         this.Keyboard.init();
@@ -696,13 +720,14 @@ var UI = {
 
     async load(name) {
         if (!await Keymap.load(name)) {
-            alert("无法载入键谱：" + name);
+            alert(`无法载入键谱《${name}》`);
             await this.loadFirstProf();
         }
         this.Keyboard.build();
     },
 
     async delete() {
+        if (!confirm(`确认要删除键谱《${Keymap.Name}》？`)) return;
         await Keymap.del();
         await this.loadFirstProf();
     },
@@ -731,11 +756,13 @@ var UI = {
     },
 
     async clear() {
+        if (!confirm(`确认要清空整个键谱《${Keymap.Name}》？`)) return;
         Keymap.clear();
         await this.save(false);
     },
 
     async clearLayer() {
+        if (!confirm(`确认要清空键盘层【 ${Keymap.CurLayer} 】？`)) return;
         Keymap.clearLayer();
         await this.save(false);
     },
@@ -779,6 +806,10 @@ var UI = {
         await this.save(false);
     },
 
+    async toggleShowAll() {
+        Keymap.Config.showall = !Keymap.Config.showall;
+        await this.save(false);
+    },
     async setting() {
         await setting_dlg();
         await this.save();
@@ -818,18 +849,25 @@ UI.Keyboard = {
         for (const kn in l) {
             s.push(`${Util.gen_combo_kn_elm(kn, elm_k.dataset.k)}<km>${l[kn]}</km>`);
         }
+        if (s.length <= 0) return;
         let temp = document.createElement("span");
         temp.innerHTML = `<div class="kms_info">${s.join("")}</div>`;
         let elm_tip = temp.children[0];
-        let std_kw = this.Ks[0].offsetWidth; // first key button ("Esc") width as standard
+        let ktable = Keymap.getLayoutKeyTable();
+        for (const kn of elm_tip.querySelectorAll("kn")) {
+            if (!(kn.innerHTML in ktable)) {
+                kn.classList.add("na");
+            }
+        }
+        // let std_kw = this.Ks[0].offsetWidth; // first key button ("Esc") width as standard
         // let std_kh = this.Ks[0].offsetHeight;
         elm_tip.style.minWidth = "var(--kw)";
         elm_tip.style.minHeight = "var(--kh)";
         this.Elm.appendChild(elm_tip);
-        if (elm_k.offsetLeft > this.Elm.offsetWidth - std_kw - elm_tip.offsetWidth)
-            elm_tip.style.left = elm_k.offsetLeft - elm_tip.offsetWidth;
+        if (elm_k.offsetLeft > this.Elm.offsetWidth - elm_tip.offsetWidth)
+            elm_tip.style.left = elm_k.offsetLeft + elm_k.offsetWidth - elm_tip.offsetWidth;
         else
-            elm_tip.style.left = elm_k.offsetLeft + std_kw;
+            elm_tip.style.left = elm_k.offsetLeft;
         if (elm_k.offsetTop > this.Elm.offsetHeight - elm_tip.offsetHeight) {
             elm_tip.style.top = this.Elm.offsetHeight - elm_tip.offsetHeight;
         } else {
@@ -882,9 +920,13 @@ UI.Keyboard = {
             if (k == "/") {
                 s.push(`<span style="width:100%;"></span>`);
             } else if (k[0] == "#") {
-                s.push(`<d class="d1 f-end">${k.substring(1)}&nbsp;</d>`);
+                s.push(`<d class="d1 f-end">${k.substring(1)}</d>`);
             } else {
-                s.push(`<k data-k="${k}">${this._genElmK(k)}</k>`);
+                let e = document.createElement("k");
+                e.dataset.k = k;
+                e.innerHTML = this._genElmK(k);
+                s.push(e.outerHTML);
+                // s.push(`<k data-k="${k}">${this._genElmK(k)}</k>`);
             }
         }
         this.ElmExt.innerHTML = s.join("");
@@ -900,15 +942,6 @@ UI.Keyboard = {
             }
         }
     },
-
-    // reset() {
-    //     for (const elm_k of this.Ks) {
-    //         elm_k.title = "";
-    //         elm_k.querySelector(".ktr").innerHTML = Keymap.KeyTable[elm_k.dataset.k][0] || elm_k.dataset.k;
-    //         elm_k.querySelector(".ktm").innerHTML = "";
-    //         elm_k.classList.remove("set");
-    //     }
-    // },
 
     updateK(elm_k) {
         let mk = elm_k.dataset.k;
@@ -957,6 +990,12 @@ UI.List = {
             }
         }
         this.Elm.innerHTML = s.join('\n');
+        let ktable = Keymap.getLayoutKeyTable();
+        for (const kn of this.Elm.querySelectorAll("kn")) {
+            if (!(kn.innerHTML in ktable)) {
+                kn.classList.add("na");
+            }
+        }
     },
 };
 
@@ -1026,6 +1065,7 @@ async function setmapping_dlg(mk) {
         let s = [];
         if (!Keymap.isModKey(mk)) {
             for (const k of Keymap.ModKeys) {
+                if (Keymap.isKBKeys(k))
                 s.push(`<label><kn class="ck"><input type="checkbox" value="${k}">${k}</kn></label>`)
             }
         }
@@ -1033,7 +1073,6 @@ async function setmapping_dlg(mk) {
             <div style="flex: 1;display: flex;gap: 5px;">
                 <div style="display: flex;flex-flow:column;gap: 10px;">
                     <kn>${mk}</kn>
-                    <!--<div style="display:grid;grid-template-columns:max-content max-content;gap: 10px;width:fit-content;">-->
                         <div style="display:grid;grid-auto-flow:column;grid-template-rows:repeat(5, max-content);gap: 10px;width:fit-content;">
                         ${s.join("")}
                     </div>
@@ -1076,6 +1115,7 @@ async function setmapping_dlg(mk) {
             resolver([kn, inf]);
         };
         dlg.querySelector(".btnclr").onclick = (evt) => {
+            if (!confirm(`确认要清空键【 ${mk} 】所有映射信息？`)) return;
             dlg.remove();
             resolver([]);
         };
@@ -1151,7 +1191,7 @@ async function setting_dlg() {
             resolver(true);
         };
         dlg.querySelector(".btnclr").onclick = (evt) => {
-            Util.copy_obj(Keymap.Config, Keymap._default_cfg);
+            Object.assign(Keymap.Config, Keymap._default_cfg);
             dlg.remove();
             resolver(true);
         };
@@ -1244,7 +1284,7 @@ window.on_webwin_loaded = async () => {
             }
         },
     }
-    __loader__ = " 【精装礼盒版 *^____^* 】";
+    __loader__ = "【精装礼盒版 *^____^* 】";
     await __init__();
 };
 
@@ -1254,7 +1294,7 @@ var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
 async function __init__() {
-    document.title = `${__appname__}`;
+    document.title = `${__appname__} ${__loader__}`;
     document.querySelector(".about").innerHTML = `${__appname__} v${__version__} ${__loader__} Copyright &COPY; 2023 CataeroGong [<a href="${__homepage__}">Project Home</a>]`;
     await UI.init();
 }
