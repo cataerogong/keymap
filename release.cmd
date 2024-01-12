@@ -7,6 +7,7 @@ pause
 
 if exist pack_tmp rmdir /s /q pack_tmp
 mkdir pack_tmp
+mkdir pack_tmp\data
 
 copy /y keymap.html pack_tmp\
 copy /y README.md pack_tmp\
@@ -24,6 +25,6 @@ if exist release\keymap-%__version__%-exe-x64.zip del release\keymap-%__version_
 
 cd pack_tmp
 ..\zip ..\release\keymap-%__version__%-html.zip keymap.html README.md LICENSE
-..\zip -r ..\release\keymap-%__version__%-exe-x64.zip keymap.* README* LICENSE _internal\
+..\zip -r ..\release\keymap-%__version__%-exe-x64.zip keymap.* README* LICENSE _internal\ data\
 cd ..
 exit /b
