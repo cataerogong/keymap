@@ -1,0 +1,39 @@
+#Requires AutoHotkey v2.0
+
+; #Include RC4.ahk2
+
+FileEncoding("UTF-8-RAW")
+
+Txt2Hex(txt) {
+    hex := ""
+    cnt := 0
+    Loop Parse txt {
+        hex .= Format("X{:04X}", Ord(A_LoopField))
+        cnt++
+        if (Mod(cnt, 20) == 0)
+            hex .= "`n"
+    }
+    return hex
+}
+
+If (A_Args.Length < 2) {
+    MsgBox(A_ScriptName . " src dst")
+    ExitApp
+}
+
+If (!FileExist(A_Args[1])) {
+    MsgBox("Can not find: " . A_Args[1])
+    ExitApp
+}
+
+Src := FileRead(A_Args[1])
+Dst := Format("
+(
+_C_ := "
+(
+{}
+`)"
+)", Txt2Hex(Src))
+If FileExist(A_Args[2])
+    FileDelete(A_Args[2])
+FileAppend(Dst, A_Args[2])

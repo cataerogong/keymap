@@ -1,6 +1,5 @@
 # python>=3.8
 webui2==2.4.5
 chardet>=5.0
-pyinstaller>=6.0
 # Depends on my another project: `webwin`
 #webwin==0.2.1

@@ -1,0 +1,250 @@
+#Requires AutoHotkey v2.0
+#NoTrayIcon
+#SingleInstance Off
+;@Ahk2Exe-IgnoreBegin
+#Include keymap.pye
+;@Ahk2Exe-IgnoreEnd
+;@Ahk2Exe-AddResource keymap.pye, #2
+
+FileEncoding("UTF-8-RAW")
+
+Console := False
+stdout := 0
+SplitPath(A_ScriptFullPath, , &_DIR, &_EXT, &_NAME, &_DRIVE)
+
+OpenConsole() {
+    global
+    DllCall("AllocConsole")
+    Console := True
+    stdout := FileOpen("*", "w")
+}
+
+CloseConsole() {
+    global
+    If Console
+        DllCall("FreeConsole")
+}
+ShowMsg(msg := "")
+{
+    global
+    if (Console && stdout)
+    {
+        stdout.Write("(" . _NAME . ") " . msg . "`n")
+        stdout.read(0) ; Flush stdout
+    }
+    else
+        MsgBox(msg, _NAME)
+}
+
+PZPCWSTR(arr) {
+	sz := 0, ptrsz := A_PtrSize
+	loop arr.Length {
+		sz += ptrsz
+		arr.Has(A_Index) && sz += StrPut(arr[A_Index])
+	}
+	buf := Buffer(sz + ptrsz, 0), p := buf.Ptr, pstr := p + (arr.Length + 1) * ptrsz
+	loop arr.Length {
+		if arr.Has(A_Index) {
+			p := NumPut('ptr', pstr, p), pstr += StrPut(arr[A_Index], pstr)
+        }
+	}
+	return buf
+}
+
+RunPy() {
+    global
+
+    If (A_Args.Length > 0 && A_Args[1] == "--DEBUG") {
+        OpenConsole()
+        A_Args.RemoveAt(1)
+    }
+
+    ; check python runtime
+    _RUNTIME := _DIR . "\_runtime"
+    if !FileExist(_RUNTIME . "\python3.dll")
+    {
+        ShowMsg("[ERROR] Can not find python runtime.")
+        return
+    }
+    _SCRIPT := ""
+    Loop Parse, _C_, "X`n" {
+        if (A_LoopField)
+            _SCRIPT .= Chr("0x" A_LoopField)
+    }
+    _CODE := Format("
+(
+import os, sys, site
+try:
+    fd = os.open('CONOUT$', os.O_RDWR | os.O_BINARY)
+    fp = os.fdopen(fd, 'w')
+    sys.stdout = fp
+    sys.stderr = fp
+except Exception as e:
+    sys.stdout = None
+    sys.stderr = None
+site.addsitedir(os.path.join(r"{1}", 'lib'))
+site.addsitedir(os.path.join(r"{1}", 'lib.zip'))
+sys.argv[0] = r"{2}"
+
+{3}
+)", _RUNTIME, A_ScriptFullPath, _SCRIPT)
+
+    args := [A_ScriptName, "-I", "-s", "-S", "-c", _CODE]
+    args.push(A_Args*)
+    argv := PZPCWSTR(args)
+    Try
+    {
+        cwd := A_InitialWorkingDir
+        SetWorkingDir(_RUNTIME)
+        hPyDll := DllCall("LoadLibrary", "Str", "python3.dll", "Ptr")
+        if (hPyDll == 0)
+            throw Error("Can not LoadLibrary. EC:" . DllCall("GetLastError"))
+        hPyMain := DllCall("GetProcAddress", "Ptr", hPyDll, "AStr", "Py_Main", "Ptr")
+        if (hPyMain == 0)
+        {
+            throw Error("Can not GetProcAddress. EC:" . DllCall("GetLastError"))
+        }
+        SetWorkingDir(cwd)
+        rc := DllCall(hPyMain, "Int", args.Length, "Ptr", argv)
+        DllCall("FreeLibrary", "Ptr", hPyDll)
+    }
+    Catch Any as e
+    {
+        Msgbox(e.Message . DllCall("GetLastError"))
+    }
+
+    CloseConsole()
+}
+
+ActWin() {
+    If (Mod(A_Args.Length, 2)) {
+        MsgBox("Error Args.")
+        ExitApp
+    }
+    P := ""
+    L := ""
+    V := ""
+    S := ""
+    X := ""
+    H := ""
+    M := ""
+    n := 1
+    Loop {
+        if (n > A_Args.Length)
+            break
+        Switch A_Args[n], "On" {
+            Case "-P":
+                n++
+                P := A_Args[n]
+            Case "-L":
+                n++
+                L := A_Args[n]
+                If (L < "0" and L > "9") {
+                    MsgBox("Unknown arg value: -L " . L)
+                    ExitApp
+                }
+                If (L == "0")
+                    L := "``"
+            Case "-V":
+                n++
+                V := A_Args[n]
+                If (V !== "j" && V !== "k" && V !== "l") {
+                    MsgBox("Unknown arg value: -V " . V)
+                    ExitApp
+                }
+            Case "-S":
+                n++
+                S := A_Args[n]
+                Switch S {
+                    Case "0":
+                        S := "r"
+                    Case "1":
+                        S := "q"
+                    Case "2":
+                        S := "w"
+                    Case "3":
+                        S := "e"
+                    Default:
+                        MsgBox("Unknown arg value: -S " . S)
+                        ExitApp
+                }
+            Case "-X":
+                n++
+                X := A_Args[n]
+                If (X == "1")
+                    X := "x"
+                Else If (X == "0")
+                    X := "+x"
+                Else {
+                    MsgBox("Unknown arg value: -X " . X)
+                    ExitApp
+                }
+            Case "-H":
+                n++
+                H := A_Args[n]
+                If (H == "1")
+                    H := "{Tab}"
+                Else If (H == "0")
+                    H := "+{Tab}"
+                Else {
+                    MsgBox("Unknown arg value: -H " . H)
+                    ExitApp
+                }
+            Case "-M":
+                n++
+                M := A_Args[n]
+                If (M == "s")
+                    M := "p"
+                Else If (M == "t")
+                    M := "+p"
+                Else {
+                    MsgBox("Unknown arg value: -M " . M)
+                    ExitApp
+                }
+            Default:
+                MsgBox("Unknown arg:" . A_Args[n])
+                ExitApp
+        }
+        n++
+    }
+    WinActivate("键谱 【精装礼盒版 *^____^* 】")
+    Sleep(100)
+    SendInput("{Esc}{Esc}{Esc}")
+    If (P) {
+        SendInput("!o")
+        Sleep(100)
+        SendInput("{Text}" . P)
+        SendInput("{Enter}")
+        Sleep(100)
+    }
+    If (L) {
+        SendInput(L)
+        Sleep(100)
+    }
+    If (V) {
+        SendInput(V)
+        Sleep(100)
+    }
+    If (S) {
+        SendInput(S)
+        Sleep(100)
+    }
+    If (X) {
+        SendInput(X)
+        Sleep(100)
+    }
+    If (H) {
+        SendInput(H)
+        Sleep(100)
+    }
+    If (M) {
+        SendInput(M)
+        Sleep(100)
+    }
+}
+
+If WinExist("键谱 【精装礼盒版 *^____^* 】") {
+    ActWin()
+} Else {
+    RunPy()
+}

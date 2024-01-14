@@ -1,4 +1,5 @@
-<html data-layout="pc">
+<!-- <!DOCTYPE html> -->
+<html>
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -36,7 +37,7 @@ body {
     overflow-y: hidden;
     display: flex;
     flex-flow: column;
-    width: var(--kbw);
+    width: var(--w);
 }
 
 textarea {
@@ -58,24 +59,35 @@ input[type="checkbox"] {
 }
 
 keyboard {
+    position: relative;
     box-sizing: border-box;
-    display: flex;
-    flex-flow: column;
     border: 2px solid var(--bdc);
     border-radius: 10px;
     background-color: var(--bdc);
     background-image: linear-gradient(0deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.85) 100%);
     padding: 10px;
-    gap: 10px;
-    width: fit-content;
     height: fit-content;
-    overflow-y: hidden;
+    /* overflow-y: auto; */
     margin: 5px;
 }
 keyboard:hover {
     box-shadow: 0px 0px 5px var(--c2);
     border-color: var(--c2);
     background-color: var(--c1);
+}
+
+#kb_std {
+    display: flex;
+    flex-flow: column;
+    gap: 10px;
+    width: fit-content;
+}
+
+#kb_ext {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    width: var(--kbw);
 }
 
 kb_pc,
@@ -85,8 +97,9 @@ kb_num,
 kb_mac {
     display: grid;
     gap: 3px;
-    width: 100%;
-    overflow: hidden;
+    width: max-content;
+    height: fit-content;
+    /* overflow: hidden; */
 }
 kb_pc,
 kb_mac {
@@ -125,16 +138,6 @@ kb_mac kb_num {
     grid-template: repeat(6, var(--kh)) / repeat(4, var(--kw));
 }
 
-kb_ext {
-    grid-column: span 3;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 3px;
-    border-radius: 5px;
-    border: 1px dashed darkgray;
-    padding: 3px;
-}
-
 kr {
     display: flex;
     justify-content: space-between;
@@ -152,12 +155,18 @@ kr.Fn {
     grid-template-columns: min-content 1fr repeat(4, min-content) 1fr repeat(4, min-content) 1fr repeat(4, min-content);
 }
 
-[data-kbsize="1"] kb_dir,
-[data-kbsize="1"] kb_num,
-[data-kbsize="2"] kb_num,
-[data-kbsize="1"] kb_ext,
-[data-kbsize="2"] kb_ext,
-[data-kbsize="3"] kb_ext {
+[data-kbsize="0"] #kb_std,
+[data-kbext="false"] #kb_ext {
+    border-width: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    height: 0px;
+    overflow: hidden;
+}
+
+[data-kbsize="0"] :is(kb_dir, kb_num),
+[data-kbsize="1"] :is(kb_dir, kb_num),
+[data-kbsize="2"] kb_num {
     display: none;
 }
 
@@ -183,6 +192,29 @@ k.set {
     color: var(--c0);
     background-color: var(--c1);
     border-color: var(--c2);
+}
+k.mod {
+    /* border-width: 2px; */
+    border-style: dashed;
+}
+k.sel {
+    border-width: 2px;
+    color:crimson;
+}
+k.rel {
+    border-width: 2px;
+    /* border-style: dashed; */
+    /* background-image: linear-gradient(0deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.3) 100%); */
+    /* outline: 1px solid var(--c2); */
+}
+k.no-rel {
+    /* filter: grayscale(0.5); */
+    /* filter: brightness(0.8); */
+    filter: opacity(0.5);
+    /* background-image: linear-gradient(0deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.2) 100%); */
+}
+.kinfo.no-rel {
+    display: none;
 }
 
 .k1 {
@@ -287,6 +319,7 @@ km {
     width: fit-content;
     height: fit-content;
     white-space: pre-wrap;
+    word-break: break-all;
     word-wrap: break-word;
     padding: 2px 5px;
     margin-right: 5px;
@@ -300,13 +333,13 @@ km {
     pointer-events: none;
 }
 .ktr {
-    display: none;
+    /* display: none; */
     min-height: 1.5em;
     overflow-wrap: anywhere;
     flex: 1;
 }
 .ktm {
-    display: none;
+    /* display: none; */
     overflow: hidden;
     font-size: var(--kt);
     font-weight: normal;
@@ -315,11 +348,14 @@ km {
 [data-kbhint="true"] .ktn {
     display: none;
 }
-[data-kbhint="true"] .ktr,
-[data-kbhint="true"] .ktm {
-    display: initial;
+[data-kbhint="false"] .ktr,
+[data-kbhint="false"] .ktm {
+    display: none;
 }
 [data-kbhint="true"] #btn_hint {
+    background-color: var(--ui-bdc);
+}
+[data-kbext="true"] #btn_kbext {
     background-color: var(--ui-bdc);
 }
 
@@ -342,7 +378,7 @@ km {
     pointer-events: none;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: calc(var(--kbw) * 0.5);
+    max-width: calc(var(--w) * 0.5);
     position: absolute;
     box-shadow: 0px 3px 5px #000;
     opacity: 0;
@@ -450,23 +486,11 @@ km {
 }
 
 #tab_kb {
-    position: relative;
+    /* position: relative; */
     width: fit-content;
-    /* height: 100%; */
+    overflow-y: auto;
 }
-#tab_list {
-    /* position: absolute; */
-}
-#tab_json {
-    /* position: absolute; */
-}
-
-/* [data-view="k"] #tab_kb,
-[data-view="l"] #tab_list,
-[data-view="j"] #tab_json {
-    z-index: 1;
-} */
-[data-view="k"] #tab_kb,
+[data-view="k"] #tab_kb ,
 [data-view="l"] #tab_list,
 [data-view="j"] #tab_json {
     height: 100%;
@@ -499,7 +523,7 @@ dialog {
     border: 2px solid var(--ui-bdc);
     border-radius: 10px;
     box-shadow: 0px 5px 5px;
-    margin-left: calc(var(--kbw) / 2);
+    margin-left: calc(var(--w) / 2);
     margin-top: 10rem;
     transform: translateX(-50%);
 }
@@ -606,6 +630,7 @@ dialog {
 }
 #comment {
     flex: 1;
+    min-height: 2rem;
 }
 
 [data-ui="single"] body {
@@ -614,7 +639,7 @@ dialog {
 }
 [data-ui="single"] #row_cap {
     position: absolute;
-    width: var(--kbw);
+    width: var(--w);
 }
 [data-ui="single"] #row_tabbar {
     height: 2rem;
@@ -637,11 +662,14 @@ dialog {
 }
 #btn_ui_single,
 [data-ui="single"] #btn_ui_tab {
+    text-shadow: #000 1px 0 0, #000 0 1px 0, #000 -1px 0 0, #000 0 -1px 0;
     color: lightseagreen;
+    color: var(--ui-bdc);
     cursor: pointer;
-    font-size: 120%;
+    font-size: 125%;
 }
 [data-ui="single"] #btn_ui_single {
+    text-shadow: unset;
     color: unset;
     font-size: unset;
     cursor: unset;
@@ -665,8 +693,8 @@ dialog {
         <span>键谱</span>
         <span class="slogan">
             —— 让“记录、展示快捷键”变得
-            <span id="btn_ui_tab" class="BIND-CLICK">简</span>
-            <span id="btn_ui_single" class="BIND-CLICK">单</span>
+            <span id="btn_ui_tab" class="BIND-CLICK" title="分页模式">简</span>
+            <span id="btn_ui_single" class="BIND-CLICK" title="单页模式">单</span>
         </span>
     </div>
 </div>
@@ -686,10 +714,11 @@ dialog {
 <div id="kb_ops">
     <span>&nbsp;</span>
     <button id="btn_setting" class="smbtn kb_op BIND-CLICK" title="UI 设置">🛠</button>
-    <button id="btn_shorten" class="smbtn kb_op BIND-CLICK" title="收缩">➖</button>
-    <button id="btn_expand" class="smbtn kb_op BIND-CLICK" title="扩展">➕</button>
+    <!-- <button id="btn_shorten" class="smbtn kb_op BIND-CLICK" title="收缩主键盘">➖</button>
+    <button id="btn_expand" class="smbtn kb_op BIND-CLICK" title="扩展主键盘">➕</button>
+    <button id="btn_kbext" class="smbtn kb_op BIND-CLICK" title="扩展键区">↕</button> -->
     <button id="btn_hint" class="smbtn kb_op BIND-CLICK" title="键帽提示">🔣</button>
-    <button id="btn_layout" class="smbtn kb_op BIND-CLICK" title="布局(PC/Mac)">🍏</button>
+    <button id="btn_layout" class="smbtn kb_op BIND-CLICK" title="Mac 布局">🍏</button>
     <button id="btn_showall" class="smbtn kb_op BIND-CLICK" title="所有映射">All</button>
     <span>&nbsp;键盘层:</span>
     <span id="layer_btns"></span>
@@ -698,7 +727,7 @@ dialog {
     <span style="flex: 1;">&nbsp;</span>
 </div>
 <div id="tab_kb" class="tab">
-    <keyboard id="keyboard">
+    <keyboard id="kb_std">
         <kb_pc>
             <kb_main>
                 <kr class="Fn">
@@ -800,9 +829,8 @@ dialog {
                 <k class="k2h">Num0</k><k>Num.</k>
             </kb_num>
         </kb_mac>
-        <kb_ext>
-        </kb_ext>
     </keyboard>
+    <keyboard id="kb_ext"></keyboard>
     <textarea id="comment" placeholder="备注"></textarea>
 </div>
 <div id="tab_list" class="tab">
@@ -895,9 +923,9 @@ var Util = {
         let mk = ck[ck.length - 1];
         let l = [];
         for (const k of ck) {
-            l.push(`<kn ${k==mk?"":' class="ck"'}>${k}</kn>`);
+            l.push(`<kn ${k==mk?"":'class="ck"'}>${k}</kn>`);
         }
-        return `<span data-mainkey="${mk}" class="kinfo f-end">${l.join("+")}</span>`;
+        return `<span data-mainkey="${mk}" data-combo="${kn}" class="kinfo f-end">${l.join("+")}</span>`;
     },
 };
 
@@ -917,29 +945,33 @@ const HELP = `【备注】这里是备注框，可以为每个键盘层备注信
   * 可以设置键盘层数，无上限（嗯，大概吧），可以自定义键盘层名。
   * 每个键谱的当前状态都会实时保存（除了“当前键盘层”），在下次打开时会自动恢复。因此，可以为每个键谱设置不同的显示风格。
 
-【谱匣】通过谱匣程序使用键谱时，可以使用命令行参数(-PLVSH)自定义载入的键谱及界面。不需提供所有参数，未提供的参数会按键谱中保存的状态显示。
+【谱匣】通过谱匣程序使用键谱时，可以使用命令行参数自定义载入的键谱及界面。不需提供所有参数，未提供的参数会按键谱中保存的状态显示。
   -P 键谱名
-  -L 键盘层 : [0~5]
+  -L 键盘层 : [0~9]
   -V 视图 : [k/l/j] 键图 / 键表 / 数据
-  -S 键盘大小 : [1~4] 60% / 80% / 标准 / 扩展
+  -S 主键盘大小 : [0~3] 隐藏 / 60% / 80% / 标准
+  -X 扩展键区 ：[0/1] 关闭 / 打开
   -H 键帽提示 : [0/1] 关闭 / 打开
-  示例：打开键谱“Photoshop”，切换到层2，显示键图，60%键盘大小，打开键帽提示。
-    keymap.exe -P Photoshop -L 2 -V k -S 1 -H 1
+  -M 界面模式 : [t/s] 分页 / 单页
+  示例：打开键谱“Photoshop”，切换到层2，显示键图，60%键盘大小，关闭扩展键区，打开键帽提示，单页模式。
+    keymap.exe -P Photoshop -L 2 -V k -S 1 -X 0 -H 1 -M s
+
+【彩蛋】右上的“简单”不简单 ;-)
 `;
 const HELP1 = `指向各个按键可以看到不同信息。
 
-* 键盘布局：按 m 切换布局
+* 键盘布局：按 m / Shift+m 切换布局
   PC 和 Mac 有些键是不同的，基本上除字母键、Fn键外的键都不同。
 
-* “所有映射”开关：按 f 切换
+* 所有映射：按 f / Shift+f 开关
   显示/隐藏 包含“非本键盘按键”的映射信息
   当组合键中包含有“非本键盘按键”时，受本开关控制。
-  受影响：键表，映射信息设置时的修饰键列表，指向按键时显示的映射信息
+  受影响：键表 / 映射信息设置时的修饰键列表 / 指向按键时显示的映射信息
 
 * 自定义扩展键：
   * 每个键名以英文逗号(,)分隔
-  * 以 # 开头的会以纯文字显示在界面上
-  * 单独的一个 / 表示在界面显示时换行
+  * 以 "#" 开头的会以纯文字显示在界面上
+  * 单独的一个 "/" 表示在界面显示时换行
 
 * 自定义修饰键：
   * 每个键名以英文逗号(,)分隔
@@ -964,19 +996,32 @@ const KeymapHelp = {
         "Q": "* 60% 键盘",
         "W": "* 80% 键盘",
         "E": "* 标准键盘",
-        "R": "* 扩展键盘",
-        "Tab": "* 键帽提示\n  切换：键帽提示模式（大键）/普通模式（小键）",
-        "tab": "* 键帽提示\n  切换：键帽提示模式（大键）/普通模式（小键）",
+        "R": "* 隐藏主键盘",
+        "X": "* 显示扩展键区",
+        "Shift+X": "隐藏扩展键区",
+        "shift+X": "隐藏扩展键区",
+        "Tab": "* 开启键帽提示\n  在键帽上显示主映射信息",
+        "Shift+Tab": "关闭键帽提示",
+        "tab": "* 开启键帽提示\n  在键帽上显示主映射信息",
+        "shift+Tab": "关闭键帽提示",
         "A": "* 键图",
         "S": "* 键表",
         "D": "* 数据",
         "K": "* 键图",
         "L": "* 键表",
         "J": "* 数据",
-        "P": "* 打印模式\n  切换：打印模式/普通模式",
-        "M": "* 键盘布局\n  切换：PC / Mac 键盘布局",
-        "F": "* 全部映射\n  切换：显示/隐藏 包含“非本键盘按键”的映射信息\n  当组合键中包含有“非本键盘按键”时，受本开关控制。",
-        "F2": "* 改键盘层名\n  也可以双击键盘层名修改",
+        "P": "* 单页模式\n  将键图和键表显示在一个长页面内，简化页面，隐藏操作台（以便打印）",
+        "Shift+P": "分页模式\n  将键图和键表显示在不同分页，提供完整操作界面",
+        "shift+P": "分页模式\n  将键图和键表显示在不同分页，提供完整操作界面",
+        "M": "* Mac键盘布局",
+        "Shift+M": "PC键盘布局",
+        "shift+M": "PC键盘布局",
+        "F": "* 显示全部映射\n  显示 包含“非本键盘按键”的映射信息\n  当组合键中包含有“非本键盘按键”时，受本开关控制。",
+        "Shift+F": "关闭显示全部映射",
+        "shift+F": "关闭显示全部映射",
+        "F2": "* 键盘层改名\n  也可以双击键盘层名进行修改",
+        "LB": "* 设置映射",
+        "RB": "* 筛选映射\n  键图：突出显示组合键中包含选中键的那些键帽\n  键表：只显示选中键相关的映射信息\n  按 p 切换到单页模式后会有更直观的感受",
         "#comment": HELP
     },
     "#1": {
@@ -990,20 +1035,21 @@ const KeymapHelp = {
         "caps+A": "* 自定义修饰键(Mac)\n  可以在设置中增加自定义修饰键。",
         "Tab": "* 这是 PC 布局",
         "tab": "* 这是 Mac 布局",
-        "Alt": "* 这是 PC 布局",
-        "cmd": "* 这是 Mac 布局",
+        "Win": "* 这是 PC 布局",
+        "opt": "* 这是 Mac 布局",
         "XK1+Z": "* 扩展键做修饰键",
         "#comment": HELP1
     },
     "#config": {
         "layout": "pc",
         "view": "k",
-        "kbsize": 4,
+        "kbsize": 1,
+        "kbext": true,
         "kbhint": true,
-        "extkeys": ["#扩展", "XK1", "XK2", "XK3", "XK4",
-                    "/", "#Fn", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20", "#鼠标", "LB", "RB", "MB", "WhlUp", "WhlDn",
+        "extkeys": ["#鼠标", "LB", "RB", "MB", "WhlUp", "WhlDn", "#扩展", "XK1", "XK2", "XK3", "XK4",
+                    "/", "#Fn", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20",
                     ],
-        "modkeys": ["RAlt", "RCtrl", "RShift", "Caps", "r-ctrl", "r-opt", "r-cmd", "caps", "Ext1"],
+        "modkeys": ["RAlt", "RCtrl", "RShift", "Caps", "r-ctrl", "r-opt", "r-cmd", "caps", "XK1"],
         "layer_names": {
             "#0": "帮助",
             "#1": "更多",
@@ -1021,10 +1067,12 @@ var Keymap = {
     _extkeys: [],
 
     _default_cfg: {
+        "uimode": "tab",
         "layout": "pc",
         "layers": 10,
         "view": "k",
-        "kbsize": 3,
+        "kbsize": 2,
+        "kbext": false,
         "kbhint": false,
         "showall": false,
         "ks1": 0.8,
@@ -1109,6 +1157,14 @@ var Keymap = {
         return this._data["#config"];
     },
 
+    get KBSize() {
+        return Util.between(this.Config.kbsize, 0, 3);
+    },
+
+    set KBSize(v) {
+        this.Config.kbsize = Util.between(v, 0, 3);
+    },
+
     get CurLayer() {
         return this._cur_layer;
     },
@@ -1178,12 +1234,16 @@ var Keymap = {
     // Storage Methods
     async load(name = null) {
         this.init();
-        this.Name = name || this.Name;
-        if (!this.Name) {
+        name = name || this.Name;
+        if (!name) {
             return false;
         }
-        let json_ = await _PROFILE_.read(this.Name);
-        return Boolean(json_ && this.loadJSON(json_));
+        let json_ = await _PROFILE_.read(name);
+        if (json_ && this.loadJSON(json_)) {
+            this.Name = name;
+            return true;
+        } else
+            return false;
     },
     async save() {
         this.shrink();
@@ -1218,21 +1278,26 @@ var Keymap = {
     // 自定义修饰键
     get ModKeys() {
         let mkeys = [];
-        for (const mk of (this.Config.layout == "mac" ? MOD_KEYS_MAC : MOD_KEYS_PC).concat(this.Config.modkeys)) {
-            if (this.isKBKeys(mk)) {
+        // for (const mk of (this.Config.layout == "mac" ? MOD_KEYS_MAC : MOD_KEYS_PC).concat(this.Config.modkeys)) {
+        let mkeys_na = [];
+        let ktable = this.getLayoutKeyTable();
+        for (const mk of MOD_KEYS_PC.concat(MOD_KEYS_MAC).concat( this.Config.modkeys)) {
+            if (mk in ktable) {
                 mkeys.push(mk);
+            } else {
+                mkeys_na.push(mk);
             }
         }
-        console.log(mkeys)
-        return mkeys;
+        return this.Config.showall ? mkeys.concat(mkeys_na) : mkeys;
     },
 
     isModKey(k) {
         return this.ModKeys.includes(k);
     },
 
-    getLayoutKeyTable() {
-        let ktable = Object.assign({}, (this.Config.layout == "mac" ? KEY_TABLE_MAC : KEY_TABLE_PC));
+    getLayoutKeyTable(l = null) {
+        if (l == null) l = this.Config.layout;
+        let ktable = Object.assign({}, (l == "mac" ? KEY_TABLE_MAC : KEY_TABLE_PC));
         for (const xk of this.Config.extkeys) {
             ktable[xk] = "";
         }
@@ -1240,9 +1305,7 @@ var Keymap = {
     },
 
     isKBKey(k) {
-        if (this.Config.showall) return true;
-        let ks = Util.split_combo(combo_str);
-        return k in this.getLayoutKeyTable();
+        return this.Config.showall ? true : (k in this.getLayoutKeyTable());
     },
 
     isKBKeys(combo_str) {
@@ -1324,11 +1387,13 @@ var UI = {
 
         this.setFlag('layer', Keymap.CurLayer);
         let cfg = Keymap.Config;
-        cfg.kbsize = Util.between(cfg.kbsize, 1, 4);
+        this.setFlag("ui", cfg.uimode);
         this.setFlag("view", cfg.view);
-        this.setFlag("kbsize", cfg.kbsize);
+        this.setFlag("kbsize", Keymap.KBSize);
         this.setFlag("kbhint", cfg.kbhint);
         this.setFlag("layout", cfg.layout);
+        this.setFlag("kbext", cfg.kbext);
+        // this.setFlag("kbext", false);
         this.setFlag("showall", cfg.showall);
         this.setCSS("--ks1", cfg["ks1"]);
         this.setCSS("--kw1", cfg["kw1"]);
@@ -1344,18 +1409,28 @@ var UI = {
         this.setCSS("--c4", cfg["c4"]);
         this.setCSS("--cols", cfg["cols"]);
         this.resize();
+        // this.setFlag("kbext", !cfg.kbext);
+        // this.resize();
+        // this.setFlag("kbext", cfg.kbext);
     },
 
     resize() {
-        this.setCSS("--kbw", window.getComputedStyle(this.elm("#tab_kb")).width);
+        this.setCSS("--kbw", window.getComputedStyle(this.elm("#kb_std")).width);
+        this.setCSS("--w", window.getComputedStyle(this.elm("#tab_kb")).width);
     },
 
     async onKeyDown(evt) {
+        if (evt.key == "Escape") {
+            evt.target.blur();
+            document.body.focus();
+            return;
+        }
         if (evt.target != document.body)
             return;
         let handled = true;
         let upd = true;
-        switch (evt.key) {
+        // let kbresized = false;
+        switch (evt.key.toUpperCase()) {
             case "`":
                 this.changeLayer(0);
                 break;
@@ -1370,46 +1445,92 @@ var UI = {
             case "9":
                 this.changeLayer(parseInt(evt.key));
                 break;
-            case "q":
+            case "Q":
                 await this.setSize(1);
+                // kbresized = true;
                 break;
-            case "w":
+            case "W":
                 await this.setSize(2);
+                // kbresized = true;
                 break;
-            case "e":
+            case "E":
                 await this.setSize(3);
+                // kbresized = true;
                 break;
-            case "r":
-                await this.setSize(4);
+            case "R":
+                await this.setSize(0);
+                // kbresized = true;
                 break;
-            case "a":
-            case "k":
+            case "X":
+                if (evt.shiftKey) {
+                    await this.setKBExt(false);
+                } else {
+                    await this.setKBExt(true);
+                }
+                break;
+            case "A":
+            case "K":
                 await this.changeView("k");
+                this.setFlag("view", "k");
+                upd = false;
                 break;
-            case "s":
-            case "l":
+            case "S":
+            case "L":
                 await this.changeView("l");
+                this.setFlag("view", "l");
+                upd = false;
                 break;
-            case "d":
-            case "j":
+            case "D":
+            case "S":
                 this.setFlag("view", "j");
                 upd = false;
                 break;
-            case "Tab":
-                await this.toggleHint();
+            case "TAB":
+                evt.stopPropagation();
+                evt.preventDefault();
+                if (evt.shiftKey) {
+                    await this.setKBHint(false);
+                } else {
+                    await this.setKBHint(true);
+                }
+                // kbresized = true;
                 break;
-            case "p":
-                this.toggleFlag("ui", "single");
+            case "P":
+                if (evt.shiftKey) {
+                    await this.setUIMode("tab");
+                    this.setFlag("ui", "tab");
+                } else {
+                    await this.setUIMode("single");
+                    this.setFlag("ui", "single");
+                }
                 upd = false;
                 break;
-            case "m":
-                this.toggleKBType();
+            case "M":
+                if (evt.shiftKey) {
+                    await this.setKBType("pc");
+                } else {
+                    await this.setKBType("mac");
+                }
                 break;
-            case "f":
-                this.toggleShowAll();
+            case "F":
+                if (evt.shiftKey) {
+                    await this.setShowAll(false);
+                } else {
+                    await this.setShowAll(true);
+                }
                 break;
             case "F2":
                 await this.setLayerName();
+                break;
+            case "O":
+                if (evt.altKey) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    let pn = prompt();
+                    if (pn) {
+                        await this.load(pn);
+                    }
+                }
                 break;
             default:
                 handled = false;
@@ -1420,6 +1541,14 @@ var UI = {
             if (upd)
                 this.update();
         }
+        // // 键盘宽度收缩后，扩展键区不会缩小（不知道为啥）
+        // // 粗暴的解决方法就是切两次扩展键区
+        // if (kbresized) {
+        //     this.toggleKBExt();
+        //     this.update();
+        //     this.toggleKBExt();
+        //     this.update();
+        // }
     },
 
     async onClick(evt, elm) {
@@ -1427,18 +1556,24 @@ var UI = {
         elm.blur();
         switch (elm.id) {
             case "btn_ui_tab":
+                await this.setUIMode("tab");
                 this.setFlag('ui', 'tab');
                 upd = false;
                 break;
             case "btn_ui_single":
+                await this.setUIMode("single");
                 this.setFlag('ui', 'single');
                 upd = false;
                 break;
             case "tabbtn_kb":
                 await this.changeView("k");
+                this.setFlag("view", "k");
+                upd = false;
                 break;
             case "tabbtn_list":
                 await this.changeView("l");
+                this.setFlag("view", "l");
+                upd = false;
                 break;
             case "tabbtn_json":
                 this.setFlag("view", "j");
@@ -1447,14 +1582,17 @@ var UI = {
             case "btn_l_clr":
                 await this.clearLayer();
                 break;
-            case "btn_shorten":
-                await this.changeSize(-1);
-                break;
-            case "btn_expand":
-                await this.changeSize(+1);
-                break;
+            // case "btn_shorten":
+            //     await this.changeSize(-1);
+            //     break;
+            // case "btn_expand":
+            //     await this.changeSize(+1);
+            //     break;
+            // case "btn_kbext":
+            //     await this.toggleKBExt();
+            //     break;
             case "btn_hint":
-                await this.toggleHint();
+                await this.toggleKBHint();
                 break;
             case "btn_layout":
                 await this.toggleKBType();
@@ -1637,6 +1775,11 @@ var UI = {
 
     // UI Operation Methods
 
+    async setUIMode(v) {
+        Keymap.Config.uimode = v;
+        await this.save(false);
+    },
+
     async changeView(view) {
         if (view == "k" || view == "l") {
             Keymap.Config.view = view;
@@ -1650,37 +1793,53 @@ var UI = {
     },
 
     async changeSize(delta) {
-        Keymap.Config.kbsize = Util.between(Keymap.Config.kbsize + delta, 1, 4);
+        Keymap.KBSize += delta;
         await this.save(false);
     },
 
     async setSize(s) {
-        Keymap.Config.kbsize = Util.between(s, 1, 4);
+        Keymap.KBSize = s;
         await this.save(false);
     },
 
-    async toggleHint() {
-        Keymap.Config.kbhint = !Keymap.Config.kbhint;
+    async setKBExt(v) {
+        Keymap.Config.kbext = Boolean(v);
         await this.save(false);
     },
-
-    async setHint(b) {
-        Keymap.Config.kbhint = Boolean(b);
-        await this.save(false);
+    async toggleKBExt() {
+        await this.setKBExt(!Keymap.Config.kbext);
     },
 
+    async setKBHint(v) {
+        Keymap.Config.kbhint = Boolean(v);
+        await this.save(false);
+    },
+    async toggleKBHint() {
+        await this.setKBHint(!Keymap.Config.kbhint);
+    },
+
+    async setKBType(v) {
+        Keymap.Config.layout = v;
+        await this.save(false);
+    },
     async toggleKBType() {
-        Keymap.Config.layout = (Keymap.Config.layout == "mac") ? "pc" : "mac";
-        await this.save(false);
+        await this.setKBType((Keymap.Config.layout == "mac") ? "pc" : "mac");
     },
 
-    async toggleShowAll() {
-        Keymap.Config.showall = !Keymap.Config.showall;
+    async setShowAll(v) {
+        Keymap.Config.showall = Boolean(v);
         await this.save(false);
+    },
+    async toggleShowAll() {
+        await this.setShowAll(!Keymap.Config.showall);
     },
     async setting() {
         await setting_dlg();
         await this.save();
+    },
+
+    toggleMapping(mk) {
+        this.List.toggleMapping(this.Keyboard.toggleMapping(mk));
     },
 
     // Keymapping Methods
@@ -1702,11 +1861,15 @@ var UI = {
 
 UI.Keyboard = {
     _inited: false,
-    Elm: UI.elm("#keyboard"),
-    ElmExt: UI.elm("kb_ext"),
+    Elm: UI.elm("#kb_std"),
+    ElmExt: UI.elm("#kb_ext"),
 
     get Ks() {
-        return this.Elm.querySelectorAll("k");
+        return UI.elms("k");
+    },
+
+    K(mk) {
+        return UI.elm(`k[data-k="${mk}"]`);
     },
 
     showTip(elm_k) {
@@ -1723,31 +1886,30 @@ UI.Keyboard = {
         let elm_tip = temp.children[0];
         let ktable = Keymap.getLayoutKeyTable();
         for (const kn of elm_tip.querySelectorAll("kn")) {
-            if (!(kn.innerHTML in ktable)) {
+            if (!(kn.innerText in ktable)) {
                 kn.classList.add("na");
             }
         }
-        // let std_kw = this.Ks[0].offsetWidth; // first key button ("Esc") width as standard
-        // let std_kh = this.Ks[0].offsetHeight;
         elm_tip.style.minWidth = "var(--kw)";
         elm_tip.style.minHeight = "var(--kh)";
-        this.Elm.appendChild(elm_tip);
-        if (elm_k.offsetLeft > this.Elm.offsetWidth - elm_tip.offsetWidth)
+        let elm_parent = (elm_k.parentElement == this.ElmExt) ? this.ElmExt : this.Elm;
+        elm_parent.appendChild(elm_tip);
+        if (elm_k.offsetLeft > elm_parent.offsetWidth - elm_tip.offsetWidth)
             elm_tip.style.left = elm_k.offsetLeft + elm_k.offsetWidth - elm_tip.offsetWidth;
         else
             elm_tip.style.left = elm_k.offsetLeft;
-        if (elm_k.offsetTop > this.Elm.offsetHeight - elm_tip.offsetHeight) {
-            elm_tip.style.top = this.Elm.offsetHeight - elm_tip.offsetHeight;
+        if (elm_k.offsetTop > elm_parent.offsetHeight - elm_tip.offsetHeight - 2) {
+            elm_tip.style.top = elm_parent.offsetHeight - elm_tip.offsetHeight - 4;
         } else {
             elm_tip.style.top = elm_k.offsetTop;
         }
         if (elm_tip.offsetTop < 2) {
-            elm_tip.style.top = 2;
-            elm_tip.style.maxHeight = this.Elm.offsetHeight - 4;
+            elm_tip.style.top = 0;
+            elm_tip.style.maxHeight = elm_parent.offsetHeight - 4;
         }
         if (elm_tip.offsetLeft < 2) {
             elm_tip.style.left = 2;
-            elm_tip.style.maxWidth = this.Elm.offsetWidth - 4;
+            elm_tip.style.maxWidth = elm_parent.offsetWidth - 4;
         }
         elm_tip.style.opacity = 1;
     },
@@ -1766,16 +1928,6 @@ UI.Keyboard = {
         if (this._inited) return;
         this._inited = true;
         for (const elm of this.Ks) {
-            // let mk = elm.innerHTML;
-            // if (mk in KEY_TABLE) {
-            //     elm.dataset.k = mk;
-            //     // k = KEY_TABLE[mk];
-            //     // // k.push(elm);
-            //     // elm.innerHTML = this._genElmK(k[0] || mk);
-            //     elm.innerHTML = this._genElmK(KEY_TABLE[mk] || mk);
-            // } else {
-            //     elm.classList.add("dis");
-            // }
             elm.dataset.k = elm.innerHTML;
         }
         this.build();
@@ -1805,9 +1957,62 @@ UI.Keyboard = {
                 elm.onmouseenter = (evt) => { this.showTip(elm) };
                 elm.onmouseleave = (evt) => { this.clearTips() };
                 elm.onclick = (evt) => { UI.setMapping(elm.dataset.k); };
+                elm.oncontextmenu = (evt) => { evt.preventDefault(); UI.toggleMapping(elm.dataset.k); }
             } else {
                 elm.classList.add("dis");
             }
+        }
+    },
+
+    toggleMapping(mk) {
+        let elm =this.K(mk);
+        if (!elm) return "";
+        // if (!Keymap.isModKey(mk)) return;
+        // css class: sel: 选中, rel: 相关, no-rel: 无关
+        if (elm.classList.contains("sel")) {
+            elm.classList.remove("sel");
+            for (const elm_k of this.Ks) {
+                elm_k.classList.remove("rel");
+                elm_k.classList.remove("no-rel");
+            }
+            return "";
+        } else {
+            for (const elm_k of this.Ks) {
+                elm_k.classList.remove("sel");
+                elm_k.classList.remove("rel");
+                elm_k.classList.add("no-rel");
+                if (elm_k == elm) {
+                    elm.classList.add("sel");
+                    elm_k.classList.remove("no-rel");
+                    continue;
+                }
+            }
+            for (const kn in Keymap.LayerData()) {
+                let ks = Util.split_combo(kn);
+                if (ks.includes(mk)) {
+                    let k = this.K(ks[ks.length - 1]);
+                    k.classList.remove("no-rel");
+                    k.classList.add("rel");
+                }
+            }
+            for (const kn in Keymap.getAllMappings(mk)) {
+                for (const kk of Util.split_combo(kn)) {
+                    k = this.K(kk);
+                    k.classList.remove("no-rel");
+                    k.classList.add("rel");
+                }
+
+            }
+            //     // if (!elm_k.classList.contains("set")) continue;
+            //     for (const kn in Keymap.getAllMappings(elm_k.dataset.k)) {
+            //         if (Util.split_combo(kn).includes(mk)) {
+            //             elm_k.classList.remove("no-rel");
+            //             elm_k.classList.add("rel");
+            //             break;
+            //         }
+            //     }
+            // }
+            return mk;
         }
     },
 
@@ -1817,16 +2022,22 @@ UI.Keyboard = {
             console.log(mk);
             return;
         }
+        // 清理 css class
+        elm_k.classList.remove("mod", "set", "sel", "rel", "no-rel");
+        if (Keymap.isModKey(mk)) {
+            elm_k.classList.add("mod");
+        // } else {
+        //     elm_k.classList.remove("mod");
+        }
         let elm_ktr = elm_k.querySelector(".ktr");
-        // elm_ktr.innerHTML = Keymap.KeyTable[mk][0] || mk;
         elm_ktr.innerHTML = Keymap.KeyTable[mk] || mk;
         let elm_ktm = elm_k.querySelector(".ktm");
         elm_ktm.innerHTML = "";
         let ks = Keymap.getAllMappings(mk);
-        if (Util.is_empty_obj(ks)) {
-            elm_k.classList.remove("set");
-            elm_k.title = "";
-        } else {
+        // if (Util.is_empty_obj(ks)) {
+        //     elm_k.classList.remove("set");
+        // } else {
+        if (!Util.is_empty_obj(ks)) {
             elm_k.classList.add("set");
             for (const k in ks) {
                 let ktm = ks[k];
@@ -1849,19 +2060,35 @@ UI.Keyboard = {
 UI.List = {
     Elm: UI.elm("#list"),
 
+    get Items() {
+        return this.Elm.querySelectorAll(".kinfo");
+    },
+
     update() {
         let s = [];
         for (const mk in Keymap.KeyTable) {
             let l = Keymap.getAllMappings(mk);
+            if (Util.is_empty_obj(l)) continue;
             for (const kn in l) {
-                s.push(`${Util.gen_combo_kn_elm(kn)}<km data-mainkey="${mk}" class="kinfo">${l[kn]}</km>`);
+                s.push(`${Util.gen_combo_kn_elm(kn)}<km data-mainkey="${mk}" data-combo="${kn}" class="kinfo">${l[kn]}</km>`);
             }
+            // s.push(`<div style="grid-column: 1 / -1;height:0px;"></div>`);
         }
         this.Elm.innerHTML = s.join('\n');
         let ktable = Keymap.getLayoutKeyTable();
         for (const kn of this.Elm.querySelectorAll("kn")) {
-            if (!(kn.innerHTML in ktable)) {
+            if (!(kn.innerText in ktable)) {
                 kn.classList.add("na");
+            }
+        }
+    },
+
+    toggleMapping(mk) {
+        // css class: no-rel: 无关
+        for (const i of this.Items) {
+            i.classList.remove("no-rel");
+            if (mk && !Util.split_combo(i.dataset.combo).includes(mk)) {
+                i.classList.add("no-rel");
             }
         }
     },
@@ -1937,7 +2164,7 @@ async function setmapping_dlg(mk) {
         if (!Keymap.isModKey(mk)) {
             for (const k of Keymap.ModKeys) {
                 if (Keymap.isKBKeys(k))
-                s.push(`<label><kn class="ck"><input type="checkbox" value="${k}">${k}</kn></label>`)
+                    s.push(`<label><kn class="ck"><input type="checkbox" value="${k}">${k}</kn></label>`)
             }
         }
         let html = `<dialog class="kmdlg">
@@ -1962,6 +2189,12 @@ async function setmapping_dlg(mk) {
         let tmp = document.createElement("div");
         tmp.innerHTML = html;
         let dlg = tmp.children[0];
+        let ktable = Keymap.getLayoutKeyTable();
+        for (const kn of dlg.querySelectorAll("kn")) {
+            if (!(kn.innerText in ktable)) {
+                kn.classList.add("na");
+            }
+        }
         dlg.querySelectorAll('input[type="checkbox"]').forEach(elm => {
             elm.onclick = (evt) => {
                 let kn = "";
@@ -2014,7 +2247,7 @@ async function setting_dlg() {
                 <span>高亮字符</span><input type="text" id="c0" style="width: 6rem;" />
                 <span>高亮背景</span><input type="text" id="c1" style="width: 6rem;" />
                 <span>高亮边框</span><input type="text" id="c2" style="width: 6rem;" />
-                <div class="subttl">普通模式</div>
+                <div class="subttl">键帽标准模式</div>
                 <span>键宽</span><input type="number" id="kw1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>键高</span><input type="number" id="kh1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>字母大小</span><input type="number" id="ks1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
@@ -2023,7 +2256,15 @@ async function setting_dlg() {
                 <span>键高</span><input type="number" id="kh2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>字母大小</span><input type="number" id="ks2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>提示大小</span><input type="number" id="kt2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <div class="subttl"></div>
+                <div class="subttl">键谱设置</div>
+                <span>主键盘大小</span>
+                <select id="kbsize" style="width: 4rem;">
+                    <option value="0">隐藏</option>
+                    <option value="1">60%</option>
+                    <option value="2">80%</option>
+                    <option value="3">标准</option>
+                </select>
+                <span>扩展键区</span><label><input type="checkbox" id="kbext" />显示</label>
                 <span>键盘层数</span><input type="number" id="layers" min="1" step="1" style="width: 3rem;" />
                 <span>键表列数</span><input type="number" id="cols" min="1" max="10" step="1" style="width: 3rem;" />
                 <span>自定义扩展键</span><input type="text" id="extkeys" style="grid-column: 2 / -1" />
@@ -2043,21 +2284,33 @@ async function setting_dlg() {
                 c.value = cfg.extkeys.join(", ");
             } else if (c.id == "modkeys") {
                 c.value = cfg.modkeys.join(", ");
+            } else if (c.id == "kbext") {
+                c.checked = cfg.kbext;
             } else {
                 c.value = cfg[c.id];
             }
         }
+        dlg.querySelector("#kbsize").value = Keymap.KBSize;
         dlg.querySelector(".btnok").onclick = (evt) => {
             for (const c of dlg.querySelectorAll("input")) {
                 if (c.id == "extkeys") {
-                    cfg.extkeys = c.value.trim().split(/\s*,\s*/);
+                    if (c.value.trim())
+                        cfg.extkeys = c.value.trim().split(/\s*,\s*/);
+                    else
+                        cfg.extkeys = [];
                     UI.update();
                 } else if (c.id == "modkeys") {
-                    cfg.modkeys = c.value.trim().split(/\s*,\s*/);
+                    if (c.value.trim())
+                        cfg.modkeys = c.value.trim().split(/\s*,\s*/);
+                    else
+                        cfg.modkeys = [];
+                } else if (c.id == "kbext") {
+                    cfg.kbext = c.checked;
                 } else {
                     cfg[c.id] = c.value;
                 }
             }
+            Keymap.KBSize = parseInt(dlg.querySelector("#kbsize").value);
             dlg.remove();
             resolver(true);
         };
@@ -2160,7 +2413,7 @@ window.on_webwin_loaded = async () => {
 };
 
 var __appname__ = "键谱";
-var __version__ = "2.1.0-beta";
+var __version__ = "2.2.0-beta";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
