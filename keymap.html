@@ -78,14 +78,14 @@ keyboard:hover {
 
 #kb_std {
     display: flex;
-    flex-flow: column;
+    flex-flow: row;
     gap: 10px;
     width: fit-content;
 }
 
 #kb_ext {
     display: flex;
-    flex-wrap: wrap;
+    flex-flow: column;
     gap: 3px;
     width: var(--kbw);
 }
@@ -153,6 +153,14 @@ kr.Fn {
     display: grid;
     grid-auto-flow: column;
     grid-template-columns: min-content 1fr repeat(4, min-content) 1fr repeat(4, min-content) 1fr repeat(4, min-content);
+}
+
+krx {
+    display: flex;
+    justify-content: start;
+    flex-wrap: wrap;
+    height: auto;
+    gap: 3px;
 }
 
 [data-kbsize="0"] #kb_std,
@@ -266,6 +274,8 @@ d {
 }
 
 .d1 {
+    box-sizing: border-box;
+    height: var(--kh);
     min-width: var(--kw);
 }
 
@@ -1937,8 +1947,9 @@ UI.Keyboard = {
         // add extkeys
         let s = [];
         for (const k of Keymap.Config.extkeys) {
-            if (k == "/") {
-                s.push(`<span style="width:100%;"></span>`);
+            if (k == "__CR/LF__") {
+                // s.push(`<span style="width:100%;margin:-10px;"></span>`);
+                s.push("</krx><krx>")
             } else if (k[0] == "#") {
                 s.push(`<d class="d1 f-end">${k.substring(1)}</d>`);
             } else {
@@ -1949,7 +1960,10 @@ UI.Keyboard = {
                 // s.push(`<k data-k="${k}">${this._genElmK(k)}</k>`);
             }
         }
-        this.ElmExt.innerHTML = s.join("");
+        if (s.length > 0)
+            this.ElmExt.innerHTML = "<krx>" + s.join("") + "</krx>";
+        else
+            this.ElmExt.innerHTML = "";
         for (const elm of this.Ks) {
             if (elm.dataset.k in Keymap.KeyTable) {
                 elm.classList.remove("dis");
@@ -2267,8 +2281,8 @@ async function setting_dlg() {
                 <span>扩展键区</span><label><input type="checkbox" id="kbext" />显示</label>
                 <span>键盘层数</span><input type="number" id="layers" min="1" step="1" style="width: 3rem;" />
                 <span>键表列数</span><input type="number" id="cols" min="1" max="10" step="1" style="width: 3rem;" />
-                <span>自定义扩展键</span><input type="text" id="extkeys" style="grid-column: 2 / -1" />
                 <span>自定义修饰键</span><input type="text" id="modkeys" style="grid-column: 2 / -1" />
+                <span>自定义扩展键</span><textarea id="extkeys" style="grid-column: 2 / -1;height: 6rem;border:1px solid black;white-space: nowrap;"></textarea>
                 </div>
             <div style="text-align: right;">
                 <button class="btn btnclr danger" style="float:left;">Reset UI</button>
@@ -2280,9 +2294,7 @@ async function setting_dlg() {
         tmp.innerHTML = html;
         let dlg = tmp.children[0];
         for (const c of dlg.querySelectorAll("input")) {
-            if (c.id == "extkeys") {
-                c.value = cfg.extkeys.join(", ");
-            } else if (c.id == "modkeys") {
+            if (c.id == "modkeys") {
                 c.value = cfg.modkeys.join(", ");
             } else if (c.id == "kbext") {
                 c.checked = cfg.kbext;
@@ -2290,16 +2302,11 @@ async function setting_dlg() {
                 c.value = cfg[c.id];
             }
         }
+        dlg.querySelector("textarea#extkeys").value = cfg.extkeys.join(",").replaceAll("__CR/LF__,", "\n");
         dlg.querySelector("#kbsize").value = Keymap.KBSize;
         dlg.querySelector(".btnok").onclick = (evt) => {
             for (const c of dlg.querySelectorAll("input")) {
-                if (c.id == "extkeys") {
-                    if (c.value.trim())
-                        cfg.extkeys = c.value.trim().split(/\s*,\s*/);
-                    else
-                        cfg.extkeys = [];
-                    UI.update();
-                } else if (c.id == "modkeys") {
+                if (c.id == "modkeys") {
                     if (c.value.trim())
                         cfg.modkeys = c.value.trim().split(/\s*,\s*/);
                     else
@@ -2310,6 +2317,11 @@ async function setting_dlg() {
                     cfg[c.id] = c.value;
                 }
             }
+            let xk = dlg.querySelector("textarea#extkeys").value.trim();
+            if (xk)
+                cfg.extkeys = xk.replaceAll("\n", "__CR/LF__,").split(/\s*,\s*/);
+            else
+                cfg.extkeys = [];
             Keymap.KBSize = parseInt(dlg.querySelector("#kbsize").value);
             dlg.remove();
             resolver(true);
@@ -2413,7 +2425,7 @@ window.on_webwin_loaded = async () => {
 };
 
 var __appname__ = "键谱";
-var __version__ = "2.2.0-beta";
+var __version__ = "2.2.0-beta-2";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
