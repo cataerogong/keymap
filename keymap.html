@@ -2066,7 +2066,7 @@ UI.Keyboard = {
         //     elm_k.classList.remove("mod");
         }
         let elm_ktr = elm_k.querySelector(".ktr");
-        elm_ktr.innerHTML = ""; // Keymap.KeyTable[mk] || mk;
+        elm_ktr.innerHTML = Keymap.KeyTable[mk] || mk;
         let elm_ktm = elm_k.querySelector(".ktm");
         elm_ktm.innerHTML = "";
         let ks = Keymap.getAllMappings(mk);
@@ -2460,7 +2460,7 @@ window.on_webwin_loaded = async () => {
 };
 
 var __appname__ = "键谱";
-var __version__ = "2.2.0-beta-4";
+var __version__ = "2.2.0-beta-5";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
