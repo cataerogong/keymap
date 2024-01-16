@@ -1117,6 +1117,25 @@ var Keymap = {
         this._virtual = false;
     },
 
+    _migrateData(src) {
+        let data = this._default_keymap;
+        // ver 1 -> 2
+        for (const k in src) {
+            if (!src[k]) continue;
+            if (k.toLowerCase() == "#config") {
+                Object.assign(data["#config"], src[k]);
+            } else if (k[0] != "#") {
+                data["#0"][k] = src[k];
+            } else {
+                data[k] = src[k];
+            }
+        }
+        // ver 2.3
+        if ("layer_names" in data["#config"]) {
+            
+        }
+    },
+
     loadJSON(json_str) {
         if (!json_str)
             return false;
@@ -2047,7 +2066,7 @@ UI.Keyboard = {
         //     elm_k.classList.remove("mod");
         }
         let elm_ktr = elm_k.querySelector(".ktr");
-        elm_ktr.innerHTML = Keymap.KeyTable[mk] || mk;
+        elm_ktr.innerHTML = ""; // Keymap.KeyTable[mk] || mk;
         let elm_ktm = elm_k.querySelector(".ktm");
         elm_ktm.innerHTML = "";
         let ks = Keymap.getAllMappings(mk);
@@ -2178,12 +2197,12 @@ async function get_name_dlg(info, def_val = "", check_filename=true, allow_empty
 async function setmapping_dlg(mk) {
     return new Promise((resolver) => {
         let s = [];
-        if (!Keymap.isModKey(mk)) {
+        // if (!Keymap.isModKey(mk)) {
             for (const k of Keymap.ModKeys) {
-                if (Keymap.isKBKeys(k))
+                if (k != mk && Keymap.isKBKeys(k))
                     s.push(`<label><kn class="ck"><input type="checkbox" value="${k}">${k}</kn></label>`)
             }
-        }
+        // }
         let html = `<dialog class="kmdlg">
             <div style="flex: 1;display: flex;gap: 5px;">
                 <div style="display: flex;flex-flow:column;gap: 10px;">
@@ -2441,7 +2460,7 @@ window.on_webwin_loaded = async () => {
 };
 
 var __appname__ = "键谱";
-var __version__ = "2.2.0-beta-3";
+var __version__ = "2.2.0-beta-4";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
