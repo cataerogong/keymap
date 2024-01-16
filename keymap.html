@@ -159,6 +159,7 @@ krx {
     display: flex;
     justify-content: start;
     flex-wrap: wrap;
+    min-height: var(--kh);
     height: auto;
     gap: 3px;
 }
@@ -979,9 +980,11 @@ const HELP1 = `指向各个按键可以看到不同信息。
   受影响：键表 / 映射信息设置时的修饰键列表 / 指向按键时显示的映射信息
 
 * 自定义扩展键：
-  * 每个键名以英文逗号(,)分隔
-  * 以 "#" 开头的会以纯文字显示在界面上
-  * 单独的一个 "/" 表示在界面显示时换行
+  * 键名以英文逗号(,)分隔
+  * 以 "#" 开头的会以纯文字显示
+  * 单个 "#" 显示一个键位大小的空白
+  * 支持换行，每行代表一行扩展键
+  * 不含扩展键的行会忽略（包括空行和只有逗号的行）
 
 * 自定义修饰键：
   * 每个键名以英文逗号(,)分隔
@@ -1057,7 +1060,7 @@ const KeymapHelp = {
         "kbext": true,
         "kbhint": true,
         "extkeys": ["#鼠标", "LB", "RB", "MB", "WhlUp", "WhlDn", "#扩展", "XK1", "XK2", "XK3", "XK4",
-                    "/", "#Fn", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20",
+                    "__CR/LF__", "#Fn", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20",
                     ],
         "modkeys": ["RAlt", "RCtrl", "RShift", "Caps", "r-ctrl", "r-opt", "r-cmd", "caps", "XK1"],
         "layer_names": {
@@ -2302,7 +2305,7 @@ async function setting_dlg() {
                 c.value = cfg[c.id];
             }
         }
-        dlg.querySelector("textarea#extkeys").value = cfg.extkeys.join(",").replaceAll("__CR/LF__,", "\n");
+        dlg.querySelector("textarea#extkeys").value = cfg.extkeys.join(",").replaceAll("__CR/LF__,", "\n").replaceAll("__CR/LF__", "\n");
         dlg.querySelector("#kbsize").value = Keymap.KBSize;
         dlg.querySelector(".btnok").onclick = (evt) => {
             for (const c of dlg.querySelectorAll("input")) {
@@ -2317,11 +2320,24 @@ async function setting_dlg() {
                     cfg[c.id] = c.value;
                 }
             }
-            let xk = dlg.querySelector("textarea#extkeys").value.trim();
-            if (xk)
-                cfg.extkeys = xk.replaceAll("\n", "__CR/LF__,").split(/\s*,\s*/);
-            else
-                cfg.extkeys = [];
+            cfg.extkeys = [];
+            for (const l of dlg.querySelector("textarea#extkeys").value.trim().split("\n")) {
+                if (l.trim()) {
+                    let n = 0;
+                    for (const xk of l.split(/\s*,\s*/)) {
+                        if (xk) {
+                            cfg.extkeys.push(xk);
+                            n ++;
+                        }
+                    }
+                    if (n) {
+                        cfg.extkeys.push("__CR/LF__");
+                    }
+                }
+            }
+            while (cfg.extkeys[cfg.extkeys.length - 1] == "__CR/LF__") {
+                cfg.extkeys.pop();
+            }
             Keymap.KBSize = parseInt(dlg.querySelector("#kbsize").value);
             dlg.remove();
             resolver(true);
@@ -2425,7 +2441,7 @@ window.on_webwin_loaded = async () => {
 };
 
 var __appname__ = "键谱";
-var __version__ = "2.2.0-beta-2";
+var __version__ = "2.2.0-beta-3";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
