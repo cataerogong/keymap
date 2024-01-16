@@ -687,7 +687,7 @@ dialog {
 </style>
 </head>
 
-<body>
+<body id="capture">
 <div id="row_cap">
     <div style="height:2rem;">
         <span>键谱</span>
@@ -1202,6 +1202,17 @@ var Keymap = {
         return (this.Config.layer_names["#"+ln] || "");
     },
 
+    getLayerPrintName(currentLayer) {
+        var layerName = this.getLayerName(currentLayer);
+        if (layerName == "") {
+            layerName = "键谱";
+        }
+        console.log(this.Name);
+        console.log(layerName);
+        console.log(this.Name + "_" + layerName);
+        return this.Name + "_" + layerName;
+    },
+
     //Rename layer
     setLayerName(name, ln = null) {
         if (ln == null)
@@ -1564,6 +1575,10 @@ var UI = {
                 await this.setUIMode("single");
                 this.setFlag('ui', 'single');
                 upd = false;
+                //test
+                console.log("-----Start-----");
+                convertToPng(2, Keymap.getLayerPrintName(this.CurLayer));
+                console.log("-----End-----");
                 break;
             case "tabbtn_kb":
                 await this.changeView("k");
@@ -2332,6 +2347,11 @@ async function setting_dlg() {
     })
 };
 
+// Convert to img
+function convertToPng(imgScale, imgName) {
+    html2canvas(document.querySelector("#capture"), {backgroundColor: null, scale: imgScale, windowWidth: document.getElementById("capture").style.width}).then(canvas => {canvas.toBlob(function(blob) {saveAs(blob, imgName)})})
+}
+
 // IO layer: browser storage
 var _PROFILE_ = {
     async read(prof) {
@@ -2426,6 +2446,8 @@ async function __init__() {
 __init__();
 
 </script>
+<!-- Img convert libraries -->
+<script src="js/html2canvas.min.js"></script>
+<script src="js/FileSaver.min.js"></script>
 </body>
-
 </html>
