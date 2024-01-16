@@ -690,6 +690,7 @@ dialog {
 <body id="capture">
 <div id="row_cap">
     <div style="height:2rem;">
+        <button id="btn_save_as_img" class="btn rnd BIND-CLICK" style="margin-right: 1rem;">保存为图片</button>
         <span>键谱</span>
         <span class="slogan">
             —— 让“记录、展示快捷键”变得
@@ -1202,14 +1203,19 @@ var Keymap = {
         return (this.Config.layer_names["#"+ln] || "");
     },
 
-    getLayerPrintName(currentLayer) {
-        var layerName = this.getLayerName(currentLayer);
-        if (layerName == "") {
-            layerName = "键谱";
+    getLayerPrintName(ln = null) {
+        var layerName = "";
+        if (ln == null) {
+            layerName = this.getLayerName();
+            if (layerName == "") {
+                return this.Name + "_" + this.CurLayer;
+            }
+        } else {
+            layerName = this.getLayerName(ln);
+            if (layerName == "") {
+                return this.Name + "_" + ln;
+            }
         }
-        console.log(this.Name);
-        console.log(layerName);
-        console.log(this.Name + "_" + layerName);
         return this.Name + "_" + layerName;
     },
 
@@ -1575,10 +1581,6 @@ var UI = {
                 await this.setUIMode("single");
                 this.setFlag('ui', 'single');
                 upd = false;
-                //test
-                console.log("-----Start-----");
-                convertToPng(2, Keymap.getLayerPrintName(this.CurLayer));
-                console.log("-----End-----");
                 break;
             case "tabbtn_kb":
                 await this.changeView("k");
@@ -1631,6 +1633,24 @@ var UI = {
                 break;
             case "btn_imp":
                 await this.import();
+                break;
+            case "btn_save_as_img":
+                //change UI mod to single
+                await this.setUIMode("single");
+                this.setFlag('ui', 'single');
+                upd = false;
+                //set kbext ture
+                //kbext为false的情况下, 无法正确输出图片
+                if (!Keymap.Config.kbext) {
+                    this.toggleKBExt();
+                    this.update();
+                }
+                //save as img
+                printAsPng(2, Keymap.getLayerPrintName());
+                //change UI mod back
+                await this.setUIMode("tab");
+                this.setFlag('ui', 'tab');
+                upd = false;
                 break;
             default:
                 upd = false;
@@ -2347,9 +2367,21 @@ async function setting_dlg() {
     })
 };
 
+function prepareElementsBeforePrinting() {
+    //hide button
+    document.getElementById("btn_save_as_img").hidden = true;
+}
+
+function organizeElementsAfterPrinting() {
+    //show button
+    document.getElementById("btn_save_as_img").hidden = false;
+}
+
 // Convert to img
-function convertToPng(imgScale, imgName) {
-    html2canvas(document.querySelector("#capture"), {backgroundColor: null, scale: imgScale, windowWidth: document.getElementById("capture").style.width}).then(canvas => {canvas.toBlob(function(blob) {saveAs(blob, imgName)})})
+function printAsPng(imgScale, imgName) {
+    prepareElementsBeforePrinting();
+    html2canvas(document.querySelector("#capture"), {backgroundColor: null, scale: imgScale, windowWidth: document.getElementById("capture").style.width, windowHeight: document.getElementById("capture").style.height}).then(canvas => {canvas.toBlob(function(blob) {saveAs(blob, imgName)})});
+    organizeElementsAfterPrinting();
 }
 
 // IO layer: browser storage
