@@ -11,12 +11,12 @@
     --c1: lightblue; /* highlight bg color */
     --c2: lightseagreen; /* border color */
     --c3: black; /* unset fore color */
-    --c4: lightgray; /* unset bg color */
+    --c4: whitesmoke; /* unset bg color */
     --bdc: gray;
     --ks: calc(1rem * var(--ks1, 0.8)); /* key font size */
     --kw: calc(1rem * var(--kw1, 3)); /* key width */
     --kh: calc(1rem * var(--kh1, 3)); /* key height */
-    --kt: calc(1rem * var(--kt2, 0.8)); /* keytop description text size */
+    --kt: calc(1rem * var(--kt2, 0.8)); /* keycap description text size */
     --ui-fc: black;
     --ui-bgc: lightblue;
     --ui-bdc: lightseagreen;
@@ -198,18 +198,16 @@ k {
     cursor: pointer;
 }
 k.set {
+    --gc: var(--c1);
+    /* --gc: whitesmoke; */
     color: var(--c0);
-    background-color: var(--c1);
+    background-color: var(--gc);
     border-color: var(--c2);
-}
-k.mod {
-    /* border-width: 2px; */
-    /* border-style: dashed; */
 }
 k.sel {
     /* border-width: 2px;
     color:red; */
-    outline: 2px dashed red;
+    outline: 2px dashed lightseagreen;
     /* outline-offset: 1px; */
 }
 k.rel {
@@ -288,6 +286,11 @@ d {
     background-size: calc(var(--kw) / 2) calc(var(--kh) / 2);
 }
 
+.na {
+    border-width: 0px !important;
+    color: gray !important;
+}
+
 kn, km {
     box-sizing: border-box;
     display: inline-block;
@@ -310,18 +313,12 @@ kn {
 kn.ck {
     border-width: 0px;
     font-weight: normal;
-    --mod-c1: lightgray;
-    --mod-c2: lightgray;
-    background-image: linear-gradient(135deg, var(--mod-c1) 0%, var(--mod-c1) 50%, var(--mod-c2) 50%, var(--mod-c2) 100%);
 }
-kn.na {
-    color: gray !important;
-    background-color: whitesmoke !important;
+kn.ck.mod_raw {
     background-image: unset !important;
-    border: 1px solid gray !important;
 }
 kn.sel {
-    outline: 2px dotted red;
+    outline: 2px dotted lightseagreen;
     outline-offset: 1px;
 }
 
@@ -343,62 +340,94 @@ km {
     background-color: lightgray;
 }
 
+.modcolor {
+    --m-c1: var(--mod-c1, white);
+    --m-c2: var(--mod-c2, white);;
+    --m-c3: var(--mod-c1, var(--mod-c2, white));
+    --m-c4: var(--mod-c2, var(--mod-c1, white));
+    background-image: linear-gradient(135deg, var(--m-c1) 0%, var(--m-c1) 20%, var(--m-c3) 20%, var(--m-c3) 50%, var(--m-c4) 50%, var(--m-c4) 80%, var(--m-c2) 80%, var(--m-c2) 100%);
+}
+
 .ktn, .ktr, .ktm {
     box-sizing: border-box;
     pointer-events: none;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
+.ktn {
+    text-align: right;
+}
 .ktr {
     overflow-wrap: anywhere;
     flex: 1;
     font-size: var(--kt);
-    /* font-weight: normal; */
     white-space: pre-wrap;
     display: flex;
-    flex-wrap: wrap;
-    align-items:start;
+    text-align: right;
 }
-.ktn .mod_ind {
+.ktr .modkeys {
+    flex: 1;
+}
+.ktr .mk {
+    font-size: var(--ks);
+    height: calc(var(--ks) + 4px);
+    min-width: calc(var(--ks) + 4px);
+    text-align: center;
     display: inline-block;
     box-sizing: border-box;
-    height: 12px;
-    width: 12px;
-    outline: 2px solid white;
-    border-radius: 5px;
-    margin-right: 5px;
-    --mod-c1: white;
-    --mod-c2: white;
-    background-image: linear-gradient(135deg, var(--mod-c1) 0%, var(--mod-c1) 50%, var(--mod-c2) 50%, var(--mod-c2) 100%);
+    border-radius: 3px;
+    margin-left: 1px;
+    padding: 0px 2px;
 }
-.ktr span {
-    justify-self: left;
-
+k.mod .ktn,
+k.mod .ktr .mk {
+    text-decoration: underline dashed;
+    text-underline-offset: 2px;
 }
-.ktr .mod_ind {
-    display: inline-block;
-    box-sizing: border-box;
-    height: 12px;
-    width: 12px;
-    outline: 2px solid white;
-    border-radius: 5px;
-    margin: 2px;
-    --mod-c1: white;
-    --mod-c2: white;
-    background-image: linear-gradient(135deg, var(--mod-c1) 0%, var(--mod-c1) 50%, var(--mod-c2) 50%, var(--mod-c2) 100%);
+k.mod .ktr .mk {
+    outline: 1px solid darkgray;
+}
+k.set .ktr .mk {
+    outline: 1px solid darkgray;
+    background-color: var(--c1);
 }
 .ktr .mod {
-    padding: 0px 3px;
-    outline: 2px solid white;
-    background-color: lightgray;
-    border-radius: 3px;
-    margin: 2px;
+    font-size: 11px;
+    display: inline-block;
+    box-sizing: border-box;
+    outline: 1px solid darkgray;
+    border-radius: 2px;
+    margin: 1px 1px 0px 0px;
+    padding: 0px 2px;
+    text-align: center;
 }
-.mod_ind.na {
-    color: gray !important;
-    /* background-color: whitesmoke !important; */
+.ktr .mod_raw {
+    height: 13px;
+    /* background-color: var(--c1); */
     background-image: unset !important;
-    border: 1px solid gray !important;
+}
+.ktr .mod_chr {
+    height: 16px;
+    line-height: 16px;
+    min-width: 16px;
+    background-color: var(--c1);
+    color: white;
+}
+.ktr .mod_dot {
+    height: 8px;
+    min-width: 8px;
+    background-color: var(--c1);
+}
+.ktr .mod_dot.modcolor {
+    --m-c3: var(--mod-c1, white);
+    --m-c4: var(--mod-c2, white);
+}
+kn.na,
+kn.ck.na,
+.ktr .na {
+    background-color: whitesmoke !important;
+    background-image: unset !important;
+    outline: 1px solid gray !important;
 }
 
 .ktm {
@@ -408,14 +437,10 @@ km {
     font-weight: normal;
     white-space: pre-wrap;
 }
-.ktm.na {
-    color: gray !important;
-}
 
 [data-kbhint="true"] .ktn {
-    /* display: none; */
+    display: none;
 }
-[data-kbhint="false"] .ktn .mod_ind,
 [data-kbhint="false"] .ktr,
 [data-kbhint="false"] .ktm {
     display: none;
@@ -592,7 +617,6 @@ dialog {
     border-radius: 10px;
     box-shadow: 0px 5px 5px;
     margin-left: calc(var(--w) / 2);
-    margin-top: 10rem;
     transform: translateX(-50%);
 }
 
@@ -609,7 +633,7 @@ dialog {
 .stdlg .sts {
     display: grid;
     grid-auto-flow: row;
-    grid-template-columns: repeat(4, max-content);
+    grid-template-columns: repeat(6, max-content);
     gap: 5px 1rem;
     padding-bottom: 10px;
     border-bottom: 1px solid gray;
@@ -625,6 +649,11 @@ dialog {
 .stdlg span {
     text-align: end;
 }
+.stdlg input[type="text"] {
+    font-size: 0.9rem;
+    height: 1.4em;
+}
+
 .about {
     height: fit-content;
     color: gray;
@@ -963,29 +992,65 @@ const MODKEY_COLORS = {
     "Ctrl": "#00c853",
     "Shift": "#1976d2",
     "Win": "#7c4dff",
-    "RAlt": "/#e53935",
-    "RCtrl": "/#00c853",
-    "RShift": "/#1976d2",
+    "RAlt": "#e53935/",
+    "RCtrl": "#00c853/",
+    "RShift": "#1976d2/",
     "opt": "#e53935",
     "ctrl": "#00c853",
     "shift": "#1976d2",
     "cmd": "#7c4dff",
-    "r-opt": "/#e53935",
-    "r-ctrl": "/#00c853",
-    "r-shift": "/#1976d2",
-    "r-cmd": "/#7c4dff",
+    "r-opt": "#e53935/",
+    "r-ctrl": "#00c853/",
+    "r-shift": "#1976d2/",
+    "r-cmd": "#7c4dff/",
     "fn": "#ffc400"
 };
-// const DEFAULT_PROF = "DEFAULT";
+const MODKEY_CHARS = {
+    "Alt": "A",
+    "Ctrl": "C",
+    "Shift": "S",
+    "Win": "W",
+    "RAlt": "a",
+    "RCtrl": "c",
+    "RShift": "s",
+    "opt": "o",
+    "ctrl": "c",
+    "shift": "s",
+    "cmd": "m",
+    "r-opt": "O",
+    "r-ctrl": "C",
+    "r-shift": "S",
+    "r-cmd": "M",
+    "fn": "f"
+};
+const KEY_GROUP_COLORS = {
+    "g1": "#ACE1AF",
+    "g2": "#F7CAC9",
+    "g3": "#89CFF0",
+    "g4": "#FFFDD0",
+    "g5": "#DCAE96",
+    "g6": "#FA8072",
+    "g7": "#F2CB07",
+    "g8": "#F7E7CE",
+    "g9": "#A0AFB7",
+};
 
 var Util = {
     split_combo(combo_str) {
-        return combo_str.replaceAll("Num+", "NumPlus").replaceAll("+", "_+_").replaceAll("NumPlus", "Num+").split("_+_");
+        let l = combo_str.replaceAll("Num+", "NumPlus").replaceAll("+", "_+_").replaceAll("NumPlus", "Num+").split("_+_");
+        let mk = l.pop();
+        l.sort();
+        l.push(mk);
+        return l;
     },
 
     get_mainkey(combo_str) {
         let l = this.split_combo(combo_str);
         return l[l.length - 1];
+    },
+
+    normalize_combo(combo_str) {
+        return Util.split_combo(combo_str).join("+");
     },
 
     between(v, min, max) {
@@ -1006,12 +1071,13 @@ var Util = {
 
     gen_combo_kn_elm(kn) {
         let ck = this.split_combo(kn);
-        let mk = ck[ck.length - 1];
+        let mk = ck.pop();
         let l = [];
         for (const k of ck) {
-            let clr = Keymap.getModColor(k);
-            l.push(`<kn data-k="${k}" class="${k==mk?"":"ck"}" style="${clr?'--mod-c1:'+clr[0]+';--mod-c2:'+clr[1]+';':''}">${k}</kn>`);
+            let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
+            l.push(`<kn data-k="${k}" class="ck modcolor mod_${Keymap.ModKeyMode}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn>`);
         }
+        l.push(`<kn data-k="${mk}">${mk}</kn>`)
         return `<span data-mainkey="${mk}" data-combo="${kn}" class="kinfo f-end">${l.join("+")}</span>`;
     },
 };
@@ -1073,15 +1139,15 @@ const KeymapHelp = {
     "#NAME": HELP_KEYMAP,
     "#0": {
         "`": "* 键盘层 0",
-        "1": "* 键盘层 1",
-        "2": "* 键盘层 2",
-        "3": "* 键盘层 3",
-        "4": "* 键盘层 4",
-        "5": "* 键盘层 5",
-        "6": "* 键盘层 6",
-        "7": "* 键盘层 7",
-        "8": "* 键盘层 8",
-        "9": "* 键盘层 9",
+        "1": "* 键盘层 1\n::g1",
+        "2": "* 键盘层 2\n::g2",
+        "3": "* 键盘层 3\n::g3",
+        "4": "* 键盘层 4\n::g4",
+        "5": "* 键盘层 5\n::g5",
+        "6": "* 键盘层 6\n::g6",
+        "7": "* 键盘层 7\n::g7",
+        "8": "* 键盘层 8\n::g8",
+        "9": "* 键盘层 9\n::g9",
         "Q": "* 60% 键盘",
         "W": "* 80% 键盘",
         "E": "* 标准键盘",
@@ -1139,6 +1205,7 @@ const KeymapHelp = {
                     "__CR/LF__", "#Fn", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20",
                     ],
         "modkeys": ["Caps", "caps", "XK1"],
+        "modkey_mode": "chr",
         "layer_names": {
             "#0": "帮助",
             "#1": "更多",
@@ -1149,6 +1216,7 @@ const KeymapHelp = {
 var Keymap = {
     Name: "",
     _data: null,
+    _version: "",
     _cur_layer: 0,
     _virtual: false,
 
@@ -1177,17 +1245,27 @@ var Keymap = {
         "c1": "lightblue",
         "c2": "lightseagreen",
         "c3": "black",
-        "c4": "lightgray",
+        "c4": "#e0e0e0",
         "cols": 2,
         "extkeys": [],
         "modkeys": [],
-        "modkey_colors": {},
-        "modkey_dot": false,
+        "modkey_colors": MODKEY_COLORS, // {},
+        "modkey_chars": MODKEY_CHARS, // {},
+        "modkey_mode": "raw", // "raw", "chr", "dot",
         "layer_names": {},
+        "group_colors": KEY_GROUP_COLORS, // {},
+    },
+
+    get DefaultCfg() {
+        return JSON.parse(JSON.stringify(this._default_cfg));
+    },
+
+    resetConfig() {
+        Object.assign(this.Config, this.DefaultCfg);
     },
 
     get _default_keymap() {
-        return JSON.parse(`{"#version": "2.2", "#config": ${JSON.stringify(this._default_cfg)}, "#0":{}}`);
+        return JSON.parse(`{"#version": "${this._version}", "#config": ${JSON.stringify(this._default_cfg)}, "#0":{}}`);
     },
 
     init(name = "") {
@@ -1198,7 +1276,7 @@ var Keymap = {
         this._filterkeys = [];
     },
 
-    _migrateData(src) {
+    _normalizeData(src) {
         let data = this._default_keymap;
         // ver 1 -> 2
         for (const k in src) {
@@ -1211,10 +1289,21 @@ var Keymap = {
                 data[k] = src[k];
             }
         }
-        // ver 2.3
-        if ("layer_names" in data["#config"]) {
-            
+        // normalize combo keys
+        for (let i=0; i<data["#config"]["layers"]; i++) {
+            let s = data["#"+i];
+            let d = {};
+            for (const n in s) {
+                if (n[0] == "#")
+                    d[n] = s[n];
+                else
+                    d[Util.normalize_combo(n)] = s[n];
+            }
+            delete data["#"+i];
+            data["#"+i] = d;
         }
+        data["#version"] = this._version;
+        return data;
     },
 
     loadJSON(json_str) {
@@ -1228,17 +1317,18 @@ var Keymap = {
             console.log(e);
             return false;
         }
-        this._data = this._default_keymap;
-        for (const k in temp) {
-            if (!temp[k]) continue;
-            if (k.toLowerCase() == "#config") {
-                Object.assign(this.Config, temp[k]);
-            } else if (k[0] != "#") {
-                this.LayerData(0)[k] = temp[k];
-            } else {
-                this._data[k] = temp[k];
-            }
-        }
+        // this._data = this._default_keymap;
+        // for (const k in temp) {
+        //     if (!temp[k]) continue;
+        //     if (k.toLowerCase() == "#config") {
+        //         Object.assign(this.Config, temp[k]);
+        //     } else if (k[0] != "#") {
+        //         this.LayerData(0)[k] = temp[k];
+        //     } else {
+        //         this._data[k] = temp[k];
+        //     }
+        // }
+        this._data = this._normalizeData(temp);
         return true;
     },
 
@@ -1324,7 +1414,7 @@ var Keymap = {
     },
 
     getMapping(kn, ln = null) {
-        return (kn in this.LayerData(ln)) ? this.LayerData(ln)[kn] : null;
+        return this.LayerData(ln)[Util.normalize_combo(kn)] || null;
     },
 
     getAllMappings(mk, ln = null) {
@@ -1339,9 +1429,9 @@ var Keymap = {
 
     setMapping(kn, info, ln = null) {
         if (info) {
-            this.LayerData(ln)[kn] = info;
+            this.LayerData(ln)[Util.normalize_combo(kn)] = info;
         } else {
-            delete this.LayerData(ln)[kn];
+            delete this.LayerData(ln)[Util.normalize_combo(kn)];
         }
     },
 
@@ -1393,7 +1483,6 @@ var Keymap = {
     // 自定义修饰键
     get ModKeys() {
         let mkeys = [];
-        // for (const mk of (this.Config.layout == "mac" ? MOD_KEYS_MAC : MOD_KEYS_PC).concat(this.Config.modkeys)) {
         let mkeys_na = [];
         let ktable = this.getLayoutKeyTable();
         for (const mk of MODKEYS_PC.concat(MODKEYS_MAC).concat( this.Config.modkeys)) {
@@ -1412,14 +1501,8 @@ var Keymap = {
         }
         let def_mkeys = MODKEYS_PC.concat(MODKEYS_MAC);
         for (const m of v) {
-            let mm = m.split("::", 2);
-            if (!def_mkeys.includes(mm[0])) {
-                this.Config.modkeys.push(mm[0]);
-            }
-            if (mm[1]) {
-                this.Config.modkey_colors[mm[0]] = mm[1];
-            } else {
-                delete this.Config.modkey_colors[mm[0]];
+            if (!def_mkeys.includes(m)) {
+                this.Config.modkeys.push(m);
             }
         }
     },
@@ -1430,24 +1513,32 @@ var Keymap = {
 
     getModColor(k) {
         if (!this.isModKey(k)) return "";
-        let c = Object.assign({}, MODKEY_COLORS, this.Config.modkey_colors);
+        // let c = Object.assign({}, MODKEY_COLORS, this.Config.modkey_colors);
+        let c = this.Config.modkey_colors;
         if (c[k]) {
             let cs = c[k].split("/", 2);
             if (cs.length < 2)
                 return [cs[0], cs[0]]
             else
-                return [cs[0] || "white", cs[1] || "white"];
+                return cs;
         } else {
             return "";
         }
     },
 
-    get ModKeyDot() {
-        return this.Config.modkey_dot;
+    getModChar(k) {
+        if (!this.isModKey(k)) return "";
+        // let c = Object.assign({}, MODKEY_CHARS, this.Config.modkey_chars);
+        let c = this.Config.modkey_chars;
+        return c[k] || k[0];
     },
 
-    set ModKeyDot(v) {
-        this.Config.modkey_dot = Boolean(v);
+    get ModKeyMode() {
+        return this.Config.modkey_mode;
+    },
+
+    set ModKeyMode(v) {
+        this.Config.modkey_mode = v;
     },
 
     getLayoutKeyTable(l = null) {
@@ -1474,6 +1565,7 @@ var Keymap = {
         return true;
     },
 
+    // 筛选
     get FilterKeys() {
         return this._filterkeys;
     },
@@ -1505,6 +1597,15 @@ var Keymap = {
             }
         }
         return rel;
+    },
+
+    // 键帽分组色
+    get GroupColors() {
+        // return Object.assign({}, KEY_GROUP_COLORS, this.Config.group_colors);
+        return this.Config.group_colors;
+    },
+    getGroupColor(g) {
+        return this.GroupColors[g] || "";
     },
 };
 
@@ -2140,7 +2241,7 @@ UI.Keyboard = {
     },
 
     _genElmK(kn) {
-        return `<div class="ktn">${kn}</div><div class="ktr"></div><div class="ktm"></div>`;
+        return `<div class="ktn">${kn}</div><div class="ktr"><div class="modkeys"></div><div class="mk">${kn}</div></div><div class="ktm"></div>`;
     },
 
     init() {
@@ -2179,7 +2280,8 @@ UI.Keyboard = {
                 elm.innerHTML = this._genElmK(Keymap.KeyTable[elm.dataset.k] || elm.dataset.k);
                 elm.onmouseenter = (evt) => { this.showTip(elm) };
                 elm.onmouseleave = (evt) => { this.clearTips() };
-                elm.onclick = (evt) => { UI.setMapping(elm.dataset.k); };
+                // elm.onclick = (evt) => { UI.setMapping(elm.dataset.k); };
+                elm.onclick = (evt) => { UI.setMapping(elm.querySelector(".ktr").dataset.k || elm.dataset.k); };
                 elm.oncontextmenu = (evt) => {
                     evt.preventDefault();
                     UI.toggleMapping(elm.dataset.k, evt.ctrlKey);
@@ -2190,58 +2292,6 @@ UI.Keyboard = {
         }
     },
 
-    // toggleMapping(mk) {
-    //     let elm =this.K(mk);
-    //     if (!elm) return "";
-    //     // if (!Keymap.isModKey(mk)) return;
-    //     // css class: sel: 选中, rel: 相关, no-rel: 无关
-    //     if (elm.classList.contains("sel")) {
-    //         elm.classList.remove("sel");
-    //         for (const elm_k of this.Ks) {
-    //             elm_k.classList.remove("rel");
-    //             elm_k.classList.remove("no-rel");
-    //         }
-    //         return "";
-    //     } else {
-    //         for (const elm_k of this.Ks) {
-    //             elm_k.classList.remove("sel");
-    //             elm_k.classList.remove("rel");
-    //             elm_k.classList.add("no-rel");
-    //             if (elm_k == elm) {
-    //                 elm.classList.add("sel");
-    //                 elm_k.classList.remove("no-rel");
-    //                 continue;
-    //             }
-    //         }
-    //         for (const kn in Keymap.LayerData()) {
-    //             let ks = Util.split_combo(kn);
-    //             if (ks.includes(mk)) {
-    //                 let k = this.K(ks[ks.length - 1]);
-    //                 k.classList.remove("no-rel");
-    //                 k.classList.add("rel");
-    //             }
-    //         }
-    //         for (const kn in Keymap.getAllMappings(mk)) {
-    //             for (const kk of Util.split_combo(kn)) {
-    //                 k = this.K(kk);
-    //                 k.classList.remove("no-rel");
-    //                 k.classList.add("rel");
-    //             }
-
-    //         }
-    //         //     // if (!elm_k.classList.contains("set")) continue;
-    //         //     for (const kn in Keymap.getAllMappings(elm_k.dataset.k)) {
-    //         //         if (Util.split_combo(kn).includes(mk)) {
-    //         //             elm_k.classList.remove("no-rel");
-    //         //             elm_k.classList.add("rel");
-    //         //             break;
-    //         //         }
-    //         //     }
-    //         // }
-    //         return mk;
-    //     }
-    // },
-
     updateK(elm_k) {
         let mk = elm_k.dataset.k;
         if (!mk || !(mk in Keymap.KeyTable)) {
@@ -2250,66 +2300,62 @@ UI.Keyboard = {
         }
         // 清理 css class
         elm_k.classList.remove("mod", "set", "sel", "rel", "no-rel");
-        let elm_ktn = elm_k.querySelector(".ktn");
-        elm_ktn.innerHTML = mk;
-        if (Keymap.isModKey(mk)) {
-            elm_k.classList.add("mod");
-            // add modkey indicator
-            if (Keymap.ModKeyDot) {
-                let clr = Keymap.getModColor(mk);
-                if (clr) {
-                    let p = elm_k.querySelector(".mod_ind");
-                    if (!p) {
-                        p= document.createElement("div");
-                        p.classList.add("mod_ind");
-                        elm_ktn.prepend(p);
-                    }
-                    p.style.setProperty("--mod-c1", clr[0]);
-                    p.style.setProperty("--mod-c2", clr[1]);
-                }
-            }
-        // } else {
-        //     elm_k.classList.remove("mod");
-        }
+        elm_k.style.removeProperty("--gc");
         let elm_ktr = elm_k.querySelector(".ktr");
-        elm_ktr.innerHTML = ""; // Keymap.KeyTable[mk] || mk;
+        let elm_mk = elm_ktr.querySelector(".mk");
+        elm_mk.innerHTML = Keymap.KeyTable[mk] || mk;
+        let elm_modkeys = elm_ktr.querySelector(".modkeys");
+        elm_modkeys.innerHTML = "";
         let elm_ktm = elm_k.querySelector(".ktm");
         elm_ktm.innerHTML = "";
         elm_ktm.classList.remove("na");
         let ks = Keymap.getAllMappings(mk);
-        // if (Util.is_empty_obj(ks)) {
-        //     elm_k.classList.remove("set");
-        // } else {
         let ktable = Keymap.getLayoutKeyTable();
         if (!Util.is_empty_obj(ks)) {
             elm_k.classList.add("set");
+            let d = document.createElement("div");
+            d.classList.add("cnt");
+            d.innerText = "(" + Object.keys(ks).length + ")";
+            // elm_ktr.append(d);
             for (const k in ks) {
+                elm_ktm.classList.remove("na");
                 let ktm = ks[k];
                 if (ktm.startsWith("* ")) {
-                    if (Keymap.ModKeyDot) {
-                        let l = Util.split_combo(k);
-                        l.pop();
-                        // elm_ktr.innerHTML = (k != mk) ? k : mk;
-                        // elm_ktr.innerHTML = l.join("+");
-                        let s = "";
-                        let s2 = "";
-                        for (const ck of l) {
-                            let clr = Keymap.getModColor(ck);
-                            if (clr)
-                                s += `<div class="mod_ind ${ck in ktable?"":"na"}" data-k="${ck}" style="${clr?'--mod-c1:'+clr[0]+';--mod-c2:'+clr[1]+';':''}"></div>`;
-                            else
-                                s2 += `<div class="mod">${ck}</div>`;
-                            if (ck in ktable)
-                                elm_ktm.classList.remove("na");
-                            else
-                                elm_ktm.classList.add("na");
-                        }
-                        elm_ktr.innerHTML = s + s2;
-                        elm_ktm.innerHTML = ktm.split('\n')[0].substr(2);
-                    } else {
-                        elm_ktn.innerHTML = k;
-                        elm_ktm.innerHTML = ktm.split('\n')[0].substr(2);
+                    elm_ktr.dataset.k = k;
+                    let l = Util.split_combo(k);
+                    l.pop();
+                    let s = "";
+                    for (const m of l) {
+                        let txt = "";
+                        if (Keymap.ModKeyMode == "raw")
+                            txt = m;
+                        else if (Keymap.ModKeyMode == "chr")
+                            txt = Keymap.getModChar(m)||m[0];
+                        let clr = Keymap.getModColor(m) || ["transparent", "transparent"];
+                        s += `<div class="mod modcolor mod_${Keymap.ModKeyMode} ${m in ktable?'':'na'}" data-k="${m}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${txt}</div>`;
+                        if (!(m in ktable))
+                            elm_ktm.classList.add("na");
                     }
+                    elm_modkeys.innerHTML = s;
+                    let mps = ktm.trim().split('\n');
+                    elm_ktm.innerHTML = mps[0].substr(2);
+                    // keycap group color
+                    let ll = mps.pop();
+                    if (ll.startsWith("::")) {
+                        elm_k.style.setProperty("--gc", Keymap.getGroupColor(ll.substr(2)));
+                    }
+                }
+            }
+        }
+        // set modkey style
+        if (Keymap.isModKey(mk)) {
+            elm_k.classList.add("mod");
+            if (Keymap.ModKeyMode != "raw") {
+                let clr = Keymap.getModColor(mk);
+                if (clr) {
+                    elm_mk.classList.add("modcolor")
+                    elm_mk.style.setProperty("--mod-c1", clr[0]);
+                    elm_mk.style.setProperty("--mod-c2", clr[1]);
                 }
             }
         }
@@ -2369,7 +2415,7 @@ UI.List = {
             }
         }
         for (const i of this.Items) {
-            i.ondblclick = async (evt) => { await setmapping_dlg(i.dataset.combo); };
+            i.ondblclick = async (evt) => { await UI.setMapping(i.dataset.combo); };
         }
         // check filter keys
         if (Keymap.isFiltered()) {
@@ -2385,16 +2431,6 @@ UI.List = {
             }
         }
     },
-
-    // toggleMapping(mk) {
-    //     // css class: no-rel: 无关
-    //     for (const i of this.Items) {
-    //         i.classList.remove("no-rel");
-    //         if (mk && !Util.split_combo(i.dataset.combo).includes(mk)) {
-    //             i.classList.add("no-rel");
-    //         }
-    //     }
-    // },
 };
 
 UI.Json = {
@@ -2461,19 +2497,17 @@ async function get_name_dlg(info, def_val = "", check_filename=true, allow_empty
     });
 };
 
-async function setmapping_dlg(kn) {
+async function setmapping_dlg(combo_str) {
     return new Promise((resolver) => {
-        let cks = Util.split_combo(kn);
+        let cks = Util.split_combo(combo_str);
         let mk = cks.pop();
         let s = [];
-        // if (!Keymap.isModKey(mk)) {
-            for (const k of Keymap.ModKeys) {
-                if (k != mk && Keymap.isKBKeys(k)) {
-                    let clr = Keymap.getModColor(k);
-                    s.push(`<label><kn class="ck" style="${clr?'--mod-c1:'+clr[0]+';--mod-c2:'+clr[1]+';':''}"><input type="checkbox" value="${k}">${k}</kn></label>`)
-                }
+        for (const k of Keymap.ModKeys) {
+            if (k != mk && Keymap.isKBKeys(k)) {
+                let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
+                s.push(`<label><input type="checkbox" value="${k}" /><kn class="ck modcolor mod_${Keymap.ModKeyMode}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
             }
-        // }
+        }
         let html = `<dialog class="kmdlg">
             <div style="flex: 1;display: flex;gap: 5px;">
                 <div style="display: flex;flex-flow:column;gap: 10px;">
@@ -2482,7 +2516,7 @@ async function setmapping_dlg(kn) {
                         ${s.join("")}
                     </div>
                 </div>
-                <textarea id="mapping" style="flex: 1;border-width:1px;" autofocus>${Keymap.getMapping(kn) || ""}</textarea>
+                <textarea id="mapping" style="flex: 1;border-width:1px;" autofocus>${Keymap.getMapping(combo_str) || ""}</textarea>
             </div>
             <div>
             映射信息以"* "（星号+空格）开头的组合键定义为主映射，在“键帽提示”模式下会在键帽上显示第一行文字，并且主映射的组合键会直接显示在键帽上。
@@ -2505,26 +2539,28 @@ async function setmapping_dlg(kn) {
         dlg.querySelectorAll('input[type="checkbox"]').forEach(elm => {
             if (cks.includes(elm.value)) elm.checked = true;
             elm.onclick = (evt) => {
-                let kn = "";
+                let kn = [];
                 for (const elm of dlg.querySelectorAll('input[type="checkbox"]:checked')) {
-                    kn += elm.value + "+";
+                    kn.push(elm.value);
                 }
-                kn += mk;
-                let inf = Keymap.getMapping(kn);
+                kn.sort();
+                kn.push(mk);
+                let inf = Keymap.getMapping(kn.join("+"));
                 let m = dlg.querySelector("#mapping");
-                m.value = inf || "";
+                m.value = (inf || "").trim();
                 m.focus();
             }
         });
         dlg.querySelector(".btnok").onclick = (evt) => {
-            let kn = "";
+            let kn = [];
             for (const elm of dlg.querySelectorAll('input[type="checkbox"]:checked')) {
-                kn += elm.value + "+";
+                kn.push(elm.value);
             }
-            kn += mk;
+            kn.sort();
+            kn.push(mk);
             let inf = dlg.querySelector("#mapping").value;
             dlg.remove();
-            resolver([kn, inf]);
+            resolver([kn.join("+"), inf.trim()]);
         };
         dlg.querySelector(".btnclr").onclick = (evt) => {
             if (!confirm(`确认要清空键【 ${mk} 】所有映射信息？`)) return;
@@ -2572,14 +2608,24 @@ async function setting_dlg() {
                     <option value="2">80%</option>
                     <option value="3">标准</option>
                 </select>
-                <span>扩展键区</span><label><input type="checkbox" id="kbext" />显示</label>
+                <span>扩展键区</span><label style="grid-column: 4 / -1;"><input type="checkbox" id="kbext" />显示</label>
                 <span>键盘层数</span><input type="number" id="layers" min="1" step="1" style="width: 3rem;" />
-                <span>键表列数</span><input type="number" id="cols" min="1" max="10" step="1" style="width: 3rem;" />
-                <span>自定义修饰键</span><input type="text" id="modkeys" style="grid-column: 2 / -1" />
+                <span>键表列数</span><input type="number" id="cols" min="1" max="10" step="1" style="width: 3rem;grid-column: 4 / -1;" />
                 <span>自定义扩展键</span><textarea id="extkeys" style="grid-column: 2 / -1;height: 6rem;border:1px solid black;white-space: nowrap;"></textarea>
-                </div>
+                <span>分组颜色</span><input type="text" id="group_colors" style="grid-column: 2 / -1" />
+                <div class="subttl">修饰键</div>
+                <span>自定义</span><input type="text" id="modkeys" style="grid-column: 2 / -1" />
+                <span>颜色</span><input type="text" id="modkey_colors" style="grid-column: 2 / -1" />
+                <span>缩写</span><input type="text" id="modkey_chars" style="grid-column: 2 / -1" />
+                <span>显示模式</span>
+                <select id="modkey_mode" style="width: 6rem;">
+                    <option value="raw">完整键名</option>
+                    <option value="chr">缩写+颜色</option>
+                    <option value="dot">仅颜色</option>
+                </select>
+            </div>
             <div style="text-align: right;">
-                <button class="btn btnclr danger" style="float:left;">Reset UI</button>
+                <button class="btn btnclr danger" style="float:left;">Reset</button>
                 <button class="btn btnok">确定</button>
                 <button class="btn btncancel">取消</button>
             </div>
@@ -2589,19 +2635,37 @@ async function setting_dlg() {
         let dlg = tmp.children[0];
         for (const c of dlg.querySelectorAll("input")) {
             if (c.id == "modkeys") {
-                let l = [];
-                for (const mk of cfg.modkeys) {
-                    l.push(mk + (cfg.modkey_colors[mk] ? ("::"+cfg.modkey_colors[mk]) : ""));
-                }
-                c.value = l.join(", ");
+                c.value = cfg.modkeys.join(", ");
             } else if (c.id == "kbext") {
                 c.checked = cfg.kbext;
+            } else if (c.id == "modkey_colors") {
+                let l = [];
+                for (const mk in cfg.modkey_colors) {
+                    if (cfg.modkey_colors[mk])
+                        l.push(mk+"::"+cfg.modkey_colors[mk]);
+                }
+                c.value = l.join(", ");
+            } else if (c.id == "modkey_chars") {
+                let l = [];
+                for (const mk in cfg.modkey_chars) {
+                    if (cfg.modkey_chars[mk])
+                        l.push(mk+"::"+cfg.modkey_chars[mk]);
+                }
+                c.value = l.join(", ");
+            } else if (c.id == "group_colors") {
+                let l = [];
+                for (const gn in cfg.group_colors) {
+                    if (cfg.group_colors[gn])
+                        l.push(gn+"::"+cfg.group_colors[gn]);
+                }
+                c.value = l.join(", ");
             } else {
                 c.value = cfg[c.id];
             }
         }
         dlg.querySelector("textarea#extkeys").value = cfg.extkeys.join(",").replaceAll("__CR/LF__,", "\n").replaceAll("__CR/LF__", "\n");
         dlg.querySelector("#kbsize").value = Keymap.KBSize;
+        dlg.querySelector("#modkey_mode").value = cfg.modkey_mode;
         dlg.querySelector(".btnok").onclick = (evt) => {
             for (const c of dlg.querySelectorAll("input")) {
                 if (c.id == "modkeys") {
@@ -2611,6 +2675,30 @@ async function setting_dlg() {
                         Keymap.ModKeys = null;
                 } else if (c.id == "kbext") {
                     cfg.kbext = c.checked;
+                } else if (c.id == "modkey_colors") {
+                    cfg.modkey_colors = {};
+                    for (const m of c.value.trim().split(/\s*,\s*/)) {
+                        let mm = m.split("::", 2);
+                        if (mm[1]) {
+                            cfg.modkey_colors[mm[0]] = mm[1];
+                        }
+                    }
+                } else if (c.id == "modkey_chars") {
+                    cfg.modkey_chars = {};
+                    for (const m of c.value.trim().split(/\s*,\s*/)) {
+                        let mm = m.split("::", 2);
+                        if (mm[1]) {
+                            cfg.modkey_chars[mm[0]] = mm[1];
+                        }
+                    }
+                } else if (c.id == "group_colors") {
+                    cfg.group_colors = {};
+                    for (const g of c.value.trim().split(/\s*,\s*/)) {
+                        let gg = g.split("::", 2);
+                        if (gg[1]) {
+                            cfg.group_colors[gg[0]] = gg[1];
+                        }
+                    }
                 } else {
                     cfg[c.id] = c.value;
                 }
@@ -2634,11 +2722,13 @@ async function setting_dlg() {
                 cfg.extkeys.pop();
             }
             Keymap.KBSize = parseInt(dlg.querySelector("#kbsize").value);
+            cfg.modkey_mode = dlg.querySelector("#modkey_mode").value;
             dlg.remove();
             resolver(true);
         };
         dlg.querySelector(".btnclr").onclick = (evt) => {
-            Object.assign(Keymap.Config, Keymap._default_cfg);
+            if (!confirm(`确认要清空所有设置？`)) return;
+            Keymap.resetConfig();
             dlg.remove();
             resolver(true);
         };
@@ -2758,11 +2848,12 @@ window.on_webwin_loaded = async () => {
 };
 
 var __appname__ = "键谱";
-var __version__ = "2.2.0-beta-5";
+var __version__ = "2.3.0-beta-1";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
 async function __init__() {
+    Keymap._version = __version__;
     document.title = `${__appname__} ${__loader__}`.trim();
     document.querySelector(".about").innerHTML = `${__appname__} v${__version__} ${__loader__} Copyright &COPY; 2023 CataeroGong [<a href="${__homepage__}">Project Home</a>]`;
     await UI.init();
