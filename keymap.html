@@ -781,9 +781,10 @@ dialog {
 </style>
 </head>
 
-<body>
+<body id="capture">
 <div id="row_cap">
     <div style="height:2rem;">
+        <button id="btn_save_as_img" class="btn rnd BIND-CLICK" style="margin-right: 1rem;">保存为图片</button>
         <span>键谱</span>
         <span class="slogan">
             —— 让“记录、展示快捷键”变得
@@ -1470,6 +1471,22 @@ var Keymap = {
         return (this.Config.layer_names["#"+ln] || "");
     },
 
+    getLayerPrintName(ln = null) {
+        var layerName = "";
+        if (ln == null) {
+            layerName = this.getLayerName();
+            if (layerName == "") {
+                return this.Name + "_" + this.CurLayer;
+            }
+        } else {
+            layerName = this.getLayerName(ln);
+            if (layerName == "") {
+                return this.Name + "_" + ln;
+            }
+        }
+        return this.Name + "_" + layerName;
+    },
+
     //Rename layer
     setLayerName(name, ln = null) {
         if (ln == null)
@@ -1983,6 +2000,38 @@ var UI = {
                 break;
             case "btn_imp":
                 await this.import();
+                break;
+            case "btn_save_as_img":
+                var ifToggleMode = false;
+                if (Keymap.Config.uimode == "tab") {
+                    ifToggleMode = true;
+                    //change UI mod to single
+                    await this.setUIMode("single");
+                    this.setFlag('ui', 'single');
+                    upd = false;
+                }
+                //kbext为false的情况下, 无法正确输出图片
+                if (!Keymap.Config.kbext) {
+                    //set kbext ture
+                    this.toggleKBExt();
+                    this.update();
+                    hideKBext();
+                    //save as img
+                    printAsPng(2, Keymap.getLayerPrintName());
+                    //change kbext back
+                    showKBext();
+                    this.toggleKBExt();
+                    this.update();
+                } else {
+                    //save as img
+                    printAsPng(2, Keymap.getLayerPrintName());
+                }
+                //change UI mod back
+                if (ifToggleMode) {
+                    await this.setUIMode("tab");
+                    this.setFlag('ui', 'tab');
+                    upd = false;
+                }
                 break;
             default:
                 upd = false;
@@ -2865,6 +2914,23 @@ async function setting_dlg() {
     })
 };
 
+function hideKBext() {
+    document.getElementById("kb_ext").setAttribute("style", "display: none");
+}
+
+function showKBext() {
+    document.getElementById("kb_ext").removeAttribute("style");
+}
+
+// Convert to img
+function printAsPng(imgScale, imgName) {
+    //hide button
+    document.getElementById("btn_save_as_img").hidden = true;
+    html2canvas(document.querySelector("#capture"), {backgroundColor: null, scale: imgScale, windowWidth: document.getElementById("capture").style.width, windowHeight: document.getElementById("capture").style.height, removeContainer: true}).then(canvas => {canvas.toBlob(function(blob) {saveAs(blob, imgName)})});
+    //show button
+    document.getElementById("btn_save_as_img").hidden = false;
+}
+
 // IO layer: browser storage
 var _PROFILE_ = {
     async read(prof) {
@@ -2982,6 +3048,8 @@ async function __init__() {
 __init__();
 
 </script>
+<!-- Img convert libraries -->
+<script src="js/html2canvas.js"></script>
+<script src="js/FileSaver.min.js"></script>
 </body>
-
 </html>
