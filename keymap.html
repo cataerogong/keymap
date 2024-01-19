@@ -13,10 +13,10 @@
     --c3: black; /* unset fore color */
     --c4: whitesmoke; /* unset bg color */
     --bdc: gray;
-    --ks: calc(1rem * var(--ks1, 0.8)); /* key font size */
+    --ks: calc(1rem * var(--ks1, 0.75)); /* key font size */
     --kw: calc(1rem * var(--kw1, 3)); /* key width */
     --kh: calc(1rem * var(--kh1, 3)); /* key height */
-    --kt: calc(1rem * var(--kt2, 0.8)); /* keycap description text size */
+    --kt: calc(1rem * var(--kt2, 0.75)); /* keycap description text size */
     --ui-fc: black;
     --ui-bgc: lightblue;
     --ui-bdc: lightseagreen;
@@ -163,8 +163,7 @@ krx {
     gap: 3px;
 }
 
-[data-kbsize="0"] #kb_std,
-[data-kbext="false"] #kb_ext {
+[data-kbsize="0"] #kb_std {
     border-width: 0px;
     padding-top: 0px;
     padding-bottom: 0px;
@@ -172,6 +171,7 @@ krx {
     overflow: hidden;
 }
 
+[data-kbext="false"] #kb_ext,
 [data-kbsize="0"] :is(kb_dir, kb_num),
 [data-kbsize="1"] :is(kb_dir, kb_num),
 [data-kbsize="2"] kb_num {
@@ -183,7 +183,6 @@ k, .k {
     font-size: var(--ks);
     font-weight: bold;
     box-sizing: border-box;
-    display: inline-block;
     border: 1px solid darkgray;
     border-radius: 5px;
     background-color: var(--c4);
@@ -1297,13 +1296,13 @@ var Keymap = {
         "kbext": false,
         "kbhint": false,
         "showall": false,
-        "ks1": 0.8,
+        "ks1": 0.75,
         "kw1": 3,
         "kh1": 3,
         "ks2": 0.9,
         "kw2": 5,
         "kh2": 5,
-        "kt2": 0.8,
+        "kt2": 0.75,
         "c0": "black",
         "c1": "lightblue",
         "c2": "lightseagreen",
@@ -1472,19 +1471,10 @@ var Keymap = {
     },
 
     getLayerPrintName(ln = null) {
-        var layerName = "";
-        if (ln == null) {
-            layerName = this.getLayerName();
-            if (layerName == "") {
-                return this.Name + "_" + this.CurLayer;
-            }
-        } else {
-            layerName = this.getLayerName(ln);
-            if (layerName == "") {
-                return this.Name + "_" + ln;
-            }
-        }
-        return this.Name + "_" + layerName;
+        if (ln == null)
+            ln = this.CurLayer;
+        let layerName = this.getLayerName(ln);
+        return `${this.Name}_L${ln}${layerName ? "_"+layerName : ""}`;
     },
 
     //Rename layer
@@ -2002,36 +1992,13 @@ var UI = {
                 await this.import();
                 break;
             case "btn_save_as_img":
-                var ifToggleMode = false;
-                if (Keymap.Config.uimode == "tab") {
-                    ifToggleMode = true;
-                    //change UI mod to single
-                    await this.setUIMode("single");
-                    this.setFlag('ui', 'single');
-                    upd = false;
-                }
-                //kbext为false的情况下, 无法正确输出图片
-                if (!Keymap.Config.kbext) {
-                    //set kbext ture
-                    this.toggleKBExt();
-                    this.update();
-                    hideKBext();
-                    //save as img
-                    printAsPng(2, Keymap.getLayerPrintName());
-                    //change kbext back
-                    showKBext();
-                    this.toggleKBExt();
-                    this.update();
-                } else {
-                    //save as img
-                    printAsPng(2, Keymap.getLayerPrintName());
-                }
-                //change UI mod back
-                if (ifToggleMode) {
-                    await this.setUIMode("tab");
-                    this.setFlag('ui', 'tab');
-                    upd = false;
-                }
+                // change uimode to 'single'
+                this.setFlag('ui', 'single');
+                //save as img
+                printAsPng(2, Keymap.getLayerPrintName());
+                // change uimode back
+                this.setFlag('ui', Keymap.Config.uimode);
+                upd = false;
                 break;
             default:
                 upd = false;
@@ -2727,12 +2694,12 @@ async function setting_dlg() {
                 <div class="subttl">键帽标准模式</div>
                 <span>键宽</span><input type="number" id="kw1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>键高</span><input type="number" id="kh1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <span>字母大小</span><input type="number" id="ks1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>字母大小</span><input type="number" id="ks1" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <div class="subttl">键帽提示模式</div>
                 <span>键宽</span><input type="number" id="kw2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>键高</span><input type="number" id="kh2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <span>字母大小</span><input type="number" id="ks2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <span>提示大小</span><input type="number" id="kt2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>字母大小</span><input type="number" id="ks2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
+                <span>提示大小</span><input type="number" id="kt2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <div class="subttl">键谱设置</div>
                 <span>主键盘大小</span>
                 <select id="kbsize" style="width: 4rem;">
@@ -2914,19 +2881,17 @@ async function setting_dlg() {
     })
 };
 
-function hideKBext() {
-    document.getElementById("kb_ext").setAttribute("style", "display: none");
-}
-
-function showKBext() {
-    document.getElementById("kb_ext").removeAttribute("style");
-}
-
 // Convert to img
 function printAsPng(imgScale, imgName) {
     //hide button
     document.getElementById("btn_save_as_img").hidden = true;
-    html2canvas(document.querySelector("#capture"), {backgroundColor: null, scale: imgScale, windowWidth: document.getElementById("capture").style.width, windowHeight: document.getElementById("capture").style.height, removeContainer: true}).then(canvas => {canvas.toBlob(function(blob) {saveAs(blob, imgName)})});
+    html2canvas(document.body, {
+        backgroundColor: null,
+        scale: imgScale,
+        windowWidth: document.body.style.width,
+        windowHeight: document.body.style.height,
+        removeContainer: true
+    }).then(canvas => { canvas.toBlob(blob => { saveAs(blob, imgName); }); });
     //show button
     document.getElementById("btn_save_as_img").hidden = false;
 }
@@ -3034,14 +2999,14 @@ window.on_webwin_loaded = async () => {
 };
 
 var __appname__ = "键谱";
-var __version__ = "2.3.0-beta-1";
+var __version__ = "2.4.0-beta-1";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
 async function __init__() {
     Keymap._version = __version__;
     document.title = `${__appname__} ${__loader__}`.trim();
-    document.querySelector(".about").innerHTML = `${__appname__} v${__version__} ${__loader__} Copyright &COPY; 2023 CataeroGong [<a href="${__homepage__}">Project Home</a>]`;
+    document.querySelector(".about").innerHTML = `${__appname__} v${__version__} ${__loader__} Copyright &COPY; 2023-2024 CataeroGong [<a href="${__homepage__}">Project Home</a>]`;
     await UI.init();
 }
 
