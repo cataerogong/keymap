@@ -808,6 +808,11 @@ dialog {
 .btn_icon:hover {
     filter: grayscale(0);
 }
+
+/* exe mode */
+/* [data-launch-mode="exe"] :is(#btn_load_file, #btn_save_file, #btn_save_as_img) {
+    display: none;
+} */
 </style>
 </head>
 
@@ -825,6 +830,7 @@ dialog {
         —— 让“记录、展示快捷键”变得
         <span id="btn_ui_tab" class="BIND-CLICK" title="分页模式">简</span>
         <span id="btn_ui_single" class="BIND-CLICK" title="单页模式">单</span>
+        <span>&nbsp;</span>
     </span>
     <span id="btn_save_as_img" class="btn_icon BIND-CLICK" title="生成单页模式图片" style="margin: 0px 10px;align-self: center;">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="lightseagreen" d="m11.18 8.933l3.232-5.596q2.025.523 3.662 2.046q1.638 1.523 2.38 3.55zM8.888 11.26L5.673 5.606Q6.946 4.358 8.57 3.679Q10.194 3 12 3q.383 0 .875.047t.746.097zm-5.6 2.97q-.15-.638-.219-1.176Q3 12.515 3 12q0-1.583.537-3.042q.536-1.46 1.567-2.74l4.588 8.013zm6.403 6.472q-2.14-.562-3.819-2.104q-1.679-1.542-2.344-3.588h9.402zM12 21q-.375 0-.81-.05q-.436-.05-.71-.1l4.71-7.994l3.156 5.519q-1.254 1.248-2.897 1.937Q13.806 21 12 21m6.896-3.217L14.308 9.73h6.405q.131.58.21 1.157Q21 11.465 21 12q0 1.615-.536 3.062q-.535 1.446-1.568 2.72"/></svg>
@@ -1739,6 +1745,13 @@ var Keymap = {
 };
 
 var UI = {
+    _launch_mode: "html",
+    get LaunchMode() { return this._launch_mode; },
+    set LaunchMode(v) {
+        this._launch_mode = v;
+        this.setFlag("launch-mode", v);
+    },
+
     elm(sel) {
         return document.querySelector(sel);
     },
@@ -2952,7 +2965,33 @@ function printAsPng(imgScale, imgName) {
         windowWidth: document.body.style.width,
         windowHeight: document.body.style.height,
         removeContainer: true
-    }).then(canvas => { canvas.toBlob(blob => { saveAs(blob, imgName); }); });
+    }).then(canvas => {
+        if (UI.LaunchMode == "exe") {
+            let h=canvas.height/2, w=canvas.width/2, s=1;
+            if (h > (window.innerHeight-100) || w > (window.innerWidth-100)) {
+                s = Math.min((window.innerHeight-100)/h, (window.innerWidth-100)/w);
+            }
+            canvas.style.height=h*s;
+            canvas.style.width=w*s;
+            let dlg=document.createElement("dialog");
+            dlg.style.marginTop="auto";
+            dlg.style.marginLeft="auto";
+            dlg.style.transform="unset";
+            dlg.innerHTML=`<div style="position:absolute;top:0px;right:0px;margin:10px;font-size:1.5rem;background-color:var(--ui-bgc);border-width:2px;outline:3px solid white;" class="btn rnd close">&times;</div>
+            <div style="pointer-events:none;position:absolute;top:50px;left:0px;margin:12px;font-size:1.5rem;padding:10px;color:red;background-color:rgba(255,255,255,0.6);border:2px dashed red;border-radius:10px;box-shadow:0px 0px 10px;">右键点击，选择“将链接另存为/Save link as”</div>
+            <div><a href="${canvas.toDataURL()}" download="${imgName}" style="cursor:default;"></a></div>`;
+            let a = dlg.querySelector("a");
+            a.onclick=(evt) => {evt.preventDefault();evt.stopImmediatePropagation()};
+            a.oncontextmenu=(evt) => {evt.stopImmediatePropagation();};
+            a.appendChild(canvas);
+            dlg.querySelector(".close").onclick = () => {dlg.remove();};
+            dlg.onclose = () => {dlg.remove();};
+            document.body.appendChild(dlg);
+            dlg.showModal();
+        } else {
+            canvas.toBlob(blob => { saveAs(blob, imgName); });
+        }
+    });
     //show button
     document.getElementById("btn_save_as_img").style.visibility = "visible";
     // recover uimode
@@ -2975,11 +3014,31 @@ async function openFile() {
 // save file
 function saveFile() {
     let blob = new Blob([Keymap.JSON], { type: "application/json;charset=utf-8" });
-    let fileSaver = document.createElement("a");
-    fileSaver.href = window.URL.createObjectURL(blob);
-    fileSaver.download = Keymap.Name.replace(/[\*\?\\\/\:\"\<\>\|]/, "_") + ".keymap"
-    fileSaver.click();
-    fileSaver.remove();
+    if (UI.LaunchMode == "exe") {
+        let dlg=document.createElement("dialog");
+        dlg.onclose=()=>{dlg.remove();};
+        // dlg.style.marginTop="auto";
+        // dlg.style.marginLeft="auto";
+        // dlg.style.transform="unset";
+        let fname=Keymap.Name.replace(/[\*\?\\\/\:\"\<\>\|]/, "_") + ".keymap";
+        dlg.innerHTML=`<div style="position:absolute;top:0px;right:0px;margin:10px;font-size:1rem;outline:2px solid white;" class="btn rnd close">&times;</div>
+        <div style="font-weight:bold;">保存文件</div>
+            <div style="padding:10px;">
+            <a href="${window.URL.createObjectURL(blob)}" download="${fname}" class="btn rnd">${fname}</a> &lt;- 右键点击，选择“将链接另存为/Save link as”
+            </div>`;
+        let a = dlg.querySelector("a");
+        a.onclick=(evt) => {evt.preventDefault();evt.stopImmediatePropagation();};
+        a.oncontextmenu=(evt) => {evt.stopImmediatePropagation();};
+        dlg.querySelector(".close").onclick = () => {dlg.remove();};
+        document.body.appendChild(dlg);
+        dlg.showModal();
+    } else {
+        let fileSaver = document.createElement("a");
+        fileSaver.href = window.URL.createObjectURL(blob);
+        fileSaver.download = Keymap.Name.replace(/[\*\?\\\/\:\"\<\>\|]/, "_") + ".keymap"
+        fileSaver.click();
+        fileSaver.remove();
+    }
 }
 
 // IO layer: browser storage
@@ -3081,11 +3140,12 @@ window.on_webwin_loaded = async () => {
         },
     }
     __loader__ = "【精装礼盒版 *^____^* 】";
+    UI.LaunchMode = "exe";
     await __init__();
 };
 
 var __appname__ = "键谱";
-var __version__ = "2.4.0-beta-1";
+var __version__ = "2.4.0-beta-2";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
