@@ -17,6 +17,8 @@
     --kw: calc(1rem * var(--kw1, 3)); /* key width */
     --kh: calc(1rem * var(--kh1, 3)); /* key height */
     --kt: calc(1rem * var(--kt2, 0.75)); /* keycap description text size */
+    --mod-cs: calc(1rem * var(--mod-cs2, 0.7));
+    --mod-ds: calc(1rem * var(--mod-ds2, 0.5));
     --ui-fc: black;
     --ui-bgc: lightblue;
     --ui-bdc: lightseagreen;
@@ -399,32 +401,32 @@ k.set.group .ktr .mk {
     outline: 1px solid darkgray;
 }
 .ktr .mod {
-    font-size: 11px;
+    font-size: var(--mod-cs);
     display: inline-block;
     box-sizing: border-box;
     outline: 1px solid darkgray;
     border-radius: 2px;
-    margin: 1px 1px 0px 0px;
+    margin: 0px 1px 0px 0px;
     padding: 0px 2px;
     text-align: center;
 }
 .ktr .mod_raw {
-    height: 12px;
+    height: var(--mod-cs);
     background-color: var(--c1);
-    margin-top: 3px;
+    margin-top: 1px;
 }
 .ktr .mod_chr {
-    height: 12px;
-    line-height: 12px;
-    min-width: 12px;
+    height: var(--mod-cs);
+    line-height: var(--mod-cs);
+    min-width: var(--mod-cs);
     background-color: var(--c1);
-    margin-top: 3px;
+    margin-top: 1px;
 }
 .ktr .mod_dot {
-    height: 8px;
-    min-width: 8px;
+    height: var(--mod-ds);
+    width: var(--mod-ds);
     background-color: var(--c1);
-    margin-top: 5px;
+    margin-top: 1px;
 }
 .ktr .mod_dot.mod_color {
     --m-c3: var(--mod-c1, white);
@@ -1365,6 +1367,8 @@ var Keymap = {
         "modkey_chars": MODKEY_CHARS, // {},
         "modkey_mode": "raw", // "raw", "chr", "dot",
         "modkey_clr": false,
+        "mod-cs2": 0.7,
+        "mod-ds2": 0.5,
         "layer_names": {},
         "group": false,
         "group_colors": KEY_GROUP_COLORS, // {},
@@ -1840,6 +1844,8 @@ var UI = {
         this.setCSS("--c3", cfg["c3"]);
         this.setCSS("--c4", cfg["c4"]);
         this.setCSS("--cols", cfg["cols"]);
+        this.setCSS("--mod-cs2", cfg["mod-cs2"]);
+        this.setCSS("--mod-ds2", cfg["mod-ds2"]);
         this.resize();
     },
 
@@ -2766,11 +2772,11 @@ async function setting_dlg() {
                 <div class="subttl">键帽标准模式</div>
                 <span>键宽</span><input type="number" id="kw1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>键高</span><input type="number" id="kh1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <span>字母大小</span><input type="number" id="ks1" min="0.1" max="10" step="0.05" style="width: 3rem;" />
+                <span>字符大小</span><input type="number" id="ks1" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <div class="subttl">键帽提示模式</div>
                 <span>键宽</span><input type="number" id="kw2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>键高</span><input type="number" id="kh2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <span>字母大小</span><input type="number" id="ks2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
+                <span>字符大小</span><input type="number" id="ks2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <span>提示大小</span><input type="number" id="kt2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <div class="subttl">键谱设置</div>
                 <span>主键盘大小</span>
@@ -2793,6 +2799,8 @@ async function setting_dlg() {
                     <option value="chr">缩写</option>
                     <option value="dot">仅颜色</option>
                 </select>
+                <span>字符大小</span><input type="number" id="mod-cs2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
+                <span>色点大小</span><input type="number" id="mod-ds2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <span>缩写</span><textarea id="modkey_chars" style="height: 4rem;border:1px solid black;grid-column: 2 / -1;"></textarea>
                 <span><label><input type="checkbox" id="modkey_clr" />启用颜色</label></span><textarea id="modkey_colors" style="height: 6rem;border:1px solid black;grid-column: 2 / -1;"></textarea>
             </div>
@@ -3145,7 +3153,7 @@ window.on_webwin_loaded = async () => {
 };
 
 var __appname__ = "键谱";
-var __version__ = "2.4.0-beta-2";
+var __version__ = "2.4.0-beta-3";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
