@@ -8,17 +8,19 @@
 :root {
     --cols: 2; /* mapping-list columns */
     --c0: black; /* highlight color */
-    --c1: lightblue; /* highlight bg color */
+    --c1: lightblue; /* highlight keycap color */
     --c2: lightseagreen; /* border color */
     --c3: black; /* unset fore color */
-    --c4: whitesmoke; /* unset bg color */
-    --bdc: gray;
+    --c4: whitesmoke; /* unset keycap color */
+    --kb-bgc: lightgray; /* keyboard bg color */
+    --kb-bdc: gray; /* keyboard border color */
     --ks: calc(1rem * var(--ks1, 0.75)); /* key font size */
     --kw: calc(1rem * var(--kw1, 3)); /* key width */
     --kh: calc(1rem * var(--kh1, 3)); /* key height */
     --kt: calc(1rem * var(--kt2, 0.75)); /* keycap description text size */
     --mod-cs: calc(1rem * var(--mod-cs2, 0.7));
     --mod-ds: calc(1rem * var(--mod-ds2, 0.5));
+    --cmnt-fs: calc(1rem * var(--comment-font-size, 0.9));
     --ui-fc: black;
     --ui-bgc: lightblue;
     --ui-bdc: lightseagreen;
@@ -33,13 +35,12 @@ body {
     font-family: Consolas, sans-serif;
     font-size: 0.9rem;
     margin: 0px;
-    padding: 0px 10px;
     height: 100%;
     background-color: whitesmoke;
     overflow-y: hidden;
     display: flex;
     flex-flow: column;
-    width: var(--w);
+    width: var(--w, 100%);
 }
 
 textarea {
@@ -51,7 +52,7 @@ textarea {
     background-color: whitesmoke;
     padding: 5px;
 }
-
+textarea:hover,
 textarea:focus {
     background-color: cornsilk;
 }
@@ -63,18 +64,16 @@ input[type="checkbox"] {
 keyboard {
     position: relative;
     box-sizing: border-box;
-    border: 2px solid var(--bdc);
+    border: 1px solid var(--kb-bdc);
     border-radius: 10px;
-    /* background-color: var(--bdc); */
+    background-color: var(--kb-bgc);
     /* background-image: linear-gradient(0deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.85) 100%); */
     padding: 10px;
     height: fit-content;
     margin: 5px;
 }
 keyboard:hover {
-    box-shadow: 0px 0px 5px var(--c2);
-    border-color: var(--c2);
-    /* background-color: var(--c1); */
+    /* box-shadow: 2px 2px 2px; */
 }
 
 #kb_std {
@@ -197,9 +196,13 @@ k, .k {
 k {
     cursor: pointer;
 }
+k:hover,
+k.set {
+    box-shadow: 1px 1px;
+}
 k.set {
     color: var(--c0);
-    border-color: var(--c2);
+    /* border-color: var(--c2); */
     background-color: var(--c1);
 }
 k.set.group {
@@ -219,10 +222,10 @@ k.no-rel {
 }
 .kinfo.combo.group {
     align-self: start;
-    padding: 3px;
+    /* padding: 3px;
     border: 1px solid darkgray;
     border-radius: 5px;
-    background-color: var(--gc, transparent);
+    background-color: var(--gc, transparent); */
 }
 
 .k1 {
@@ -291,11 +294,6 @@ d {
     background-size: calc(var(--kw) / 2) calc(var(--kh) / 2);
 }
 
-.na {
-    border-width: 0px !important;
-    color: gray !important;
-}
-
 kn, km {
     box-sizing: border-box;
     display: inline-block;
@@ -305,8 +303,8 @@ kn, km {
 kn {
     font-weight: bold;
     color: var(--c0);
-    background-color: var(--c1);
-    border: 1px solid var(--c2);
+    background-color: var(--gc, var(--c1));
+    border: 1px solid var(--gc, var(--c1));
     border-radius: 5px;
     height: fit-content;
     width: fit-content;
@@ -317,6 +315,8 @@ kn {
 }
 kn.ck {
     font-weight: normal;
+    background-color: var(--c1);
+    border-color: white;
 }
 kn.sel {
     outline: 2px dotted lightseagreen;
@@ -369,14 +369,12 @@ km {
     text-align: right;
 }
 .ktr .modkeys {
-    /* flex: 1; */
     grid-row: span 2;
-
 }
 .ktr .mk {
     font-size: var(--ks);
-    height: calc(var(--ks) + 4px);
-    min-width: calc(var(--ks) + 4px);
+    height: calc(var(--ks) + 6px);
+    min-width: calc(var(--ks) + 6px);
     text-align: center;
     display: inline-block;
     box-sizing: border-box;
@@ -391,36 +389,37 @@ k.mod .ktr .mk {
     text-underline-offset: 2px;
 }
 k.mod .ktr .mk {
-    outline: 1px solid darkgray;
+    /* border: 1px solid white; */
 }
 k.set .ktr .mk {
     /* outline: 1px solid darkgray; */
-    background-color: var(--c1);
+    /* background-color: var(--c1); */
 }
 k.set.group .ktr .mk {
-    outline: 1px solid darkgray;
+    /* outline: 1px solid darkgray; */
 }
 .ktr .mod {
     font-size: var(--mod-cs);
     display: inline-block;
     box-sizing: border-box;
-    outline: 1px solid darkgray;
+    border: 1px solid var(--c2);
     border-radius: 2px;
-    margin: 0px 1px 0px 0px;
     padding: 0px 2px;
     text-align: center;
 }
+.ktr .mod.mod_color {
+    border-color: white;
+}
 .ktr .mod_raw {
-    height: var(--mod-cs);
+    height: calc(var(--mod-cs) + 2px);
+    line-height: var(--mod-cs);
     background-color: var(--c1);
-    margin-top: 1px;
 }
 .ktr .mod_chr {
-    height: var(--mod-cs);
+    height: calc(var(--mod-cs) + 2px);
     line-height: var(--mod-cs);
-    min-width: var(--mod-cs);
+    min-width: calc(var(--mod-cs) + 2px);
     background-color: var(--c1);
-    margin-top: 1px;
 }
 .ktr .mod_dot {
     height: var(--mod-ds);
@@ -434,9 +433,10 @@ k.set.group .ktr .mk {
 }
 kn.na,
 .ktr .na {
+    color: gray !important;
     background-color: whitesmoke !important;
     background-image: unset !important;
-    outline: 1px solid gray !important;
+    border: 1px solid gray !important;
 }
 k.set .ktr .cnt {
     justify-self: right;
@@ -457,22 +457,17 @@ k.set .ktr .cnt {
     white-space: pre-wrap;
 }
 
-[data-kbhint="true"] .ktn {
-    display: none;
-}
+[data-kbhint="true"] .ktn,
 [data-kbhint="false"] .ktr,
 [data-kbhint="false"] .ktm {
     display: none;
 }
-[data-kbhint="true"] #btn_hint {
-    background-color: var(--ui-bdc);
-}
-[data-kbext="true"] #btn_kbext {
-    background-color: var(--ui-bdc);
-}
-
-[data-showall="true"] #btn_showall {
-    background-color: var(--ui-bdc);
+[data-kbhint="true"] #btn_hint,
+[data-kbext="true"] #btn_kbext,
+[data-showall="true"] #btn_showall,
+[data-layout="mac"] #btn_layout {
+    background-color: var(--ui-bgc);
+    border-color: var(--ui-bdc);
 }
 
 .kms_info {
@@ -500,8 +495,9 @@ k.set .ktr .cnt {
 
 .btn {
     padding: 3px 6px;
-    border: 1px solid var(--ui-bdc);
+    border: 1px solid darkgray;
     cursor: pointer;
+    background-color:whitesmoke;
 }
 
 .btn.danger:hover,
@@ -519,28 +515,11 @@ k.set .ktr .cnt {
     padding: 0px 3px;
     height: 20px;
     min-width: 24px;
-    border: 1px solid var(--ui-bdc);
-}
-.smbtn {
+    border: 1px solid lightgray;
     cursor: pointer;
 }
-
-.tabbtn {
-    display: inline-block;
-    border: 1px solid gray;
-    border-bottom: 0px;
-    border-radius: 5px 5px 0 0;
-    padding: 5px 10px 0px;
-    cursor: pointer;
-}
-
 .btn:hover,
-.smbtn:hover,
-.tabbtn:hover,
-.tabbtn.sel,
-[data-view="k"] #tabbtn_kb,
-[data-view="l"] #tabbtn_list,
-[data-view="j"] #tabbtn_json {
+.smbtn:hover {
     border-color: var(--ui-bdc);
     background-color: var(--ui-bgc);
     color: var(--ui-fc);
@@ -564,12 +543,34 @@ k.set .ktr .cnt {
     background-color: var(--c1);
 }
 
+.tabbtn {
+    display: inline-block;
+    /* border: 1px solid lightgray;
+    border-bottom: 0px; */
+    border-radius: 5px 5px 0 0;
+    padding: 5px 10px 0px;
+    cursor: pointer;
+}
+.tabbtn:hover {
+    background-color: #e7e7e7;
+}
+[data-view="k"] #tabbtn_kb,
+[data-view="l"] #tabbtn_list,
+[data-view="j"] #tabbtn_json {
+    background-color: whitesmoke;
+}
+
+
 #kb_ops,
 #json_ops {
     display: flex;
-    border: 1px solid gray;
+    border-style: solid;
+    border-color: lightgray;
+    border-width: 0px 0px 1px 0px;
+    background-color: whitesmoke;
     align-items: center;
     height: 2rem;
+    margin-bottom: 1px;
 }
 
 [data-view="k"] #json_ops,
@@ -582,24 +583,21 @@ k.set .ktr .cnt {
     display: flex;
     flex-flow: column;
     box-sizing: border-box;
-    height: 0px;
-    width: 100%;
-    overflow-y: hidden;
-    border-style: solid;
-    border-color: gray;
-    border-width: 0px 1px;
+    visibility: hidden;
+    position: absolute;
+    height: 100%;
     background-color: whitesmoke;
+    overflow-y: auto;
 }
-
 #tab_kb {
     width: fit-content;
-    overflow-y: auto;
+    padding: 0px 20px;
 }
 [data-view="k"] #tab_kb ,
 [data-view="l"] #tab_list,
 [data-view="j"] #tab_json {
-    height: 100%;
-    border-bottom-width: 1px;
+    visibility: visible;
+    position: static;
 }
 
 #list {
@@ -669,8 +667,10 @@ dialog {
 
 .about {
     height: fit-content;
-    color: gray;
-    padding-bottom: 2px;
+    color: #666;
+    background-color: #e0e0e0;
+    padding: 0px 5px;
+    margin-top: 3px;
     text-align: right;
 }
 
@@ -725,8 +725,8 @@ dialog {
     font-weight: bold;
     height: 2rem;
     line-height: 2rem;
-    color: gray;
-    background-color: lightgray;
+    color: #666;
+    background-color: #e0e0e0;
 }
 .slogan {
     font-size: 75%;
@@ -734,11 +734,17 @@ dialog {
 #row_tabbar {
     display: flex;
     gap: 3px;
-    margin-top: 5px;
+    /* padding-top: 5px; */
+    background-color: #e0e0e0;
 }
 #comment {
-    flex: 1;
-    min-height: 2rem;
+    flex: 1 0 15rem;
+    /* height: 10rem; */
+    width: 100%;
+    font-size: var(--cmnt-fs);
+}
+[data-comment="false"] #comment {
+    display: none;
 }
 #row_name {
     position: absolute;
@@ -771,8 +777,10 @@ dialog {
     display: none;
 }
 [data-ui="single"] :is(#tab_kb, #tab_list) {
+    position: static;
+    visibility: visible;
     height: fit-content;
-    border-width: 1px;
+    /* border-width: 1px; */
 }
 [data-ui="single"] #tab_kb {
     border-color: transparent;
@@ -797,9 +805,6 @@ dialog {
 [data-layout="pc"] kb_mac {
     display: none;
 }
-[data-layout="mac"] #btn_layout {
-    background-color: var(--ui-bdc);
-}
 .btn_icon {
     cursor: pointer;
     border: 1px solid var(--ui-bdc);
@@ -820,12 +825,6 @@ dialog {
 
 <body>
 <div id="row_cap">
-    <span id="btn_load_file" class="btn_icon BIND-CLICK" title="从文件载入" style="margin-left: 10px;align-self: center;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 72 72"><path fill="lightseagreen" d="M15.464 59.626c.14-.169 2.356-7.826 2.9-9.627c.457-1.513 3.962-15.27 6.16-25.07c.008-.132 32.484-.614 32.484-.614v-7.367l-27.493-.571c-.08-1.236-1.004-4.122-2.137-4.122l-12.587-.198c-1.103 0-2.832 1.34-2.832 2.444c0 0-.25 36.183-.25 44.977c0 1.328 3.734.174 3.755.148"/><path fill="lightblue" d="M23.944 24.315c0 .078-.008.156-.025.232c-.275 1.226-6.735 30.042-7.363 32.124a9.835 9.835 0 0 1-1.765 3.291l43.112.01c1.138 0 1.521 0 2.152-2.39c.667-2.53 6.698-30.269 7.342-33.232l.006-.035z"/></svg>
-    </span>
-    <span id="btn_save_file" class="btn_icon BIND-CLICK" title="保存至文件" style="margin: 0px 3px;align-self: center;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g transform="rotate(180 12 12)"><path fill="lightseagreen" d="M5 21h14a2 2 0 0 0 2-2V8l-5-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2M7 5h4v2h2V5h2v4H7zm0 8h10v6H7z"/></g></svg>
-    </span>
     <span style="flex: 1;">&nbsp;</span>
     <span>键谱</span>
     <span class="slogan">
@@ -834,7 +833,7 @@ dialog {
         <span id="btn_ui_single" class="BIND-CLICK" title="单页模式">单</span>
         <span>&nbsp;</span>
     </span>
-    <span id="btn_save_as_img" class="btn_icon BIND-CLICK" title="生成单页模式图片" style="margin: 0px 10px;align-self: center;">
+    <span id="btn_save_as_img" class="btn_icon BIND-CLICK" title="截图：生成单页模式图片" style="margin: 0px 10px;align-self: center;">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="lightseagreen" d="m11.18 8.933l3.232-5.596q2.025.523 3.662 2.046q1.638 1.523 2.38 3.55zM8.888 11.26L5.673 5.606Q6.946 4.358 8.57 3.679Q10.194 3 12 3q.383 0 .875.047t.746.097zm-5.6 2.97q-.15-.638-.219-1.176Q3 12.515 3 12q0-1.583.537-3.042q.536-1.46 1.567-2.74l4.588 8.013zm6.403 6.472q-2.14-.562-3.819-2.104q-1.679-1.542-2.344-3.588h9.402zM12 21q-.375 0-.81-.05q-.436-.05-.71-.1l4.71-7.994l3.156 5.519q-1.254 1.248-2.897 1.937Q13.806 21 12 21m6.896-3.217L14.308 9.73h6.405q.131.58.21 1.157Q21 11.465 21 12q0 1.615-.536 3.062q-.535 1.446-1.568 2.72"/></svg>
     </span>
 </div>
@@ -851,141 +850,152 @@ dialog {
         <button id="btn_clr" class="btn rnd danger BIND-CLICK">清空</button>
         <button id="btn_del" class="btn rnd danger BIND-CLICK">删除</button>
         <button id="btn_saveas" class="btn rnd BIND-CLICK">另存为</button>
+        <span id="btn_load_file" class="btn_icon BIND-CLICK" title="从文件载入">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 72 72"><path fill="lightseagreen" d="M15.464 59.626c.14-.169 2.356-7.826 2.9-9.627c.457-1.513 3.962-15.27 6.16-25.07c.008-.132 32.484-.614 32.484-.614v-7.367l-27.493-.571c-.08-1.236-1.004-4.122-2.137-4.122l-12.587-.198c-1.103 0-2.832 1.34-2.832 2.444c0 0-.25 36.183-.25 44.977c0 1.328 3.734.174 3.755.148"/><path fill="lightblue" d="M23.944 24.315c0 .078-.008.156-.025.232c-.275 1.226-6.735 30.042-7.363 32.124a9.835 9.835 0 0 1-1.765 3.291l43.112.01c1.138 0 1.521 0 2.152-2.39c.667-2.53 6.698-30.269 7.342-33.232l.006-.035z"/></svg>
+        </span>
+        <span id="btn_save_file" class="btn_icon BIND-CLICK" title="保存至文件">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g transform="rotate(180 12 12)"><path fill="lightseagreen" d="M5 21h14a2 2 0 0 0 2-2V8l-5-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2M7 5h4v2h2V5h2v4H7zm0 8h10v6H7z"/></g></svg>
+        </span>
         <span style="flex: 1;">&nbsp;</span>
     </div>
     <span id="tabbtn_kb" class="tabbtn BIND-CLICK">键图</span>
     <span id="tabbtn_list" class="tabbtn BIND-CLICK">键表</span>
     <span id="tabbtn_json" class="tabbtn BIND-CLICK">数据</span>
+    <span>&nbsp;</span>
 </div>
-<div id="kb_ops">
-    <span>&nbsp;</span>
-    <button id="btn_setting" class="smbtn kb_op BIND-CLICK" title="UI 设置">🛠</button>
-    <!-- <button id="btn_shorten" class="smbtn kb_op BIND-CLICK" title="收缩主键盘">➖</button>
-    <button id="btn_expand" class="smbtn kb_op BIND-CLICK" title="扩展主键盘">➕</button>
-    <button id="btn_kbext" class="smbtn kb_op BIND-CLICK" title="扩展键区">↕</button> -->
-    <button id="btn_hint" class="smbtn kb_op BIND-CLICK" title="键帽提示">🔣</button>
-    <button id="btn_layout" class="smbtn kb_op BIND-CLICK" title="Mac 布局">🍏</button>
-    <button id="btn_showall" class="smbtn kb_op BIND-CLICK" title="所有映射">All</button>
-    <span>&nbsp;键盘层:</span>
-    <div id="layer_btns"></div>
-    <span>&nbsp;</span>
-    <button id="btn_l_clr" class="btn danger BIND-CLICK">清空本层</button>
-    <span style="flex: 1;">&nbsp;</span>
+<div id="row_op_btns">
+    <div id="kb_ops">
+        <span>&nbsp;</span>
+        <button id="btn_setting" class="smbtn kb_op BIND-CLICK" title="设置">🛠</button>
+        <!-- <button id="btn_shorten" class="smbtn kb_op BIND-CLICK" title="收缩主键盘">➖</button>
+        <button id="btn_expand" class="smbtn kb_op BIND-CLICK" title="扩展主键盘">➕</button>
+        <button id="btn_kbext" class="smbtn kb_op BIND-CLICK" title="扩展键区">↕</button> -->
+        <button id="btn_hint" class="smbtn kb_op BIND-CLICK" title="键帽提示">🔣</button>
+        <button id="btn_layout" class="smbtn kb_op BIND-CLICK" title="Mac 布局">🍏</button>
+        <button id="btn_showall" class="smbtn kb_op BIND-CLICK" title="所有映射">All</button>
+        <span>&nbsp;键盘层:</span>
+        <div id="layer_btns"></div>
+        <span>&nbsp;</span>
+        <button id="btn_l_clr" class="btn danger BIND-CLICK">清空本层</button>
+        <span style="flex: 1;">&nbsp;</span>
+    </div>
+    <div id="json_ops">
+        &nbsp;JSON 数据随上图设置实时更新。也可在下方编辑 JSON 数据后：
+        <button id="btn_imp" class="btn BIND-CLICK" style="margin: 2px;">导入至当前键谱</button>
+        <button id="btn_imp2" class="btn BIND-CLICK" style="margin: 2px;">导入至新键谱</button>
+    </div>
 </div>
 <div id="tab_kb" class="tab">
-    <keyboard id="kb_std">
-        <kb_pc>
-            <kb_main>
-                <kr class="Fn">
-                    <k>Esc</k><d> </d><k>F1</k><k>F2</k><k>F3</k><k>F4</k><d> </d><k>F5</k><k>F6</k><k>F7</k><k>F8</k><d> </d><k>F9</k><k>F10</k><k>F11</k><k>F12</k>
-                </kr>
-                <div></div>
-                <kr>
-                    <k>`</k><k>1</k><k>2</k><k>3</k><k>4</k><k>5</k><k>6</k><k>7</k><k>8</k><k>9</k><k>0</k><k>-</k><k>=</k><k class="k2">Backspace</k>
-                </kr>
-                <kr>
-                    <k class="k15">Tab</k><k>Q</k><k>W</k><k>E</k><k>R</k><k>T</k><k>Y</k><k>U</k><k>I</k><k>O</k><k>P</k><k>[</k><k>]</k><k class="k15">\</k>
-                </kr>
-                <kr>
-                    <k class="k2">Caps</k><k>A</k><k>S</k><k>D</k><k>F</k><k>G</k><k>H</k><k>J</k><k>K</k><k>L</k><k>;</k><k>'</k><k class="k2">Enter</k>
-                </kr>
-                <kr>
-                    <k class="k25">Shift</k><k>Z</k><k>X</k><k>C</k><k>V</k><k>B</k><k>N</k><k>M</k><k>,</k><k>.</k><k>/</k><k class="k25">RShift</k>
-                </kr>
-                <kr>
-                    <k class="k15">Ctrl</k><k class="k15">Win</k><k class="k15">Alt</k>
-                    <k class="kspace">Space</k>
-                    <k class="k15">RAlt</k><k class="k15">Menu</k><k class="k15">RCtrl</k>
-                </kr>
-            </kb_main>
-            <kb_dir>
-                <kr>
-                    <k>PrtScr</k><k>ScrLck</k><k>Pause</k>
-                </kr>
-                <kr></kr>
-                <kr>
-                    <k>Ins</k><k>Home</k><k>PgUp</k>
-                </kr>
-                <kr>
-                    <k>Del</k><k>End</k><k>PgDn</k>
-                </kr>
-                <kr> </kr>
-                <kr>
-                    <d> </d><k>Up</k><d> </d>
-                </kr>
-                <kr>
-                    <k>Left</k><k>Down</k><k>Right</k>
-                </kr>
-            </kb_dir>
-            <kb_num>
-                <k>NumLck</k><k>Num/</k><k>Num*</k><k>Num-</k>
-                <k>Num7</k><k>Num8</k><k>Num9</k><k class="k2v">Num+</k>
-                <k>Num4</k><k>Num5</k><k>Num6</k>
-                <k>Num1</k><k>Num2</k><k>Num3</k><k class="k2v">REnter</k>
-                <k class="k2h">Num0</k><k>Num.</k>
-            </kb_num>
-        </kb_pc>
-        <kb_mac>
-            <kb_main>
-                <kr>
-                    <k class="kspace">esc</k><k>F1</k><k>F2</k><k>F3</k><k>F4</k><k>F5</k><k>F6</k><k>F7</k><k>F8</k><k>F9</k><k>F10</k><k>F11</k><k>F12</k><d class="k"> </d>
-                </kr>
-                <kr>
-                    <k>`</k><k>1</k><k>2</k><k>3</k><k>4</k><k>5</k><k>6</k><k>7</k><k>8</k><k>9</k><k>0</k><k>-</k><k>=</k><k class="k15">del</k>
-                </kr>
-                <kr>
-                    <k class="k15">tab</k><k>Q</k><k>W</k><k>E</k><k>R</k><k>T</k><k>Y</k><k>U</k><k>I</k><k>O</k><k>P</k><k>[</k><k>]</k><k>\</k>
-                </kr>
-                <kr>
-                    <k class="kspace">caps</k><k>A</k><k>S</k><k>D</k><k>F</k><k>G</k><k>H</k><k>J</k><k>K</k><k>L</k><k>;</k><k>'</k><k class="kspace">return</k>
-                </kr>
-                <kr>
-                    <k class="kspace">shift</k><k>Z</k><k>X</k><k>C</k><k>V</k><k>B</k><k>N</k><k>M</k><k>,</k><k>.</k><k>/</k><k class="kspace">r-shift</k>
-                </kr>
-                <kr>
-                    <k class="k15">ctrl</k><k class="k13">opt</k><k class="k15">cmd</k>
-                    <k class="kspace">Space</k>
-                    <k class="k15">r-cmd</k><k class="k13">r-opt</k><k class="k15">r-ctrl</k>
-                </kr>
-            </kb_main>
-            <kb_dir>
-                <kr>
-                    <k>F13</k><k>F14</k><k>F15</k>
-                </kr>
-                <kr>
-                    <k>fn</k><k>home</k><k>pgup</k>
-                </kr>
-                <kr>
-                    <k>fwd-del</k><k>end</k><k>pgdn</k>
-                </kr>
-                <kr> </kr>
-                <kr>
-                    <d> </d><k>Up</k><d> </d>
-                </kr>
-                <kr>
-                    <k>Left</k><k>Down</k><k>Right</k>
-                </kr>
-            </kb_dir>
-            <kb_num>
-                <k>F16</k><k>F17</k><k>F18</k><k>F19</k>
-                <k>clear</k><k>Num=</k><k>Num/</k><k>Num*</k>
-                <k>Num7</k><k>Num8</k><k>Num9</k><k>Num-</k>
-                <k>Num4</k><k>Num5</k><k>Num6</k><k>Num+</k>
-                <k>Num1</k><k>Num2</k><k>Num3</k><k class="k2v">enter</k>
-                <k class="k2h">Num0</k><k>Num.</k>
-            </kb_num>
-        </kb_mac>
-    </keyboard>
-    <keyboard id="kb_ext"></keyboard>
-    <textarea id="comment" placeholder="备注"></textarea>
+    <!-- <div> -->
+        <keyboard id="kb_std">
+            <kb_pc>
+                <kb_main>
+                    <kr class="Fn">
+                        <k>Esc</k><d> </d><k>F1</k><k>F2</k><k>F3</k><k>F4</k><d> </d><k>F5</k><k>F6</k><k>F7</k><k>F8</k><d> </d><k>F9</k><k>F10</k><k>F11</k><k>F12</k>
+                    </kr>
+                    <div></div>
+                    <kr>
+                        <k>`</k><k>1</k><k>2</k><k>3</k><k>4</k><k>5</k><k>6</k><k>7</k><k>8</k><k>9</k><k>0</k><k>-</k><k>=</k><k class="k2">Backspace</k>
+                    </kr>
+                    <kr>
+                        <k class="k15">Tab</k><k>Q</k><k>W</k><k>E</k><k>R</k><k>T</k><k>Y</k><k>U</k><k>I</k><k>O</k><k>P</k><k>[</k><k>]</k><k class="k15">\</k>
+                    </kr>
+                    <kr>
+                        <k class="k2">Caps</k><k>A</k><k>S</k><k>D</k><k>F</k><k>G</k><k>H</k><k>J</k><k>K</k><k>L</k><k>;</k><k>'</k><k class="k2">Enter</k>
+                    </kr>
+                    <kr>
+                        <k class="k25">Shift</k><k>Z</k><k>X</k><k>C</k><k>V</k><k>B</k><k>N</k><k>M</k><k>,</k><k>.</k><k>/</k><k class="k25">RShift</k>
+                    </kr>
+                    <kr>
+                        <k class="k15">Ctrl</k><k class="k15">Win</k><k class="k15">Alt</k>
+                        <k class="kspace">Space</k>
+                        <k class="k15">RAlt</k><k class="k15">Menu</k><k class="k15">RCtrl</k>
+                    </kr>
+                </kb_main>
+                <kb_dir>
+                    <kr>
+                        <k>PrtScr</k><k>ScrLck</k><k>Pause</k>
+                    </kr>
+                    <kr></kr>
+                    <kr>
+                        <k>Ins</k><k>Home</k><k>PgUp</k>
+                    </kr>
+                    <kr>
+                        <k>Del</k><k>End</k><k>PgDn</k>
+                    </kr>
+                    <kr> </kr>
+                    <kr>
+                        <d> </d><k>Up</k><d> </d>
+                    </kr>
+                    <kr>
+                        <k>Left</k><k>Down</k><k>Right</k>
+                    </kr>
+                </kb_dir>
+                <kb_num>
+                    <k>NumLck</k><k>Num/</k><k>Num*</k><k>Num-</k>
+                    <k>Num7</k><k>Num8</k><k>Num9</k><k class="k2v">Num+</k>
+                    <k>Num4</k><k>Num5</k><k>Num6</k>
+                    <k>Num1</k><k>Num2</k><k>Num3</k><k class="k2v">REnter</k>
+                    <k class="k2h">Num0</k><k>Num.</k>
+                </kb_num>
+            </kb_pc>
+            <kb_mac>
+                <kb_main>
+                    <kr>
+                        <k class="kspace">esc</k><k>F1</k><k>F2</k><k>F3</k><k>F4</k><k>F5</k><k>F6</k><k>F7</k><k>F8</k><k>F9</k><k>F10</k><k>F11</k><k>F12</k><d class="k"> </d>
+                    </kr>
+                    <kr>
+                        <k>`</k><k>1</k><k>2</k><k>3</k><k>4</k><k>5</k><k>6</k><k>7</k><k>8</k><k>9</k><k>0</k><k>-</k><k>=</k><k class="k15">del</k>
+                    </kr>
+                    <kr>
+                        <k class="k15">tab</k><k>Q</k><k>W</k><k>E</k><k>R</k><k>T</k><k>Y</k><k>U</k><k>I</k><k>O</k><k>P</k><k>[</k><k>]</k><k>\</k>
+                    </kr>
+                    <kr>
+                        <k class="kspace">caps</k><k>A</k><k>S</k><k>D</k><k>F</k><k>G</k><k>H</k><k>J</k><k>K</k><k>L</k><k>;</k><k>'</k><k class="kspace">return</k>
+                    </kr>
+                    <kr>
+                        <k class="kspace">shift</k><k>Z</k><k>X</k><k>C</k><k>V</k><k>B</k><k>N</k><k>M</k><k>,</k><k>.</k><k>/</k><k class="kspace">r-shift</k>
+                    </kr>
+                    <kr>
+                        <k class="k15">ctrl</k><k class="k13">opt</k><k class="k15">cmd</k>
+                        <k class="kspace">Space</k>
+                        <k class="k15">r-cmd</k><k class="k13">r-opt</k><k class="k15">r-ctrl</k>
+                    </kr>
+                </kb_main>
+                <kb_dir>
+                    <kr>
+                        <k>F13</k><k>F14</k><k>F15</k>
+                    </kr>
+                    <kr>
+                        <k>fn</k><k>home</k><k>pgup</k>
+                    </kr>
+                    <kr>
+                        <k>fwd-del</k><k>end</k><k>pgdn</k>
+                    </kr>
+                    <kr> </kr>
+                    <kr>
+                        <d> </d><k>Up</k><d> </d>
+                    </kr>
+                    <kr>
+                        <k>Left</k><k>Down</k><k>Right</k>
+                    </kr>
+                </kb_dir>
+                <kb_num>
+                    <k>F16</k><k>F17</k><k>F18</k><k>F19</k>
+                    <k>clear</k><k>Num=</k><k>Num/</k><k>Num*</k>
+                    <k>Num7</k><k>Num8</k><k>Num9</k><k>Num-</k>
+                    <k>Num4</k><k>Num5</k><k>Num6</k><k>Num+</k>
+                    <k>Num1</k><k>Num2</k><k>Num3</k><k class="k2v">enter</k>
+                    <k class="k2h">Num0</k><k>Num.</k>
+                </kb_num>
+            </kb_mac>
+        </keyboard>
+        <keyboard id="kb_ext"></keyboard>
+        <textarea id="comment" placeholder="备注"></textarea>
+    <!-- </div> -->
 </div>
 <div id="tab_list" class="tab">
     <div id="list"></div>
-</div>
-<div id="json_ops">
-    &nbsp;JSON 数据随上图设置实时更新。也可在下方编辑 JSON 数据后：
-    <button id="btn_imp" class="btn BIND-CLICK" style="margin: 2px;">导入至当前键谱</button>
-    <button id="btn_imp2" class="btn BIND-CLICK" style="margin: 2px;">导入至新键谱</button>
 </div>
 <div id="tab_json" class="tab">
     <textarea id="json"></textarea>
@@ -1124,7 +1134,7 @@ var Util = {
         let l = [];
         for (const k of ck) {
             let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
-            l.push(`<kn data-k="${k}" class="ck ${Keymap.ModKeyColorMode?'mod_color':''} mod_${Keymap.ModKeyMode}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn>`);
+            l.push(`<kn data-k="${k}" class="ck ${Keymap.ModKeyColorMode?'mod_color':''}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn>`);
         }
         // group color
         let g = "";
@@ -1246,6 +1256,7 @@ const KeymapHelp = {
             "#2": "分组、修饰键、颜色",
         },
         "group": true,
+        "show_comment": true,
     },
     "#0": {
         "`": "* 键盘层 0",
@@ -1265,6 +1276,9 @@ const KeymapHelp = {
         "X": "* 显示扩展键区",
         "Shift+X": "隐藏扩展键区",
         "shift+X": "隐藏扩展键区",
+        "C": "* 显示备注框",
+        "Shift+C": "隐藏备注框",
+        "shift+C": "隐藏备注框",
         "Tab": "* 开启键帽提示\n  在键帽上显示主映射信息",
         "Shift+Tab": "关闭键帽提示",
         "tab": "* 开启键帽提示\n  在键帽上显示主映射信息",
@@ -1359,7 +1373,9 @@ var Keymap = {
         "c1": "lightblue",
         "c2": "lightseagreen",
         "c3": "black",
-        "c4": "#e0e0e0",
+        "c4": "whitesmoke",
+        "kb-bgc": "lightgray",
+        "kb-bdc": "gray",
         "cols": 2,
         "extkeys": [],
         "modkeys": [],
@@ -1372,6 +1388,8 @@ var Keymap = {
         "layer_names": {},
         "group": false,
         "group_colors": KEY_GROUP_COLORS, // {},
+        "comment-font-size": 0.9,
+        "show_comment": false,
     },
 
     get DefaultCfg() {
@@ -1831,6 +1849,7 @@ var UI = {
         this.setFlag("layout", cfg.layout);
         this.setFlag("kbext", cfg.kbext);
         this.setFlag("showall", cfg.showall);
+        this.setFlag("comment", cfg.show_comment);
         this.setCSS("--ks1", cfg["ks1"]);
         this.setCSS("--kw1", cfg["kw1"]);
         this.setCSS("--kh1", cfg["kh1"]);
@@ -1843,9 +1862,12 @@ var UI = {
         this.setCSS("--c2", cfg["c2"]);
         this.setCSS("--c3", cfg["c3"]);
         this.setCSS("--c4", cfg["c4"]);
+        this.setCSS("--kb-bgc", cfg["kb-bgc"]);
+        this.setCSS("--kb-bdc", cfg["kb-bdc"]);
         this.setCSS("--cols", cfg["cols"]);
         this.setCSS("--mod-cs2", cfg["mod-cs2"]);
         this.setCSS("--mod-ds2", cfg["mod-ds2"]);
+        this.setCSS("--comment-font-size", cfg["comment-font-size"]);
         this.resize();
     },
 
@@ -1971,6 +1993,13 @@ var UI = {
                     upd = false;
                 } else
                     handled = false;
+                break;
+            case "C":
+                if (evt.shiftKey) {
+                    await this.setShowComment(false);
+                } else {
+                    await this.setShowComment(true);
+                }
                 break;
             default:
                 handled = false;
@@ -2293,6 +2322,15 @@ var UI = {
     async toggleShowAll() {
         await this.setShowAll(!Keymap.Config.showall);
     },
+
+    async setShowComment(v) {
+        Keymap.Config.show_comment = Boolean(v);
+        await this.save(false);
+    },
+    async toggleShowComment() {
+        await this.setShowComment(!Keymap.Config.show_comment);
+    },
+
     async setting() {
         await setting_dlg();
         await this.save();
@@ -2585,12 +2623,11 @@ UI.List = {
             for (const kn in l) {
                 s.push(`${Util.gen_combo_kn_elm(kn)}<km data-mainkey="${mk}" data-combo="${kn}" class="kinfo">${l[kn]}</km>`);
             }
-            // s.push(`<div style="grid-column: 1 / -1;height:0px;"></div>`);
         }
         this.Elm.innerHTML = s.join('\n');
         let ktable = Keymap.getLayoutKeyTable();
         for (const kn of this.Elm.querySelectorAll("kn")) {
-            if (!(kn.innerText in ktable)) {
+            if (!(kn.dataset.k in ktable)) {
                 kn.classList.add("na");
             }
         }
@@ -2685,12 +2722,12 @@ async function setmapping_dlg(combo_str) {
         for (const k of Keymap.ModKeys) {
             if (k != mk && Keymap.isKBKeys(k)) {
                 let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
-                s.push(`<label><input type="checkbox" value="${k}" /><kn class="ck ${Keymap.ModKeyColorMode?'mod_color':''} mod_${Keymap.ModKeyMode}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
+                s.push(`<label><input type="checkbox" value="${k}" /><kn class="ck ${Keymap.ModKeyColorMode?'mod_color':''}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
             }
         }
         let html = `<dialog class="kmdlg">
-            <div style="display: flex;gap: 5px;">
-                <div style="display:grid;grid-auto-flow:column;grid-template-rows:repeat(6, max-content);gap: 10px;width:fit-content;">
+            <div style="flex: 1;display: flex;gap: 5px;">
+                <div style="display:grid;grid-auto-flow:column;grid-template-rows:repeat(7, max-content);gap: 10px;width:fit-content;">
                     ${s.join("")}
                 </div>
                 <kn>${mk}</kn>
@@ -2763,21 +2800,6 @@ async function setting_dlg() {
         let cfg = Keymap.Config;
         let html = `<dialog class="stdlg">
             <div class="sts">
-                <div class="subttl">键帽配色</div>
-                <span>默认字符</span><input type="text" id="c3" style="width: 6rem;" />
-                <span>默认键帽色</span><input type="text" id="c4" style="width: 6rem;grid-column: 4 / -1;" />
-                <span>高亮字符</span><input type="text" id="c0" style="width: 6rem;" />
-                <span>高亮键帽色</span><input type="text" id="c1" style="width: 6rem;" />
-                <span>高亮边框</span><input type="text" id="c2" style="width: 6rem;" />
-                <div class="subttl">键帽标准模式</div>
-                <span>键宽</span><input type="number" id="kw1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <span>键高</span><input type="number" id="kh1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <span>字符大小</span><input type="number" id="ks1" min="0.1" max="10" step="0.05" style="width: 3rem;" />
-                <div class="subttl">键帽提示模式</div>
-                <span>键宽</span><input type="number" id="kw2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <span>键高</span><input type="number" id="kh2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <span>字符大小</span><input type="number" id="ks2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
-                <span>提示大小</span><input type="number" id="kt2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <div class="subttl">键谱设置</div>
                 <span>主键盘大小</span>
                 <select id="kbsize" style="width: 4rem;">
@@ -2786,11 +2808,47 @@ async function setting_dlg() {
                     <option value="2">80%</option>
                     <option value="3">标准</option>
                 </select>
-                <span>扩展键区</span><label><input type="checkbox" id="kbext" />显示</label>
+                <label style="grid-column: span 2;"><input type="checkbox" id="kbext" />显示扩展键区</label>
                 <span>键盘层数</span><input type="number" id="layers" min="1" step="1" style="width: 3rem;" />
                 <span>键表列数</span><input type="number" id="cols" min="1" max="10" step="1" style="width: 3rem;" />
                 <span>自定义扩展键</span><textarea id="extkeys" style="height: 5rem;border:1px solid black;white-space: nowrap;grid-column: 2 / -1;"></textarea>
                 <span><label><input type="checkbox" id="group" />分组颜色</label></span><textarea id="group_colors" style="grid-column: 2 / -1;height: 3rem;border:1px solid black;"></textarea>
+                <label><input type="checkbox" id="show_comment" />显示备注框</label>
+                <span>备注框文字大小</span><input type="number" id="comment-font-size" min="0.1" max="10" step="0.05" style="width: 3rem;" />
+                <div class="subttl"></div>
+                <div id="demo" data-kbhint="true" style="grid-column: 1 / -1;display:flex;gap:10px;align-items:center;justify-content:center;">
+                    <k style="display:inline-block;height:calc(1rem * var(--kh1));width:calc(1rem * var(--kw1));cursor:default;">
+                        <div class="ktn" style="display:block !important;text-align:right;font-size:calc(1rem * var(--ks1));">K</div>
+                    </k>
+                    <k class="set group" style="display:inline-block;height:calc(1rem * var(--kh1));width:calc(1rem * var(--kw1));cursor:default;">
+                        <div class="ktn" style="display:block !important;text-align:right;font-size:calc(1rem * var(--ks1));">K</div>
+                    </k>
+                    <k class="set group" style="display:inline-flex;height:calc(1rem * var(--kh2));width:calc(1rem * var(--kw2));cursor:default;">
+                        <div class="ktr" style="display:grid;flex:1;">
+                            <div class="modkeys"><div class="mod mod_color mod_raw" style="--mod-c1:#00c853;--mod-c2:#00c853;--mod-cs:calc(1rem * var(--mod-cs2));--mod-ds:calc(1rem * var(--mod-ds2));">Ctrl</div></div>
+                            <div class="mk" style="display:inline-block;font-size:calc(1rem * var(--ks2));">K</div>
+                            <div class="cnt">+1</div>
+                        </div>
+                        <div class="ktm" style="display:unset;font-size:calc(1rem * var(--kt2));">主映射信息</div>
+                    </k>
+                </div>
+                <div class="subttl">键盘配色</div>
+                <span>键盘底色</span><input type="text" id="kb-bgc" style="width: 6rem;" />
+                <span>键盘边框</span><input type="text" id="kb-bdc" style="width: 6rem;" />
+                <span>默认键帽色</span><input type="text" id="c4" style="width: 6rem;" />
+                <span>默认字符色</span><input type="text" id="c3" style="width: 6rem;" />
+                <span>高亮键帽色</span><input type="text" id="c1" style="width: 6rem;" />
+                <span>高亮字符色</span><input type="text" id="c0" style="width: 6rem;" />
+                <!--<span>高亮键帽边框</span><input type="text" id="c2" style="width: 6rem;" />-->
+                <div class="subttl">键帽标准模式</div>
+                <span>键宽</span><input type="number" id="kw1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>键高</span><input type="number" id="kh1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>字符大小</span><input type="number" id="ks1" min="0.1" max="10" step="0.05" style="width: 3rem;" />
+                <div class="subttl">键帽提示模式</div>
+                <span>键宽</span><input type="number" id="kw2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>键高</span><input type="number" id="kh2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>字符大小</span><input type="number" id="ks2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
+                <span>提示文字大小</span><input type="number" id="kt2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <div class="subttl">修饰键</div>
                 <span>自定义键</span><input type="text" id="modkeys" style="grid-column: 2 / -1;" />
                 <span>键帽显示</span>
@@ -2800,9 +2858,9 @@ async function setting_dlg() {
                     <option value="dot">仅颜色</option>
                 </select>
                 <span>字符大小</span><input type="number" id="mod-cs2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
-                <span>色点大小</span><input type="number" id="mod-ds2" min="0.1" max="10" step="0.05" style="width: 3rem;grid-column: 6 / -1;" />
-                <span>缩写</span><textarea id="modkey_chars" style="height: 4rem;border:1px solid black;grid-column: 2 / -1;"></textarea>
-                <span><label><input type="checkbox" id="modkey_clr" />启用颜色</label></span><textarea id="modkey_colors" style="height: 6rem;border:1px solid black;grid-column: 2 / -1;"></textarea>
+                <span>颜色块大小</span><input type="number" id="mod-ds2" min="0.1" max="10" step="0.05" style="width: 3rem;grid-column: 6 / -1;" />
+                <span>缩写</span><textarea id="modkey_chars" style="height: 3rem;border:1px solid black;grid-column: 2 / -1;"></textarea>
+                <span><label><input type="checkbox" id="modkey_clr" />启用颜色</label></span><textarea id="modkey_colors" style="height: 3rem;border:1px solid black;grid-column: 2 / -1;"></textarea>
             </div>
             <div style="text-align: right;">
                 <button class="btn btnclr danger" style="float:left;">Reset</button>
@@ -2813,8 +2871,55 @@ async function setting_dlg() {
         let tmp = document.createElement("div");
         tmp.innerHTML = html;
         let dlg = tmp.children[0];
+        // init demo
+        let demo = dlg.querySelector("#demo");
+        let mkey = demo.querySelector(".modkeys>div");
+        mkey.className=`mod ${cfg["modkey_clr"]?"mod_color":""}`;
+        switch (cfg["modkey_mode"]) {
+            case "raw":
+                mkey.innerText="Ctrl";
+                mkey.classList.add("mod_raw");
+                break;
+            case "chr":
+                mkey.innerText="C";
+                mkey.classList.add("mod_chr");
+                break;
+            case "dot":
+                mkey.innerText="";
+                mkey.classList.add("mod_dot");
+                break;
+        }
         for (const c of dlg.querySelectorAll("input,textarea,select")) {
-            c.onchange = (evt) => {console.log(c.id)}
+            c.onchange = (evt) => {
+                switch (c.id) {
+                    case "modkey_clr":
+                        if (c.checked) {
+                            mkey.classList.add("mod_color");
+                        } else {
+                            mkey.classList.remove("mod_color")
+                        }
+                        break;
+                    case "modkey_mode":
+                        mkey.classList.remove("mod_raw", "mod_chr", "mod_dot");
+                        switch (c.value) {
+                            case "raw":
+                                mkey.innerText="Ctrl";
+                                mkey.classList.add("mod_raw");
+                                break;
+                            case "chr":
+                                mkey.innerText="C";
+                                mkey.classList.add("mod_chr");
+                                break;
+                            case "dot":
+                                mkey.innerText="";
+                                mkey.classList.add("mod_dot");
+                                break;
+                        }
+                        break;
+                    default:
+                        demo.style.setProperty("--"+c.id, c.value);
+                }
+            }
             switch (c.id) {
                 case "kbsize":
                     c.value = Keymap.KBSize;
@@ -2861,6 +2966,9 @@ async function setting_dlg() {
                     c.value = l.join(", ");
                     break;
                 }
+                case "show_comment":
+                    c.checked = cfg.show_comment;
+                    break;
                 default:
                     c.value = cfg[c.id];
             }
@@ -2935,6 +3043,9 @@ async function setting_dlg() {
                                 cfg.group_colors[gg[0]] = gg[1];
                             }
                         }
+                        break;
+                    case "show_comment":
+                        cfg.show_comment = c.checked;
                         break;
                     default:
                         cfg[c.id] = c.value;
@@ -3154,7 +3265,7 @@ window.on_webwin_loaded = async () => {
 };
 
 var __appname__ = "键谱";
-var __version__ = "2.4.0-beta-3";
+var __version__ = "2.4.0-beta-4";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
