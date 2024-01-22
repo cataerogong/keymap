@@ -2794,13 +2794,13 @@ async function setting_dlg() {
                 <div class="subttl">修饰键</div>
                 <span>自定义键</span><input type="text" id="modkeys" style="grid-column: 2 / -1;" />
                 <span>键帽显示</span>
-                <select id="modkey_mode" style="width: 4rem;grid-column: 2 / -1;">
+                <select id="modkey_mode" style="width: 4rem;">
                     <option value="raw">键名</option>
                     <option value="chr">缩写</option>
                     <option value="dot">仅颜色</option>
                 </select>
                 <span>字符大小</span><input type="number" id="mod-cs2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
-                <span>色点大小</span><input type="number" id="mod-ds2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
+                <span>色点大小</span><input type="number" id="mod-ds2" min="0.1" max="10" step="0.05" style="width: 3rem;grid-column: 6 / -1;" />
                 <span>缩写</span><textarea id="modkey_chars" style="height: 4rem;border:1px solid black;grid-column: 2 / -1;"></textarea>
                 <span><label><input type="checkbox" id="modkey_clr" />启用颜色</label></span><textarea id="modkey_colors" style="height: 6rem;border:1px solid black;grid-column: 2 / -1;"></textarea>
             </div>
@@ -2814,6 +2814,7 @@ async function setting_dlg() {
         tmp.innerHTML = html;
         let dlg = tmp.children[0];
         for (const c of dlg.querySelectorAll("input,textarea,select")) {
+            c.onchange = (evt) => {console.log(c.id)}
             switch (c.id) {
                 case "kbsize":
                     c.value = Keymap.KBSize;
