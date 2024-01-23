@@ -24,11 +24,15 @@
     --ui-fc: black;
     --ui-bgc: lightblue;
     --ui-bdc: lightseagreen;
+    --kwx: calc(1rem * var(--kwx1, 3)); /* ext key width */
+    --khx: calc(1rem * var(--khx1, 3)); /* ext key height */
 }
 [data-kbhint="true"] {
     --ks: calc(1rem * var(--ks2, 0.9)); /* key font size */
     --kw: calc(1rem * var(--kw2, 5)); /* key width */
     --kh: calc(1rem * var(--kh2, 5)); /* key height */
+    --kwx: calc(1rem * var(--kwx2, 5)); /* ext key width */
+    --khx: calc(1rem * var(--khx2, 5)); /* ext key height */
 }
 
 body {
@@ -155,7 +159,7 @@ krx {
     display: flex;
     justify-content: start;
     flex-wrap: wrap;
-    min-height: var(--kh);
+    min-height: var(--khx);
     height: auto;
     gap: 3px;
 }
@@ -213,6 +217,17 @@ k.rel {
 k.no-rel {
     filter: opacity(0.5);
 }
+
+#kb_ext k {
+    width: var(--kwx);
+    height: var(--khx);
+}
+ #kb_ext d {
+    box-sizing: border-box;
+    min-width: var(--kwx);
+    height: var(--khx);
+}
+
 .kinfo.no-rel {
     display: none;
 }
@@ -251,7 +266,8 @@ k.no-rel {
 
 .k2v {
     grid-row: span 2;
-    height: calc(var(--kh) * 2 + 3px)
+    /* height: calc(var(--kh) * 2 + 3px); */
+    height: 100%;
 }
 
 .k05 {
@@ -264,23 +280,13 @@ k.no-rel {
 
 .k2h {
     grid-column: span 2;
+    width: 100%;
 }
 
 d {
     display: inline-block;
     border: 1px solid transparent;
     height: var(--kh);
-}
-
-.d1 {
-    box-sizing: border-box;
-    height: var(--kh);
-    min-width: var(--kw);
-}
-
-.d3 {
-    width: calc(var(--kw) * 3 + 3px * 2);
-    grid-column: span 3;
 }
 
 .dis {
@@ -1404,6 +1410,10 @@ var Keymap = {
         "kw2": 5,
         "kh2": 5,
         "kt2": 0.75,
+        "kwx1": 3,
+        "khx1": 3,
+        "kwx2": 5,
+        "khx2": 5,
         "c0": "black",
         "c1": "lightblue",
         "c2": "lightseagreen",
@@ -1864,6 +1874,10 @@ var UI = {
         Util.setCSS("--kw2", cfg["kw2"]);
         Util.setCSS("--kh2", cfg["kh2"]);
         Util.setCSS("--kt2", cfg["kt2"]);
+        Util.setCSS("--kwx1", cfg["kwx1"]);
+        Util.setCSS("--khx1", cfg["khx1"]);
+        Util.setCSS("--kwx2", cfg["kwx2"]);
+        Util.setCSS("--khx2", cfg["khx2"]);
         Util.setCSS("--c0", cfg["c0"]);
         Util.setCSS("--c1", cfg["c1"]);
         Util.setCSS("--c2", cfg["c2"]);
@@ -2477,7 +2491,7 @@ UI.Keyboard = {
                 // s.push(`<span style="width:100%;margin:-10px;"></span>`);
                 s.push("</krx><krx>")
             } else if (k[0] == "#") {
-                s.push(`<d class="d1 f-end">${k.substring(1)}</d>`);
+                s.push(`<d class="f-end">${k.substring(1)}</d>`);
             } else {
                 let e = document.createElement("k");
                 e.dataset.k = k;
@@ -2824,7 +2838,7 @@ async function setting_dlg() {
                 <span>备注文字大小</span><input type="number" id="comment-font-size" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <div class="subttl"></div>
                 <div id="demo" data-kbhint="true" style="grid-column: 1 / -1;display:flex;gap:10px;align-items:center;justify-content:center;">
-                    <keyboard>
+                    <keyboard>标准键盘
                         <k style="display:inline-block;height:calc(1rem * var(--kh1));width:calc(1rem * var(--kw1));cursor:default;">
                             <div class="ktn" style="display:block !important;text-align:right;font-size:calc(1rem * var(--ks1));">K</div>
                         </k>
@@ -2840,6 +2854,19 @@ async function setting_dlg() {
                             <div class="ktm" style="display:unset;font-size:calc(1rem * var(--kt2));">主映射信息</div>
                         </k>
                     </keyboard>
+                    <keyboard>扩展键盘
+                        <k class="set group" style="display:inline-block;height:calc(1rem * var(--khx1));width:calc(1rem * var(--kwx1));cursor:default;">
+                            <div class="ktn" style="display:block !important;text-align:right;font-size:calc(1rem * var(--ks1));">XK</div>
+                        </k>
+                        <k class="set group" style="display:inline-flex;height:calc(1rem * var(--khx2));width:calc(1rem * var(--kwx2));cursor:default;">
+                            <div class="ktr" style="display:grid;flex:1;">
+                                <div> </div>
+                                <div class="mk" style="display:inline-block;font-size:calc(1rem * var(--ks2));">XK</div>
+                                <div class="cnt"></div>
+                            </div>
+                            <div class="ktm" style="display:unset;font-size:calc(1rem * var(--kt2));">主映射信息</div>
+                        </k>
+                    </keyboard>
                 </div>
                 <div class="subttl">键盘配色</div>
                 <span>键盘底色</span><input type="text" id="kb-bgc" style="width: 6rem;" />
@@ -2850,14 +2877,18 @@ async function setting_dlg() {
                 <span>高亮字符色</span><input type="text" id="c0" style="width: 6rem;" />
                 <!--<span>高亮键帽边框</span><input type="text" id="c2" style="width: 6rem;" />-->
                 <div class="subttl">键帽标准模式</div>
-                <span>键宽</span><input type="number" id="kw1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <span>键高</span><input type="number" id="kh1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <span>字符大小</span><input type="number" id="ks1" min="0.1" max="10" step="0.05" style="width: 3rem;" />
+                <span>键帽宽</span><input type="number" id="kw1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>键帽高</span><input type="number" id="kh1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>字符大小</span><input type="number" id="ks1" min="0.1" max="10" step="0.05" style="width: 3rem;grid-column: 6 / -1" />
+                <span>扩展键帽宽</span><input type="number" id="kwx1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>扩展键帽高</span><input type="number" id="khx1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <div class="subttl">键帽提示模式</div>
-                <span>键宽</span><input type="number" id="kw2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <span>键高</span><input type="number" id="kh2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>键帽宽</span><input type="number" id="kw2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>键帽高</span><input type="number" id="kh2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>字符大小</span><input type="number" id="ks2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <span>提示文字大小</span><input type="number" id="kt2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
+                <span>扩展键帽宽</span><input type="number" id="kwx2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
+                <span>扩展键帽高</span><input type="number" id="khx2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <div class="subttl">修饰键</div>
                 <span>自定义键</span><input type="text" id="modkeys" style="grid-column: 2 / -1;" />
                 <span>键帽显示</span>
@@ -3084,6 +3115,10 @@ async function setting_dlg() {
 
 // Convert to img
 function printAsPng(imgScale, imgName) {
+    if (!("html2canvas" in window)) {
+        alert("截图功能不可用！可能缺失 'js/html2canvas.js' 文件。");
+        return;
+    }
     // change uimode to 'single'
     Util.setFlag('ui', 'single');
     //hide button
@@ -3146,9 +3181,6 @@ function saveFile() {
     if (UI.LaunchMode == "exe") {
         let dlg=document.createElement("dialog");
         dlg.onclose=()=>{dlg.remove();};
-        // dlg.style.marginTop="auto";
-        // dlg.style.marginLeft="auto";
-        // dlg.style.transform="unset";
         let fname=Keymap.Name.replace(/[\*\?\\\/\:\"\<\>\|]/, "_") + ".keymap";
         dlg.innerHTML=`<div style="position:absolute;top:0px;right:0px;margin:10px;font-size:1rem;outline:2px solid white;" class="btn rnd close">&times;</div>
         <div style="font-weight:bold;">保存文件</div>
@@ -3162,11 +3194,12 @@ function saveFile() {
         document.body.appendChild(dlg);
         dlg.showModal();
     } else {
-        let fileSaver = document.createElement("a");
-        fileSaver.href = window.URL.createObjectURL(blob);
-        fileSaver.download = Keymap.Name.replace(/[\*\?\\\/\:\"\<\>\|]/, "_") + ".keymap"
-        fileSaver.click();
-        fileSaver.remove();
+        saveAs(blob,  Keymap.Name.replace(/[\*\?\\\/\:\"\<\>\|]/, "_") + ".keymap");
+        // let fileSaver = document.createElement("a");
+        // fileSaver.href = window.URL.createObjectURL(blob);
+        // fileSaver.download = Keymap.Name.replace(/[\*\?\\\/\:\"\<\>\|]/, "_") + ".keymap";
+        // fileSaver.click();
+        // fileSaver.remove();
     }
 }
 
@@ -3274,7 +3307,7 @@ window.on_webwin_loaded = async () => {
 };
 
 var __appname__ = "键谱";
-var __version__ = "2.4.1";
+var __version__ = "2.5.0";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
