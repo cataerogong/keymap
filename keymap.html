@@ -47,13 +47,9 @@ textarea {
     resize: none;
     font-size: 0.9rem;
     font-family: Consolas, sans-serif;
-    border: 0px solid gray;
+    border: 1px solid lightgray;
     outline: 0px;
-    background-color: whitesmoke;
     padding: 5px;
-}
-textarea:hover,
-textarea:focus {
     background-color: cornsilk;
 }
 
@@ -70,7 +66,7 @@ keyboard {
     /* background-image: linear-gradient(0deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.85) 100%); */
     padding: 10px;
     height: fit-content;
-    margin: 5px;
+    margin: 5px 0px;
 }
 keyboard:hover {
     /* box-shadow: 2px 2px 2px; */
@@ -613,7 +609,6 @@ k.set .ktr .cnt {
 }
 
 #json {
-    border: 0px;
     width: 100%;
     height: 100%;
 }
@@ -1095,6 +1090,46 @@ const KEY_GROUP_COLORS = {
 };
 
 var Util = {
+    setFlag(name, value) {
+        if (value === null)
+            document.documentElement.removeAttribute("data-" + name);
+        else
+            document.documentElement.setAttribute("data-" + name, value);
+    },
+
+    toggleFlag(name, value) {
+        if (document.documentElement.getAttribute("data-" + name))
+            document.documentElement.removeAttribute("data-" + name);
+        else
+            document.documentElement.setAttribute("data-" + name, value);
+    },
+
+    setCSS(prop, val) {
+        if (!prop || !val) return false;
+        for (const sheet of document.styleSheets) {
+            for (const rule of sheet.cssRules) {
+                if (rule.selectorText === ":root") {
+                    rule.style.setProperty(prop, val);
+                    return true;
+                }
+            }
+        }
+        document.styleSheets[document.styleSheets.length - 1].insertRule(`:root {${prop}: ${val}}`);
+        return true;
+    },
+
+    getCSS(prop) {
+        if (!prop) return null;
+        for (const sheet of document.styleSheets) {
+            for (const rule of sheet.cssRules) {
+                if (rule.selectorText === ":root") {
+                    return rule.style.getPropertyValue(prop);
+                }
+            }
+        }
+        return null;
+    },
+
     split_combo(combo_str) {
         let l = combo_str.replaceAll("Num+", "NumPlus").replaceAll("+", "_+_").replaceAll("NumPlus", "Num+").split("_+_");
         let mk = l.pop();
@@ -1771,7 +1806,7 @@ var UI = {
     get LaunchMode() { return this._launch_mode; },
     set LaunchMode(v) {
         this._launch_mode = v;
-        this.setFlag("launch-mode", v);
+        Util.setFlag("launch-mode", v);
     },
 
     elm(sel) {
@@ -1780,34 +1815,6 @@ var UI = {
 
     elms(sel) {
         return document.querySelectorAll(sel);
-    },
-
-    setFlag(name, value) {
-        if (value === null)
-            document.documentElement.removeAttribute("data-" + name);
-        else
-            document.documentElement.setAttribute("data-" + name, value);
-    },
-
-    toggleFlag(name, value) {
-        if (document.documentElement.getAttribute("data-" + name))
-            document.documentElement.removeAttribute("data-" + name);
-        else
-            document.documentElement.setAttribute("data-" + name, value);
-    },
-
-    setCSS(prop, val) {
-        if (!prop || !val) return false;
-        for (const sheet of document.styleSheets) {
-            for (const rule of sheet.cssRules) {
-                if (rule.selectorText === ":root") {
-                    rule.style.setProperty(prop, val);
-                    return true;
-                }
-            }
-        }
-        document.styleSheets[document.styleSheets.length - 1].insertRule(`:root {${prop}: ${val}}`);
-        return true;
     },
 
     update() {
@@ -1840,40 +1847,40 @@ var UI = {
             elm.appendChild(e);
         }
 
-        this.setFlag('layer', Keymap.CurLayer);
+        Util.setFlag('layer', Keymap.CurLayer);
         let cfg = Keymap.Config;
-        this.setFlag("ui", cfg.uimode);
-        this.setFlag("view", cfg.view);
-        this.setFlag("kbsize", Keymap.KBSize);
-        this.setFlag("kbhint", cfg.kbhint);
-        this.setFlag("layout", cfg.layout);
-        this.setFlag("kbext", cfg.kbext);
-        this.setFlag("showall", cfg.showall);
-        this.setFlag("comment", cfg.show_comment);
-        this.setCSS("--ks1", cfg["ks1"]);
-        this.setCSS("--kw1", cfg["kw1"]);
-        this.setCSS("--kh1", cfg["kh1"]);
-        this.setCSS("--ks2", cfg["ks2"]);
-        this.setCSS("--kw2", cfg["kw2"]);
-        this.setCSS("--kh2", cfg["kh2"]);
-        this.setCSS("--kt2", cfg["kt2"]);
-        this.setCSS("--c0", cfg["c0"]);
-        this.setCSS("--c1", cfg["c1"]);
-        this.setCSS("--c2", cfg["c2"]);
-        this.setCSS("--c3", cfg["c3"]);
-        this.setCSS("--c4", cfg["c4"]);
-        this.setCSS("--kb-bgc", cfg["kb-bgc"]);
-        this.setCSS("--kb-bdc", cfg["kb-bdc"]);
-        this.setCSS("--cols", cfg["cols"]);
-        this.setCSS("--mod-cs2", cfg["mod-cs2"]);
-        this.setCSS("--mod-ds2", cfg["mod-ds2"]);
-        this.setCSS("--comment-font-size", cfg["comment-font-size"]);
+        Util.setFlag("ui", cfg.uimode);
+        Util.setFlag("view", cfg.view);
+        Util.setFlag("kbsize", Keymap.KBSize);
+        Util.setFlag("kbhint", cfg.kbhint);
+        Util.setFlag("layout", cfg.layout);
+        Util.setFlag("kbext", cfg.kbext);
+        Util.setFlag("showall", cfg.showall);
+        Util.setFlag("comment", cfg.show_comment);
+        Util.setCSS("--ks1", cfg["ks1"]);
+        Util.setCSS("--kw1", cfg["kw1"]);
+        Util.setCSS("--kh1", cfg["kh1"]);
+        Util.setCSS("--ks2", cfg["ks2"]);
+        Util.setCSS("--kw2", cfg["kw2"]);
+        Util.setCSS("--kh2", cfg["kh2"]);
+        Util.setCSS("--kt2", cfg["kt2"]);
+        Util.setCSS("--c0", cfg["c0"]);
+        Util.setCSS("--c1", cfg["c1"]);
+        Util.setCSS("--c2", cfg["c2"]);
+        Util.setCSS("--c3", cfg["c3"]);
+        Util.setCSS("--c4", cfg["c4"]);
+        Util.setCSS("--kb-bgc", cfg["kb-bgc"]);
+        Util.setCSS("--kb-bdc", cfg["kb-bdc"]);
+        Util.setCSS("--cols", cfg["cols"]);
+        Util.setCSS("--mod-cs2", cfg["mod-cs2"]);
+        Util.setCSS("--mod-ds2", cfg["mod-ds2"]);
+        Util.setCSS("--comment-font-size", cfg["comment-font-size"]);
         this.resize();
     },
 
     resize() {
-        this.setCSS("--kbw", window.getComputedStyle(this.elm("#kb_std")).width);
-        this.setCSS("--w", window.getComputedStyle(this.elm("#tab_kb")).width);
+        Util.setCSS("--kbw", window.getComputedStyle(this.elm("#kb_std")).width);
+        Util.setCSS("--w", window.getComputedStyle(this.elm("#tab_kb")).width);
     },
 
     async onKeyDown(evt) {
@@ -1922,7 +1929,7 @@ var UI = {
                 break;
             case "K":
                 await this.changeView("k");
-                this.setFlag("view", "k");
+                Util.setFlag("view", "k");
                 upd = false;
                 break;
             case "S":
@@ -1933,11 +1940,11 @@ var UI = {
                 break;
             case "L":
                 await this.changeView("l");
-                this.setFlag("view", "l");
+                Util.setFlag("view", "l");
                 upd = false;
                 break;
             case ";":
-                this.setFlag("view", "j");
+                Util.setFlag("view", "j");
                 upd = false;
                 break;
             case "TAB":
@@ -1954,10 +1961,10 @@ var UI = {
                     printAsPng(2, Keymap.getLayerPrintName());
                 } else if (evt.shiftKey) {
                     await this.setUIMode("tab");
-                    this.setFlag("ui", "tab");
+                    Util.setFlag("ui", "tab");
                 } else {
                     await this.setUIMode("single");
-                    this.setFlag("ui", "single");
+                    Util.setFlag("ui", "single");
                 }
                 upd = false;
                 break;
@@ -2018,26 +2025,26 @@ var UI = {
         switch (elm.id) {
             case "btn_ui_tab":
                 await this.setUIMode("tab");
-                this.setFlag('ui', 'tab');
+                Util.setFlag('ui', 'tab');
                 upd = false;
                 break;
             case "btn_ui_single":
                 await this.setUIMode("single");
-                this.setFlag('ui', 'single');
+                Util.setFlag('ui', 'single');
                 upd = false;
                 break;
             case "tabbtn_kb":
                 await this.changeView("k");
-                this.setFlag("view", "k");
+                Util.setFlag("view", "k");
                 upd = false;
                 break;
             case "tabbtn_list":
                 await this.changeView("l");
-                this.setFlag("view", "l");
+                Util.setFlag("view", "l");
                 upd = false;
                 break;
             case "tabbtn_json":
-                this.setFlag("view", "j");
+                Util.setFlag("view", "j");
                 upd = false;
                 break;
             case "btn_l_clr":
@@ -2814,23 +2821,25 @@ async function setting_dlg() {
                 <span>自定义扩展键</span><textarea id="extkeys" style="height: 5rem;border:1px solid black;white-space: nowrap;grid-column: 2 / -1;"></textarea>
                 <span><label><input type="checkbox" id="group" />分组颜色</label></span><textarea id="group_colors" style="grid-column: 2 / -1;height: 3rem;border:1px solid black;"></textarea>
                 <label><input type="checkbox" id="show_comment" />显示备注框</label>
-                <span>备注框文字大小</span><input type="number" id="comment-font-size" min="0.1" max="10" step="0.05" style="width: 3rem;" />
+                <span>备注文字大小</span><input type="number" id="comment-font-size" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <div class="subttl"></div>
                 <div id="demo" data-kbhint="true" style="grid-column: 1 / -1;display:flex;gap:10px;align-items:center;justify-content:center;">
-                    <k style="display:inline-block;height:calc(1rem * var(--kh1));width:calc(1rem * var(--kw1));cursor:default;">
-                        <div class="ktn" style="display:block !important;text-align:right;font-size:calc(1rem * var(--ks1));">K</div>
-                    </k>
-                    <k class="set group" style="display:inline-block;height:calc(1rem * var(--kh1));width:calc(1rem * var(--kw1));cursor:default;">
-                        <div class="ktn" style="display:block !important;text-align:right;font-size:calc(1rem * var(--ks1));">K</div>
-                    </k>
-                    <k class="set group" style="display:inline-flex;height:calc(1rem * var(--kh2));width:calc(1rem * var(--kw2));cursor:default;">
-                        <div class="ktr" style="display:grid;flex:1;">
-                            <div class="modkeys"><div class="mod mod_color mod_raw" style="--mod-c1:#00c853;--mod-c2:#00c853;--mod-cs:calc(1rem * var(--mod-cs2));--mod-ds:calc(1rem * var(--mod-ds2));">Ctrl</div></div>
-                            <div class="mk" style="display:inline-block;font-size:calc(1rem * var(--ks2));">K</div>
-                            <div class="cnt">+1</div>
-                        </div>
-                        <div class="ktm" style="display:unset;font-size:calc(1rem * var(--kt2));">主映射信息</div>
-                    </k>
+                    <keyboard>
+                        <k style="display:inline-block;height:calc(1rem * var(--kh1));width:calc(1rem * var(--kw1));cursor:default;">
+                            <div class="ktn" style="display:block !important;text-align:right;font-size:calc(1rem * var(--ks1));">K</div>
+                        </k>
+                        <k class="set group" style="display:inline-block;height:calc(1rem * var(--kh1));width:calc(1rem * var(--kw1));cursor:default;">
+                            <div class="ktn" style="display:block !important;text-align:right;font-size:calc(1rem * var(--ks1));">K</div>
+                        </k>
+                        <k class="set group" style="display:inline-flex;height:calc(1rem * var(--kh2));width:calc(1rem * var(--kw2));cursor:default;">
+                            <div class="ktr" style="display:grid;flex:1;">
+                                <div class="modkeys"><div class="mod mod_color mod_raw" style="--mod-c1:#00c853;--mod-c2:#00c853;--mod-cs:calc(1rem * var(--mod-cs2));--mod-ds:calc(1rem * var(--mod-ds2));">Ctrl</div></div>
+                                <div class="mk" style="display:inline-block;font-size:calc(1rem * var(--ks2));">K</div>
+                                <div class="cnt">+1</div>
+                            </div>
+                            <div class="ktm" style="display:unset;font-size:calc(1rem * var(--kt2));">主映射信息</div>
+                        </k>
+                    </keyboard>
                 </div>
                 <div class="subttl">键盘配色</div>
                 <span>键盘底色</span><input type="text" id="kb-bgc" style="width: 6rem;" />
@@ -2855,7 +2864,7 @@ async function setting_dlg() {
                 <select id="modkey_mode" style="width: 4rem;">
                     <option value="raw">键名</option>
                     <option value="chr">缩写</option>
-                    <option value="dot">仅颜色</option>
+                    <option value="dot">颜色块</option>
                 </select>
                 <span>字符大小</span><input type="number" id="mod-cs2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <span>颜色块大小</span><input type="number" id="mod-ds2" min="0.1" max="10" step="0.05" style="width: 3rem;grid-column: 6 / -1;" />
@@ -3265,7 +3274,7 @@ window.on_webwin_loaded = async () => {
 };
 
 var __appname__ = "键谱";
-var __version__ = "2.4.0-beta-4";
+var __version__ = "2.4.0-beta-5";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
