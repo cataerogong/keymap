@@ -2142,7 +2142,7 @@ var UI = {
         if (last && await Keymap.load(last)) {
             this.Keyboard.build();
         } else {
-            this.loadFirstProf();
+            await this.loadFirstProf();
         }
     },
 
@@ -3085,7 +3085,7 @@ async function setting_dlg() {
 // Convert to img
 function printAsPng(imgScale, imgName) {
     // change uimode to 'single'
-    UI.setFlag('ui', 'single');
+    Util.setFlag('ui', 'single');
     //hide button
     document.getElementById("btn_save_as_img").style.visibility = "hidden";
     html2canvas(document.body, {
@@ -3124,7 +3124,7 @@ function printAsPng(imgScale, imgName) {
     //show button
     document.getElementById("btn_save_as_img").style.visibility = "visible";
     // recover uimode
-    UI.setFlag('ui', Keymap.Config.uimode);
+    Util.setFlag('ui', Keymap.Config.uimode);
 }
 // open file
 async function openFile() {
@@ -3274,7 +3274,7 @@ window.on_webwin_loaded = async () => {
 };
 
 var __appname__ = "键谱";
-var __version__ = "2.4.0";
+var __version__ = "2.4.1";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
