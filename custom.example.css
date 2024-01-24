@@ -1,0 +1,6 @@
+k[data-k="XK1"] {
+    width: calc(var(--kw) * 5 + 3px * (5 - 1));
+}
+k[data-k="XK1"].set {
+    background-color: greenyellow;
+}

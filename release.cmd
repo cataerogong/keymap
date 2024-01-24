@@ -16,7 +16,7 @@ exit /b
 
 :html
 if exist release\keymap-%__version__%-html.zip del release\keymap-%__version__%-html.zip
-zip release\keymap-%__version__%-html.zip keymap.html README.md LICENSE js\*
+zip release\keymap-%__version__%-html.zip keymap.html README.md LICENSE js\* custom.example.*
 exit /b
 
 :exe
