@@ -24,15 +24,11 @@
     --ui-fc: black;
     --ui-bgc: lightblue;
     --ui-bdc: lightseagreen;
-    --kwx: calc(1rem * var(--kwx1, 3)); /* ext key width */
-    --khx: calc(1rem * var(--khx1, 3)); /* ext key height */
 }
 [data-kbhint="true"] {
     --ks: calc(1rem * var(--ks2, 0.9)); /* key font size */
     --kw: calc(1rem * var(--kw2, 5)); /* key width */
     --kh: calc(1rem * var(--kh2, 5)); /* key height */
-    --kwx: calc(1rem * var(--kwx2, 5)); /* ext key width */
-    --khx: calc(1rem * var(--khx2, 5)); /* ext key height */
 }
 
 body {
@@ -159,7 +155,7 @@ krx {
     display: flex;
     justify-content: start;
     flex-wrap: wrap;
-    min-height: var(--khx);
+    min-height: var(--kh);
     height: auto;
     gap: 3px;
 }
@@ -218,14 +214,10 @@ k.no-rel {
     filter: opacity(0.5);
 }
 
-#kb_ext k {
-    width: var(--kwx);
-    height: var(--khx);
-}
- #kb_ext d {
+#kb_ext d {
     box-sizing: border-box;
-    min-width: var(--kwx);
-    height: var(--khx);
+    min-width: var(--kw);
+    height: var(--kh);
 }
 
 .kinfo.no-rel {
@@ -822,6 +814,7 @@ dialog {
     display: none;
 } */
 </style>
+<link href="custom.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -877,13 +870,13 @@ dialog {
         <span>&nbsp;键盘层:</span>
         <div id="layer_btns"></div>
         <span>&nbsp;</span>
-        <button id="btn_l_clr" class="btn danger BIND-CLICK">清空本层</button>
+        <button id="btn_l_clr" class="btn rnd danger BIND-CLICK">清空本层</button>
         <span style="flex: 1;">&nbsp;</span>
     </div>
     <div id="json_ops">
         &nbsp;JSON 数据随上图设置实时更新。也可在下方编辑 JSON 数据后：
-        <button id="btn_imp" class="btn BIND-CLICK" style="margin: 2px;">导入至当前键谱</button>
-        <button id="btn_imp2" class="btn BIND-CLICK" style="margin: 2px;">导入至新键谱</button>
+        <button id="btn_imp" class="btn rnd BIND-CLICK" style="margin: 2px;">导入至当前键谱</button>
+        <button id="btn_imp2" class="btn rnd BIND-CLICK" style="margin: 2px;">导入至新键谱</button>
     </div>
 </div>
 <div id="tab_kb" class="tab">
@@ -1410,10 +1403,6 @@ var Keymap = {
         "kw2": 5,
         "kh2": 5,
         "kt2": 0.75,
-        "kwx1": 3,
-        "khx1": 3,
-        "kwx2": 5,
-        "khx2": 5,
         "c0": "black",
         "c1": "lightblue",
         "c2": "lightseagreen",
@@ -1828,6 +1817,7 @@ var UI = {
     },
 
     update() {
+        Util.setFlag("keymap", Keymap.Name);
         this.elm("#prof_name").innerText = Keymap.Name || NEW_KEYMAP;
         this.elm("#prof_name").title = Keymap.Name;
         this.elm("#pname_keymap").innerText = Keymap.Name;
@@ -1874,10 +1864,6 @@ var UI = {
         Util.setCSS("--kw2", cfg["kw2"]);
         Util.setCSS("--kh2", cfg["kh2"]);
         Util.setCSS("--kt2", cfg["kt2"]);
-        Util.setCSS("--kwx1", cfg["kwx1"]);
-        Util.setCSS("--khx1", cfg["khx1"]);
-        Util.setCSS("--kwx2", cfg["kwx2"]);
-        Util.setCSS("--khx2", cfg["khx2"]);
         Util.setCSS("--c0", cfg["c0"]);
         Util.setCSS("--c1", cfg["c1"]);
         Util.setCSS("--c2", cfg["c2"]);
@@ -2490,15 +2476,21 @@ UI.Keyboard = {
             if (k == "__CR/LF__") {
                 // s.push(`<span style="width:100%;margin:-10px;"></span>`);
                 s.push("</krx><krx>")
-            } else if (k[0] == "#") {
-                s.push(`<d class="f-end">${k.substring(1)}</d>`);
             } else {
-                let e = document.createElement("k");
-                e.dataset.k = k;
-                e.innerHTML = this._genElmK(k);
+                let e = null;
+                if (k[0] == "#") {
+                    e = document.createElement("d");
+                    e.classList.add("f-end");
+                    e.innerHTML = k.substring(1);
+                    // s.push(`<d class="f-end">${k.substring(1)}</d>`);
+                } else {
+                    e = document.createElement("k");
+                    e.dataset.k = k;
+                    e.innerHTML = this._genElmK(k);
+                    // s.push(`<k data-k="${k}">${this._genElmK(k)}</k>`);
+                }
                 s.push(e.outerHTML);
-                // s.push(`<k data-k="${k}">${this._genElmK(k)}</k>`);
-            }
+        }
         }
         if (s.length > 0)
             this.ElmExt.innerHTML = "<krx>" + s.join("") + "</krx>";
@@ -2838,7 +2830,7 @@ async function setting_dlg() {
                 <span>备注文字大小</span><input type="number" id="comment-font-size" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <div class="subttl"></div>
                 <div id="demo" data-kbhint="true" style="grid-column: 1 / -1;display:flex;gap:10px;align-items:center;justify-content:center;">
-                    <keyboard>标准键盘
+                    <keyboard>
                         <k style="display:inline-block;height:calc(1rem * var(--kh1));width:calc(1rem * var(--kw1));cursor:default;">
                             <div class="ktn" style="display:block !important;text-align:right;font-size:calc(1rem * var(--ks1));">K</div>
                         </k>
@@ -2850,19 +2842,6 @@ async function setting_dlg() {
                                 <div class="modkeys"><div class="mod mod_color mod_raw" style="--mod-c1:#00c853;--mod-c2:#00c853;--mod-cs:calc(1rem * var(--mod-cs2));--mod-ds:calc(1rem * var(--mod-ds2));">Ctrl</div></div>
                                 <div class="mk" style="display:inline-block;font-size:calc(1rem * var(--ks2));">K</div>
                                 <div class="cnt">+1</div>
-                            </div>
-                            <div class="ktm" style="display:unset;font-size:calc(1rem * var(--kt2));">主映射信息</div>
-                        </k>
-                    </keyboard>
-                    <keyboard>扩展键盘
-                        <k class="set group" style="display:inline-block;height:calc(1rem * var(--khx1));width:calc(1rem * var(--kwx1));cursor:default;">
-                            <div class="ktn" style="display:block !important;text-align:right;font-size:calc(1rem * var(--ks1));">XK</div>
-                        </k>
-                        <k class="set group" style="display:inline-flex;height:calc(1rem * var(--khx2));width:calc(1rem * var(--kwx2));cursor:default;">
-                            <div class="ktr" style="display:grid;flex:1;">
-                                <div> </div>
-                                <div class="mk" style="display:inline-block;font-size:calc(1rem * var(--ks2));">XK</div>
-                                <div class="cnt"></div>
                             </div>
                             <div class="ktm" style="display:unset;font-size:calc(1rem * var(--kt2));">主映射信息</div>
                         </k>
@@ -2880,15 +2859,11 @@ async function setting_dlg() {
                 <span>键帽宽</span><input type="number" id="kw1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>键帽高</span><input type="number" id="kh1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>字符大小</span><input type="number" id="ks1" min="0.1" max="10" step="0.05" style="width: 3rem;grid-column: 6 / -1" />
-                <span>扩展键帽宽</span><input type="number" id="kwx1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <span>扩展键帽高</span><input type="number" id="khx1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <div class="subttl">键帽提示模式</div>
                 <span>键帽宽</span><input type="number" id="kw2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>键帽高</span><input type="number" id="kh2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>字符大小</span><input type="number" id="ks2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <span>提示文字大小</span><input type="number" id="kt2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
-                <span>扩展键帽宽</span><input type="number" id="kwx2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <span>扩展键帽高</span><input type="number" id="khx2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <div class="subttl">修饰键</div>
                 <span>自定义键</span><input type="text" id="modkeys" style="grid-column: 2 / -1;" />
                 <span>键帽显示</span>
@@ -3243,7 +3218,7 @@ var _PROFILE_ = {
 };
 
 // If run by webwin, enable local-file profiles.
-window.on_webwin_loaded = async () => {
+async function webwin_init() {
     // IO layer: webwin fs
     window._PROFILE_ = {
         _data_fdr: "data",
@@ -3305,9 +3280,10 @@ window.on_webwin_loaded = async () => {
     UI.LaunchMode = "exe";
     await __init__();
 };
+window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "2.5.0";
+var __version__ = "2.6.0";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
@@ -3324,5 +3300,6 @@ __init__();
 <!-- Img convert libraries -->
 <script src="js/html2canvas.js"></script>
 <script src="js/FileSaver.min.js"></script>
+<script src="custom.js"></script>
 </body>
 </html>
