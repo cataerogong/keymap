@@ -686,6 +686,7 @@ dialog {
     box-sizing: content-box;
     outline: 1px solid var(--ui-bdc);
     border-radius: 5px;
+    box-shadow: 0px 3px 6px #000;
     background-color: whitesmoke;
     width: 22em;
     max-height: 90%;
@@ -760,6 +761,28 @@ dialog {
     border: 1px solid var(--ui-bdc);
     border-radius: 5px;
     background-color: whitesmoke;
+    pointer-events: stroke;
+    cursor: pointer;
+}
+.layer_list {
+    padding: 3px 6px;
+    border: 1px solid var(--ui-bdc);
+    border-radius: 5px;
+    background-color: whitesmoke;
+    box-shadow: 0px 3px 6px #000;
+}
+.opt_l {
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    margin: 3px;
+    padding: 0px 5px;
+}
+.opt_l:hover {
+    border-color: var(--ui-bdc);
+}
+.opt_l_cur {
+    background-color: var(--ui-bgc);
 }
 [data-ui="single"] body {
     height: fit-content;
@@ -774,6 +797,17 @@ dialog {
     visibility: visible;
     height: fit-content;
     /* border-width: 1px; */
+}
+#pcomment {
+    display: none;
+    white-space: pre-wrap;
+    margin: 10px;
+    padding: 5px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+}
+[data-ui="single"] #pcomment {
+    display: block;
 }
 [data-ui="single"] #tab_kb {
     border-color: transparent;
@@ -994,6 +1028,7 @@ dialog {
 <div id="tab_json" class="tab">
     <textarea id="json"></textarea>
 </div>
+<div id="pcomment"></div>
 <div class="about"></div>
 
 <script>
@@ -1604,6 +1639,35 @@ var Keymap = {
         return ret;
     },
 
+    /**
+     * @return {[combo_str, mapping_info, total_mappings_count]}
+    */
+    getFilteredMapping(mk, ln = null) {
+        let ks = this.getAllMappings(mk, ln);
+        let cnt = Object.keys(ks).length;
+        if (!this.isFiltered()) {
+            for (const kn in ks) {
+                if (ks[kn].startsWith("* ")) {
+                    return [kn, ks[kn], cnt];
+                }
+            }
+            if (mk in ks) {
+                return [mk, ks[mk], cnt];
+            }
+        } else {
+            let combo = [...this.FilterKeys, mk].join("+");
+            if (combo in ks) {
+                return [combo, ks[combo], cnt];
+            }
+            for (const kn in ks) {
+                if (this.checkFilter(kn)) {
+                    return [kn, ks[kn], cnt];
+                }
+            }
+        }
+        return ["", "", cnt];
+    },
+
     setMapping(kn, info, ln = null) {
         if (info) {
             this.LayerData(ln)[Util.normalize_combo(kn)] = info;
@@ -1758,8 +1822,10 @@ var Keymap = {
         return this._filterkeys.length > 0;
     },
     addFilterKey(mk) {
-        if (!this._filterkeys.includes(mk))
+        if (!this._filterkeys.includes(mk)) {
             this._filterkeys.push(mk);
+            this._filterkeys.sort();
+        }
     },
     delFilterKey(mk) {
         let i = this._filterkeys.indexOf(mk);
@@ -1959,14 +2025,12 @@ var UI = {
             case "P":
                 if (evt.ctrlKey) {
                     printAsPng(2, Keymap.getLayerPrintName());
+                    upd = false;
                 } else if (evt.shiftKey) {
                     await this.setUIMode("tab");
-                    Util.setFlag("ui", "tab");
                 } else {
                     await this.setUIMode("single");
-                    Util.setFlag("ui", "single");
                 }
-                upd = false;
                 break;
             case "M":
                 if (evt.shiftKey) {
@@ -2025,23 +2089,15 @@ var UI = {
         switch (elm.id) {
             case "btn_ui_tab":
                 await this.setUIMode("tab");
-                Util.setFlag('ui', 'tab');
-                upd = false;
                 break;
             case "btn_ui_single":
                 await this.setUIMode("single");
-                Util.setFlag('ui', 'single');
-                upd = false;
                 break;
             case "tabbtn_kb":
                 await this.changeView("k");
-                Util.setFlag("view", "k");
-                upd = false;
                 break;
             case "tabbtn_list":
                 await this.changeView("l");
-                Util.setFlag("view", "l");
-                upd = false;
                 break;
             case "tabbtn_json":
                 Util.setFlag("view", "j");
@@ -2109,6 +2165,7 @@ var UI = {
         };
         this.elm("#prof_name").onclick = async (evt) => { await this.showProfileList(); }
         this.elm("#comment").onchange = async (evt) => { Keymap.setMapping("#comment", this.elm("#comment").value); await this.save(); this.update(); }
+        this.elm("#pname_layer").onclick = (evt) => { this.showLayerList(); };
 
         this.Keyboard.init();
 
@@ -2176,7 +2233,7 @@ var UI = {
         s.push(elm_new);
         s.push(genProf(KeymapHelp["#NAME"], ["prof_cmd"], async () => {hideList(); Keymap.loadHelp(); this.Keyboard.build(); this.update();}));
         let temp = document.createElement("span");
-        temp.innerHTML = `<div class="prof_list" style="position:absolute;box-shadow: 0px 3px 6px #000;opacity: 0;"></div>`;
+        temp.innerHTML = `<div class="prof_list" style="position:absolute;opacity: 0;"></div>`;
         let elm_list = temp.children[0];
         elm_list.append(...s);
         elm_list.onmouseleave = hideList;
@@ -2185,6 +2242,77 @@ var UI = {
         elm_list.style.left = elm_prof.offsetLeft - 5;
         elm_list.style.top = elm_prof.offsetTop - 5; // - elm_new.offsetHeight - 5;
         elm_list.style.opacity = 1;
+    },
+
+    showLayerList() {
+        let elm = document.createElement("div");
+        for (let n=0; n<Keymap.Config.layers; n++) {
+            let e = document.createElement("div");
+            e.innerHTML = Keymap.getLayerName(n) ? (`${n}:` + Keymap.getLayerName(n)) : String(n);
+            e.classList.add("opt_l");
+            if (n == Keymap.CurLayer)
+                e.classList.add("opt_l_cur");
+            e.onclick = (evt) => {
+                this.changeLayer(n);
+                this.update();
+                elm.remove();
+            };
+            elm.appendChild(e);
+        }
+        elm.style.position = "absolute";
+        elm.classList.add("layer_list");
+        elm.onmouseleave = (evt) => { elm.remove(); };
+        let a = UI.elm("#pname_layer");
+        elm.style.left = a.offsetLeft;
+        elm.style.top = a.offsetTop; // + a.offsetHeight;
+        document.body.appendChild(elm);
+    },
+
+    present() {
+        Keymap._virtual = true;
+        if (Keymap.getMapping("#comment")) {
+            this.elm("#pcomment").style.display = "";
+            this.elm("#pcomment").innerHTML = Keymap.getMapping("#comment");
+        } else {
+            this.elm("#pcomment").style.display = "none";
+            this.elm("#pcomment").innerHTML = "";
+        }
+        for (const e of this.Keyboard.Ks) {
+            e.style.setProperty("cursor", "unset");
+            // e.onclick = null; // e.oncontextmenu;
+        }
+        this.setMapping = () => {};
+        this.setUIMode("single");
+        this.update();
+        window.onkeydown = null;
+        window.ondragenter = null;
+        window.ondragover = null;
+        window.ondrop = null;
+        this.elm("#btn_ui_tab").style.setProperty("text-shadow", "unset");
+        this.elm("#btn_ui_tab").style.setProperty("color", "unset");
+        this.elm("#btn_ui_tab").style.setProperty("cursor", "unset");
+        this.elm("#btn_ui_tab").style.setProperty("font-size", "unset");
+        this.elm("#btn_ui_tab").onclick = null;
+        this.elm("#btn_ui_single").onclick = null;
+        this.elm("#btn_save_as_img").title = "";
+        this.elm("#btn_save_as_img").innerHTML = `?`;
+        this.elm("#btn_save_as_img").style.setProperty("line-height", "1em");
+        this.elm("#btn_save_as_img").style.setProperty("padding", "2px 5px");
+        this.elm("#btn_save_as_img").onclick = () => {
+            let dlg = document.createElement("dialog");
+            dlg.innerHTML = `<div style="margin:10px;padding:10px;display:flex;flex-flow:column;gap:5px;">
+                <h3>简易操作指南</h3>
+                <li>鼠标指向按键会显示该键上的快捷键</li>
+                <li>右键点击按键可以筛选包含该键的快捷键</li>
+                <li>按住 Ctrl 再点击右键可以筛选多个按键</li>
+                <li>点击顶部的层名可以切换不同的键盘层</li>
+                </div>
+                <div class="f-end"><button class="btn rnd">关闭</button></div>`;
+            dlg.querySelector("button").onclick = () => { dlg.remove(); };
+            dlg.onclose = () => { dlg.remove(); };
+            document.body.append(dlg);
+            dlg.showModal();
+        };
     },
 
     // Data Operation Methods
@@ -2422,8 +2550,12 @@ UI.Keyboard = {
         let elm_tip = temp.children[0];
         let ktable = Keymap.getLayoutKeyTable();
         for (const kn of elm_tip.querySelectorAll("kn")) {
-            if (!(kn.innerText in ktable)) {
+            if (!(kn.dataset.k in ktable)) {
                 kn.classList.add("na");
+            }
+            // check filter keys
+            if (Keymap.isFilterKey(kn.dataset.k)) {
+                kn.classList.add("sel");
             }
         }
         elm_tip.style.minWidth = "var(--kw)";
@@ -2513,7 +2645,7 @@ UI.Keyboard = {
             }
         }
     },
-
+    /*
     updateK(elm_k) {
         let mk = elm_k.dataset.k;
         if (!mk || !(mk in Keymap.KeyTable)) {
@@ -2609,6 +2741,90 @@ UI.Keyboard = {
                 } else {
                     elm_k.classList.add("no-rel");
                 }
+            }
+        }
+    },
+    */
+    updateK(elm_k) {
+        let mk = elm_k.dataset.k;
+        if (!mk || !(mk in Keymap.KeyTable)) {
+            console.log(mk);
+            return;
+        }
+        // 清理 css class
+        elm_k.classList.remove("mod", "set", "sel", "rel", "no-rel", "group");
+        let elm_ktr = elm_k.querySelector(".ktr");
+        elm_ktr.dataset.k = "";
+        let elm_mk = elm_ktr.querySelector(".mk");
+        elm_mk.innerHTML = Keymap.KeyTable[mk] || mk;
+        let elm_modkeys = elm_ktr.querySelector(".modkeys");
+        elm_modkeys.innerHTML = "";
+        let elm_cnt = elm_ktr.querySelector(".cnt");
+        elm_cnt.innerHTML = "";
+        let elm_ktm = elm_k.querySelector(".ktm");
+        elm_ktm.innerHTML = "";
+        elm_ktm.classList.remove("na");
+        let [combo, mapping, cnt] = Keymap.getFilteredMapping(mk);
+        let ktable = Keymap.getLayoutKeyTable();
+        if (cnt) {
+            elm_k.classList.add("set");
+            elm_ktm.classList.remove("na");
+            let na = false;
+            if (combo) {
+                cnt --;
+                elm_ktr.dataset.k = combo;
+                let l = Util.split_combo(combo);
+                l.pop();
+                let s = "";
+                for (const m of l) {
+                    let txt = "";
+                    if (Keymap.ModKeyMode == "raw")
+                        txt = m;
+                    else if (Keymap.ModKeyMode == "chr")
+                        txt = Keymap.getModChar(m) || m[0];
+                    let clr = Keymap.getModColor(m) || ["transparent", "transparent"];
+                    s += `<div class="mod ${Keymap.ModKeyColorMode?'mod_color':''} mod_${Keymap.ModKeyMode} ${m in ktable?'':'na'}" data-k="${m}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${txt}</div>`;
+                    if (!(m in ktable)) {
+                        elm_ktm.classList.add("na");
+                        na = true;
+                    }
+                }
+                elm_modkeys.innerHTML = s;
+                let mps = mapping.trim().split('\n');
+                elm_ktm.innerHTML = mps[0].startsWith("* ") ? mps[0].substr(2) : mps[0];
+                // keycap group color
+                if (Keymap.GroupMode && !na) {
+                    elm_k.classList.add("group");
+                    let g = mps.pop();
+                    if (g.startsWith("::")) {
+                        elm_k.style.setProperty("--gc", Keymap.getGroupColor(g.substr(2)));
+                    } else {
+                        elm_k.style.removeProperty("--gc");
+                    }
+                }
+            }
+            elm_cnt.innerText = cnt ? "+"+cnt : "";
+        }
+        // set modkey style
+        if (Keymap.isModKey(mk)) {
+            elm_k.classList.add("mod");
+            if (Keymap.ModKeyColorMode) {
+                let clr = Keymap.getModColor(mk);
+                if (clr) {
+                    elm_mk.classList.add("mod_color")
+                    elm_mk.style.setProperty("--mod-c1", clr[0]);
+                    elm_mk.style.setProperty("--mod-c2", clr[1]);
+                }
+            }
+        }
+        // check filter keys
+        if (Keymap.isFiltered()) {
+            if (Keymap.isFilterKey(mk)) {
+                elm_k.classList.add("sel");
+            } else if (combo) {
+                elm_k.classList.add("rel");
+            } else {
+                elm_k.classList.add("no-rel");
             }
         }
     },
@@ -3283,7 +3499,7 @@ async function webwin_init() {
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "2.6.0";
+var __version__ = "2.7.0-beta-1";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
@@ -3301,5 +3517,6 @@ __init__();
 <script src="js/html2canvas.js"></script>
 <script src="js/FileSaver.min.js"></script>
 <script src="custom.js"></script>
+<script src="present.js"></script>
 </body>
 </html>
