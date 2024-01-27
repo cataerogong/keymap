@@ -191,6 +191,7 @@ k, .k {
 }
 k {
     cursor: pointer;
+    position: relative;
 }
 k:hover,
 k.set {
@@ -216,7 +217,8 @@ k.no-rel {
 
 #kb_ext d {
     box-sizing: border-box;
-    min-width: var(--kw);
+    /* min-width: var(--kw); */
+    width: var(--kw);
     height: var(--kh);
 }
 
@@ -362,9 +364,6 @@ km {
     grid-template: max-content / 1fr max-content;
     text-align: right;
 }
-.ktr .modkeys {
-    grid-row: span 2;
-}
 .ktr .mk {
     font-size: var(--ks);
     height: calc(var(--ks) + 6px);
@@ -432,16 +431,20 @@ kn.na,
     background-image: unset !important;
     border: 1px solid gray !important;
 }
-k.set .ktr .cnt {
-    justify-self: right;
+.ktr .cnt {
+    position: absolute;
+    top: var(--ks);
+    right: 0px;
     color: gray;
-    margin-top: 5px;
     font-size: 11px;
     height: 13px;
     min-width: 13px;
     border-radius: 4px;
     /* background-color: rgba(255, 255, 255, 0.5); */
     text-align: center;
+}
+[data-cnt="false"] .cnt {
+    display: none;
 }
 
 .ktm {
@@ -628,6 +631,10 @@ dialog {
     height: 1.6em;
 }
 
+.stdlg {
+    transform: unset;
+    margin: auto;
+}
 .stdlg .sts {
     display: grid;
     grid-auto-flow: row;
@@ -636,10 +643,11 @@ dialog {
     align-items:start;
     padding-bottom: 10px;
     border-bottom: 1px solid gray;
+    flex: 1;
+    overflow-y: auto;
 }
 .stdlg .subttl {
     grid-column: 1 / -1;
-    margin-top: 1rem;
     font-weight: bold;
     background-color: var(--ui-bgc);
     padding: 3px;
@@ -900,6 +908,30 @@ dialog {
     width: 20px;
 }
 
+.btn_icon::after {
+    content: attr(data-hint);
+    position: absolute;
+    visibility: hidden;
+    transform: translate(-1px, 1px);
+    font-size: 0.9rem;
+    font-weight: normal;
+    line-height: 1rem;
+    color: black;
+    display: block;
+    border: 1px solid darkgray;
+    background-color: whitesmoke;
+    box-shadow: 2px 2px 4px;
+    padding: 3px;
+    white-space: nowrap;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+.btn_icon:hover::after {
+    visibility: visible;
+    opacity: 1;
+}
 /* exe mode */
 /* [data-launch-mode="exe"] :is(#btn_load_file, #btn_save_file, #btn_save_as_img) {
     display: none;
@@ -917,17 +949,18 @@ dialog {
         <span>&nbsp;</span>
     </span>
     <div id="ui_switch">
-        <span id="btn_ui_tab" class="btn_icon btn_icon_sm BIND-CLICK" title="分页模式">
+        <span id="btn_ui_tab" class="btn_icon btn_icon_sm BIND-CLICK" data-hint="分页模式">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="var(--ui-bdc)" d="M11 3H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V8h-7.75A2.25 2.25 0 0 1 11 5.75zm10 3.5V6a3 3 0 0 0-3-3h-5.5v2.75c0 .414.336.75.75.75z"/></svg>
         </span>
-        <span id="btn_ui_single" class="btn_icon btn_icon_sm BIND-CLICK" title="单页模式">
+        <span id="btn_ui_single" class="btn_icon btn_icon_sm BIND-CLICK" data-hint="单页模式">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="var(--ui-bdc)" d="M6.25 2A2.25 2.25 0 0 0 4 4.25v15.5A2.25 2.25 0 0 0 6.25 22h11.5A2.25 2.25 0 0 0 20 19.75V4.25A2.25 2.25 0 0 0 17.75 2zm1.5 4h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5M7 16.75a.75.75 0 0 1 .75-.75h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1-.75-.75M7.75 11h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5"/></svg>
         </span>
         <span class="slider"></span>
     </div>
-    <span id="btn_save_as_img" class="btn_icon BIND-CLICK" title="截图：生成单页模式图片" style="margin: 0px 10px;align-self: center;">
+    <span id="btn_save_as_img" class="btn_icon BIND-CLICK" data-hint="截图：生成单页模式图片" style="margin-left:5px;align-self: center;">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5.25 4C4.56 4 4 4.56 4 5.25V8a1 1 0 0 1-2 0V5.25A3.25 3.25 0 0 1 5.25 2H8a1 1 0 0 1 0 2zm0 16C4.56 20 4 19.44 4 18.75V16a1 1 0 1 0-2 0v2.75A3.25 3.25 0 0 0 5.25 22H8a1 1 0 1 0 0-2zM20 5.25C20 4.56 19.44 4 18.75 4H16a1 1 0 1 1 0-2h2.75A3.25 3.25 0 0 1 22 5.25V8a1 1 0 1 1-2 0zM18.75 20c.69 0 1.25-.56 1.25-1.25V16a1 1 0 1 1 2 0v2.75A3.25 3.25 0 0 1 18.75 22H16a1 1 0 1 1 0-2zM12 13a1 1 0 1 0 0-2a1 1 0 0 0 0 2m-1.152-6c-.473 0-.906.263-1.118.678L9.242 9h-.575C7.747 9 7 9.596 7 10.5v3.864C7 15.267 7.746 16 8.667 16h6.666c.92 0 1.667-.733 1.667-1.636V10.5c0-.904-.746-1.5-1.667-1.5h-.575l-.488-1.322A1.253 1.253 0 0 0 13.152 7zM12 14a2 2 0 1 1 0-4a2 2 0 0 1 0 4"/></svg>
     </span>
+    <span style="margin-right: 10px"></span>
 </div>
 <div id="row_name">
     <span style="font-weight: bold;padding: 3px 10px;font-size:1rem;">键谱</span>
@@ -939,23 +972,23 @@ dialog {
     <div style="flex: 1;display: flex;padding: 2px 0px;gap:2px;">
         <span style="font-weight: bold;padding: 3px 10px;font-size:1rem;">键谱</span>
         <div id="prof_name" class="prof_name prof_cur" style="margin-right: 5px;"></div>
-        <span id="btn_saveas" class="btn_icon BIND-CLICK" title="复制到">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 12a5.5 5.5 0 1 1 0 11a5.5 5.5 0 0 1 0-11M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25l2.985.001a6.521 6.521 0 0 0 1.08 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123m12.781 9.962a.5.5 0 0 0-.568 0l-.07.057l-.057.07a.5.5 0 0 0 0 .568l.057.07l1.646 1.645l-4.798.001l-.09.008a.5.5 0 0 0-.402.402l-.008.09l.008.09a.5.5 0 0 0 .402.402l.09.008l4.8-.001l-1.648 1.647l-.057.07a.5.5 0 0 0 .695.695l.07-.057l2.53-2.533l.036-.05l.042-.08l.026-.083l.01-.064v-.088l-.01-.064l-.011-.043l-.032-.078l-.024-.042l-.038-.05l-2.53-2.533zM17.75 2A2.25 2.25 0 0 1 20 4.25v7.248a6.5 6.5 0 0 0-8.687 8.002H8.75a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2z"/></svg>
+        <span id="btn_setting" class="btn_icon BIND-CLICK" data-hint="设置">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.5 2a5.5 5.5 0 0 0-5.348 6.789L2.841 17.1a2.871 2.871 0 1 0 4.06 4.06l4.115-4.113a6.5 6.5 0 0 1 9.172-5.467A5.486 5.486 0 0 0 22 7.5a5.51 5.51 0 0 0-.282-1.745a.75.75 0 0 0-1.242-.292l-2.444 2.444a.75.75 0 0 1-1.06 0l-.879-.878a.75.75 0 0 1 0-1.06l2.445-2.445a.75.75 0 0 0-.293-1.241A5.495 5.495 0 0 0 16.5 2m-2.223 11.976a2 2 0 0 1-1.441 2.496l-.584.144a5.728 5.728 0 0 0 .006 1.808l.54.13a2 2 0 0 1 1.45 2.51l-.187.631c.44.386.94.699 1.485.922l.493-.519a2 2 0 0 1 2.899 0l.499.525a5.277 5.277 0 0 0 1.482-.913l-.198-.686a2 2 0 0 1 1.442-2.496l.583-.144a5.729 5.729 0 0 0-.006-1.808l-.54-.13a2 2 0 0 1-1.449-2.51l.186-.63a5.282 5.282 0 0 0-1.484-.922l-.493.518a2 2 0 0 1-2.9 0l-.498-.525c-.544.22-1.044.53-1.483.912zM17.5 19c-.8 0-1.45-.672-1.45-1.5S16.7 16 17.5 16c.8 0 1.45.672 1.45 1.5S18.3 19 17.5 19"/></svg>
         </span>
-        <span id="btn_clr" class="btn_icon danger BIND-CLICK" title="清空">
+        <span id="btn_clr" class="btn_icon danger BIND-CLICK" data-hint="清空">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m15.87 2.669l4.968 4.968a2.25 2.25 0 0 1 0 3.182l-8.682 8.68l6.098.001a.75.75 0 0 1 .743.648l.007.102a.75.75 0 0 1-.648.743l-.102.007l-8.41.001a2.244 2.244 0 0 1-1.714-.655l-4.969-4.969a2.25 2.25 0 0 1 0-3.182l9.527-9.526a2.25 2.25 0 0 1 3.182 0m-4.172 15.09l-5.955-5.956l-1.507 1.467a.75.75 0 0 0 0 1.06l4.946 4.946a.75.75 0 0 0 1.06-.016z"/></svg>
         </span>
-        <span id="btn_del" class="btn_icon danger BIND-CLICK" title="删除">
+        <span id="btn_del" class="btn_icon danger BIND-CLICK" data-hint="删除">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 5h4a2 2 0 1 0-4 0M8.5 5a3.5 3.5 0 1 1 7 0h5.75a.75.75 0 0 1 0 1.5h-1.32l-1.17 12.111A3.75 3.75 0 0 1 15.026 22H8.974a3.75 3.75 0 0 1-3.733-3.389L4.07 6.5H2.75a.75.75 0 0 1 0-1.5zm2 4.75a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0zM14.25 9a.75.75 0 0 0-.75.75v7.5a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75"/></svg>
         </span>
-        <span id="btn_load_file" class="btn_icon BIND-CLICK" title="从文件载入">
+        <span id="btn_load_file" class="btn_icon BIND-CLICK" data-hint="从文件载入">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5.25 3A3.25 3.25 0 0 0 2 6.25v8.912l2.045-3.541a4.25 4.25 0 0 1 3.68-2.125H20V8.75a3.25 3.25 0 0 0-3.25-3.25h-5.19L9.72 3.659A2.25 2.25 0 0 0 8.129 3zm2.475 7.996h13.02c1.732 0 2.814 1.875 1.948 3.375l-3.036 5.258a2.75 2.75 0 0 1-2.382 1.375H4.255c-1.731 0-2.814-1.875-1.948-3.375l3.037-5.258a2.75 2.75 0 0 1 2.381-1.375"/></svg>
         </span>
-        <span id="btn_save_file" class="btn_icon BIND-CLICK" title="保存至文件">
+        <span id="btn_save_file" class="btn_icon BIND-CLICK" data-hint="保存至文件">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.75 3h-1A2.75 2.75 0 0 0 3 5.75v12.5A2.75 2.75 0 0 0 5.75 21H6v-6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 15v6h.25A2.75 2.75 0 0 0 21 18.25V8.286a3.25 3.25 0 0 0-.952-2.299l-2.035-2.035A3.25 3.25 0 0 0 15.75 3v4.5a2.25 2.25 0 0 1-2.25 2.25H9A2.25 2.25 0 0 1 6.75 7.5zm7.5 0v4.5a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75V3zm2.25 18v-6a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0-.75.75v6z"/></svg>
         </span>
-        <span id="btn_setting" class="btn_icon BIND-CLICK" title="设置">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.5 2a5.5 5.5 0 0 0-5.348 6.789L2.841 17.1a2.871 2.871 0 1 0 4.06 4.06l4.115-4.113a6.5 6.5 0 0 1 9.172-5.467A5.486 5.486 0 0 0 22 7.5a5.51 5.51 0 0 0-.282-1.745a.75.75 0 0 0-1.242-.292l-2.444 2.444a.75.75 0 0 1-1.06 0l-.879-.878a.75.75 0 0 1 0-1.06l2.445-2.445a.75.75 0 0 0-.293-1.241A5.495 5.495 0 0 0 16.5 2m-2.223 11.976a2 2 0 0 1-1.441 2.496l-.584.144a5.728 5.728 0 0 0 .006 1.808l.54.13a2 2 0 0 1 1.45 2.51l-.187.631c.44.386.94.699 1.485.922l.493-.519a2 2 0 0 1 2.899 0l.499.525a5.277 5.277 0 0 0 1.482-.913l-.198-.686a2 2 0 0 1 1.442-2.496l.583-.144a5.729 5.729 0 0 0-.006-1.808l-.54-.13a2 2 0 0 1-1.449-2.51l.186-.63a5.282 5.282 0 0 0-1.484-.922l-.493.518a2 2 0 0 1-2.9 0l-.498-.525c-.544.22-1.044.53-1.483.912zM17.5 19c-.8 0-1.45-.672-1.45-1.5S16.7 16 17.5 16c.8 0 1.45.672 1.45 1.5S18.3 19 17.5 19"/></svg>
+        <span id="btn_saveas" class="btn_icon BIND-CLICK" data-hint="复制到">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 12a5.5 5.5 0 1 1 0 11a5.5 5.5 0 0 1 0-11M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25l2.985.001a6.521 6.521 0 0 0 1.08 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123m12.781 9.962a.5.5 0 0 0-.568 0l-.07.057l-.057.07a.5.5 0 0 0 0 .568l.057.07l1.646 1.645l-4.798.001l-.09.008a.5.5 0 0 0-.402.402l-.008.09l.008.09a.5.5 0 0 0 .402.402l.09.008l4.8-.001l-1.648 1.647l-.057.07a.5.5 0 0 0 .695.695l.07-.057l2.53-2.533l.036-.05l.042-.08l.026-.083l.01-.064v-.088l-.01-.064l-.011-.043l-.032-.078l-.024-.042l-.038-.05l-2.53-2.533zM17.75 2A2.25 2.25 0 0 1 20 4.25v7.248a6.5 6.5 0 0 0-8.687 8.002H8.75a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2z"/></svg>
         </span>
         <span style="flex: 1;">&nbsp;</span>
     </div>
@@ -967,22 +1000,19 @@ dialog {
 <div id="row_op_btns">
     <div id="kb_ops">
         <span>&nbsp;</span>
-        <!-- <button id="btn_shorten" class="smbtn kb_op BIND-CLICK" title="收缩主键盘">➖</button>
-        <button id="btn_expand" class="smbtn kb_op BIND-CLICK" title="扩展主键盘">➕</button>
-        <button id="btn_kbext" class="smbtn kb_op BIND-CLICK" title="扩展键区">↕</button> -->
         <span>&nbsp;键盘层:</span>
         <div id="layer_btns"></div>
         <span>&nbsp;</span>
         <button id="btn_l_clr" class="btn rnd danger BIND-CLICK">清空本层</button>
-        <span id="btn_hint" class="btn_icon btn_chk BIND-CLICK" title="键帽提示">
+        <span id="btn_hint" class="btn_icon btn_chk BIND-CLICK" data-hint="键帽提示">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4.25 4A2.25 2.25 0 0 0 2 6.25v2.5A2.25 2.25 0 0 0 4.25 11h2.5A2.25 2.25 0 0 0 9 8.75v-2.5A2.25 2.25 0 0 0 6.75 4zm7 1a.75.75 0 0 0 0 1.5h10a.75.75 0 0 0 0-1.5zm0 3a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5zm-7 5A2.25 2.25 0 0 0 2 15.25v2.5A2.25 2.25 0 0 0 4.25 20h2.5A2.25 2.25 0 0 0 9 17.75v-2.5A2.25 2.25 0 0 0 6.75 13zm7 1a.75.75 0 0 0 0 1.5h10a.75.75 0 0 0 0-1.5zm0 3a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5z"/></svg>
         </span>
-        <span id="btn_layout" class="btn_icon btn_chk BIND-CLICK" title="Mac 布局">
+        <span id="btn_layout" class="btn_icon btn_chk BIND-CLICK" data-hint="Mac 键盘布局">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 18 18"><path d="M11.182.008C11.148-.03 9.923.023 8.857 1.18c-1.066 1.156-.902 2.482-.878 2.516s1.52.087 2.475-1.258s.762-2.391.728-2.43m3.314 11.733c-.048-.096-2.325-1.234-2.113-3.422s1.675-2.789 1.698-2.854s-.597-.79-1.254-1.157a3.7 3.7 0 0 0-1.563-.434c-.108-.003-.483-.095-1.254.116c-.508.139-1.653.589-1.968.607c-.316.018-1.256-.522-2.267-.665c-.647-.125-1.333.131-1.824.328c-.49.196-1.422.754-2.074 2.237c-.652 1.482-.311 3.83-.067 4.56s.625 1.924 1.273 2.796c.576.984 1.34 1.667 1.659 1.899s1.219.386 1.843.067c.502-.308 1.408-.485 1.766-.472c.357.013 1.061.154 1.782.539c.571.197 1.111.115 1.652-.105c.541-.221 1.324-1.059 2.238-2.758q.52-1.185.473-1.282"/></svg>
         </span>
-        <span id="btn_showall" class="btn_icon btn_chk BIND-CLICK" title="所有映射">
+        <!-- <span id="btn_showall" class="btn_icon btn_chk BIND-CLICK" title="所有映射">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path d="m28.89 20.91l-5-2.91l4.87-2.86a3.11 3.11 0 0 0 1.14-1.08a3 3 0 0 0-4.09-4.15L21 12.76V7a3 3 0 0 0-6 0v5.76l-4.85-2.85a3 3 0 1 0-3 5.18l5 2.91l-4.95 2.86a3.11 3.11 0 0 0-1.14 1.08a3 3 0 0 0 4.09 4.14L15 23.24v5.66a3 3 0 0 0 2 2.94A3 3 0 0 0 21 29v-5.76l4.85 2.85a3 3 0 1 0 3-5.18Z" /></svg>
-        </span>
+        </span> -->
         <span style="flex: 1;">&nbsp;</span>
     </div>
     <div id="json_ops">
@@ -1297,73 +1327,93 @@ var Util = {
         l.push(`<kn data-k="${mk}">${mk}</kn>`)
         return `<span data-mainkey="${mk}" data-combo="${kn}" class="kinfo f-end combo ${g}" style="${c}">${l.join("+")}</span>`;
     },
+
+    parseVersion(v) {
+        let s = v.split(/[\.\-]/);
+        for (let i=0; i<s.length; i++) {
+            s[i] = Number.isNaN(Number(s[i])) ? s[i] : Number(s[i]);
+        }
+        return s;
+    },
 };
 
 const NEW_KEYMAP = "+ 新建";
 const HELP_KEYMAP = "* 帮助";
-const HELP = `【备注】这里是备注框，可以为每个键盘层备注信息。
-
-【试验】这是一个虚拟的键谱，你可以在这里试验各种操作，重新载入“${HELP_KEYMAP}”即可恢复原样。
-
-【帮助】（层 1 有更多帮助，按 1 切换）
+const HELP = `【帮助】
   * 点击顶部的“键谱名”，可以新建和切换键谱。
-  * 点击键盘图中的按键，可以录入按键映射信息。
+  * 点击键盘图中的按键，可以录入快捷键信息。
   * 组合键：在录入时可以选择组合修饰键（Alt、Ctrl、Shift、Win ...）。
-  * 一个按键上可以录入多组组合键。
-  * 映射信息以"* "、"~ "（星号或者波浪号+空格）开头的组合键定义为主映射，在“键帽提示”模式下会在键帽上显示第一行文字，并且主映射的组合键会直接显示在键帽上。
+  * 一个按键上可以录入多组快捷键。
   * 可以自定义扩展键、修饰键。
   * 可以设置键盘层数，无上限（嗯，大概吧），可以自定义键盘层名。
   * 每个键谱的当前状态都会实时保存（除了“当前键盘层”），在下次打开时会自动恢复。因此，可以为每个键谱设置不同的显示风格。
+
+>>> 按"1"或点击顶部的“1:键谱的快捷键”切换至“键谱的快捷键”
 
 【谱匣】通过谱匣程序使用键谱时，可以使用命令行参数自定义载入的键谱及界面。不需提供所有参数，未提供的参数会按键谱中保存的状态显示。
   -P 键谱名
   -L 键盘层 : [0~9]
   -V 视图 : [k/l/j] 键图 / 键表 / 数据
   -S 主键盘大小 : [0~3] 隐藏 / 60% / 80% / 标准
-  -X 扩展键区 ：[0/1] 关闭 / 打开
+  -X 扩展键盘 ：[0/1] 关闭 / 打开
   -H 键帽提示 : [0/1] 关闭 / 打开
   -M 界面模式 : [t/s] 分页 / 单页
-  示例：打开键谱“Photoshop”，切换到层2，显示键图，60%键盘大小，关闭扩展键区，打开键帽提示，单页模式。
+  示例：打开键谱“Photoshop”，切换到层2，显示键图，60%键盘大小，关闭扩展键盘，打开键帽提示，单页模式。
     keymap.exe -P Photoshop -L 2 -V k -S 1 -X 0 -H 1 -M s
 `;
-const HELP1 = `指向各个按键可以看到不同信息。
+const HELP1 = `这里是键谱应用的“键谱”(^_^)，记录、展示本应用的快捷键。
+同时，这是一个虚拟的键谱，你可以在这里试验各种操作，重新载入“${HELP_KEYMAP}”即可恢复原样。
+
+【提示】请先按物理键盘的"Tab"、"X"键，将键谱界面调整到合适的状态
+
+* 鼠标指向各个按键可以看到该键上的所有快捷键
+
+* 键帽提示：按 Tab 开启
+  在键帽上显示快捷键，以及快捷键信息的第一行文字
 
 * 键盘布局：按 m / Shift+m 切换布局
-  PC 和 Mac 有些键是不同的，基本上除字母键、Fn键外的键都不同。
-
-* 所有映射：按 f / Shift+f 开关
-  显示/隐藏 包含“非本键盘按键”的映射信息
-  当组合键中包含有“非本键盘按键”时，受本开关控制。
-  受影响：键表 / 映射信息设置时的修饰键列表 / 指向按键时显示的映射信息
-
-* 自定义扩展键：
-  * 键名以英文逗号(,)分隔
-  * 以 "#" 开头的会以纯文字显示
-  * 单个 "#" 显示一个键位大小的空白
-  * 支持换行，每行代表一行扩展键
-  * 不含扩展键的行会忽略（包括空行和只有逗号的行）
-
-* 自定义修饰键：
-  * 每个键名以英文逗号(,)分隔
-  * 获取键名：鼠标点击按键，弹出的设置映射信息对话框内左上角
-  * 支持使用扩展键作为修饰键
-  * 甚至可以指定不存在的键名作为修饰键：
-    这种修饰键只在“所有映射”开关打开时才使用，包含这种修饰键的映射信息也只在“所有映射”开关打开时才可见
+  PC 和 Mac 有些键是不同的，基本上除字母键、Fn键以外的都不同。
 
 * 筛选：
-  * 右键点击按键，可以筛选包含该键的组合键
-  * 按住 \"Ctrl\" 可同时选择多个键进行筛选，结果为同时包含这些键的组合键
-`;
-const HELP2 = `【分组】
-  * 分组方法：组合键映射信息的最末行以两个引号 "::" 开头，后接组名
-  * 需要在设置中启用“分组颜色”
-  * 启用后，键帽显示主映射的分组颜色，无主映射或未分组的键帽显示未分组颜色
-  * 启用后，键表中的映射组合键也会以分组颜色为背景色
-  * 自定义分组颜色："组名1::颜色值1, 组名2::颜色值2, ..."
-  * 可以修改未分组颜色，设置组名为空的自定义颜色："::颜色值"
+  * 右键点击按键，可以筛选包含该键的快捷键
+  * 按住 \"Ctrl\" 可同时选择多个键进行筛选，结果为同时包含这些键的快捷键
 
-【修饰键】
-  * 如果一个键上有主映射，那么该组合键的所有修饰键会同时显示在键帽上
+【备注】这里是备注框，可以为每个键盘层备注信息。
+`;
+// * 所有映射：按 f / Shift+f 开关
+//   显示/隐藏 包含“非本键盘按键”的映射信息
+//   当组合键中包含有“非本键盘按键”时，受本开关控制。
+//   受影响：键表 / 映射信息设置时的修饰键列表 / 指向按键时显示的映射信息
+const HELP2 = `一些进阶小技巧
+
+【注意】
+* 键名：每个按键唯一的名字，一般与键帽上显示的一致，但为了显示效果，有些键名会和键帽上不一致（如方向键）
+* 键名区分大小写（就是说 Tab 和 tab 是两个不同的键名）
+* 获取键名：点击按键，在弹出的快捷键设置对话框中，最右边的按键名就是键名
+
+【扩展键盘】鼠标、定制小键盘、游戏手柄……只要是按键，都可以扩展
+  * 扩展键名以英文逗号(,)分隔
+  * 以 "#" 开头的会显示为纯文字，而非按键，单个 "#" 显示一个键位大小的空白
+  * 支持换行，每行代表一行扩展键，不含扩展键的行会忽略（包括空行和只有逗号的行）
+
+【自定义修饰键】程序用 Caps 作为快捷键的修饰键？没问题
+  * 修饰键名以英文逗号(,)分隔
+  * 支持使用扩展键作为修饰键
+
+【分组】
+  * 分组方法：快捷键信息的最末行以两个引号 "::" 开头，后接组名
+  * 需要在设置中启用“分组颜色”
+  * 启用后，键帽显示快捷键的分组颜色，没有主快捷键或未分组的键帽不变色
+  * 启用后，键表中的快捷键也会以分组颜色为背景色
+  * 自定义分组颜色："组名1::颜色值1, 组名2::颜色值2, ..."
+
+【显示在键帽上的快捷键信息】
+  * 主快捷键：快捷键信息以"* "、"~ "（星号或者波浪号+空格）开头的快捷键为主快捷键
+  * 如果用户没有筛选按键，优先显示主快捷键，如果没有著快捷键，则显示单键（无修饰键）的快捷键，如果单键也没有，但快捷键只有一组，则显示这个快捷键，如果不止一组，则不显示，只高亮
+  * 如果筛选了按键，就显示包含按键的快捷键，如果没有包含的，就不显示，如果有多条，优先显示完全匹配的那条，没有完全匹配的，显示第一条匹配的
+
+【显示在键帽上的修饰键】
+  * 键帽上显示快捷键时，修饰键会同时显示在键帽上
   * 键帽上修饰键的显示模式有三种：
     * 键名：修饰键的键名
     * 缩写：键名的缩写，一般为一个字母
@@ -1387,99 +1437,89 @@ const KeymapHelp = {
         "layout": "pc",
         "view": "k",
         "kbsize": 1,
-        "kbext": true,
-        "kbhint": true,
-        "extkeys": ["#鼠标", "LB", "RB", "MB", "WhlUp", "WhlDn", "#扩展", "XK1", "XK2", "XK3", "XK4",
-                    "__CR/LF__", "#Fn", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20",
+        "kbext": false,
+        "kbhint": false,
+        "extkeys": ["#鼠标", "LB", "RB", "MB", "WhlUp", "WhlDn", "#外接小键盘", "XK1", "XK2", "XK3", "XK4",
                     ],
         "modkeys": ["Caps", "caps", "XK1"],
         "modkey_mode": "chr",
         "modkey_clr": true,
         "layer_names": {
             "#0": "帮助",
-            "#1": "更多",
-            "#2": "分组、修饰键、颜色",
+            "#1": "键谱的快捷键",
+            "#2": "进阶技巧",
         },
         "group": true,
         "show_comment": true,
     },
     "#0": {
-        "`": "* 键盘层 0",
-        "1": "* 键盘层 1\n::g1",
-        "2": "* 键盘层 2\n::g2",
-        "3": "* 键盘层 3",
-        "4": "* 键盘层 4",
-        "5": "* 键盘层 5",
-        "6": "* 键盘层 6",
-        "7": "* 键盘层 7",
-        "8": "* 键盘层 8",
-        "9": "* 键盘层 9",
-        "Q": "* 60% 键盘",
-        "W": "* 80% 键盘",
-        "E": "* 标准键盘",
-        "R": "* 隐藏主键盘",
-        "X": "* 显示扩展键区",
-        "Shift+X": "隐藏扩展键区",
-        "shift+X": "隐藏扩展键区",
-        "C": "* 显示备注框",
-        "Shift+C": "隐藏备注框",
-        "shift+C": "隐藏备注框",
-        "Tab": "* 开启键帽提示\n  在键帽上显示主映射信息",
-        "Shift+Tab": "关闭键帽提示",
-        "tab": "* 开启键帽提示\n  在键帽上显示主映射信息",
-        "shift+Tab": "关闭键帽提示",
-        "K": "* “键图”页",
-        "L": "* “键表”页",
-        ";": "* “数据”页",
-        "P": "* 单页模式\n  将键图和键表显示在一个长页面内，简化页面，隐藏操作台（以便打印）",
-        "Shift+P": "分页模式\n  将键图和键表显示在不同分页，提供完整操作界面",
-        "shift+P": "分页模式\n  将键图和键表显示在不同分页，提供完整操作界面",
-        "M": "* Mac键盘布局",
-        "Shift+M": "PC键盘布局",
-        "shift+M": "PC键盘布局",
-        "F": "* 显示全部映射\n  显示 包含“非本键盘按键”的映射信息\n  当组合键中包含有“非本键盘按键”时，受本开关控制。",
-        "Shift+F": "关闭显示全部映射",
-        "shift+F": "关闭显示全部映射",
-        "F2": "* 键盘层改名\n  也可以双击键盘层名进行修改",
-        "LB": "* 设置映射",
-        "RB": "* 筛选映射\n  键图：突出显示组合键中包含选中键的那些键帽\n  键表：只显示选中键相关的映射信息\n  按 p 切换到单页模式后会有更直观的感受",
-        "Ctrl+RB": "多键筛选\n可同时选择多个键进行筛选，结果为同时包含这些键的组合键",
-        "Ctrl+O": "* 从文件载入",
-        "Ctrl+S": "* 保存至文件",
-        "Ctrl+P": "生成单页模式图片",
         "#comment": HELP
     },
     "#1": {
-        "Space": "* 多组映射",
-        "Alt+Space": "组合键1(PC)",
-        "Alt+Shift+Space": "组合键2(PC)",
-        "opt+Space": "组合键3(Mac)",
-        "opt+shift+Space": "组合键4(Mac)",
-        "XK1": "* 自定义扩展键",
-        "Caps+A": "* 自定义修饰键(PC)\n  可以在设置中增加自定义修饰键。",
-        "caps+A": "* 自定义修饰键(Mac)\n  可以在设置中增加自定义修饰键。",
-        "Tab": "* 这是 PC 布局",
-        "tab": "* 这是 Mac 布局",
-        "Win": "* 这是 PC 布局",
-        "opt": "* 这是 Mac 布局",
-        "XK1+Z": "* 扩展键做修饰键",
+        "`": "键盘层 0",
+        "1": "键盘层 1",
+        "2": "键盘层 2",
+        "3": "键盘层 3",
+        "4": "键盘层 4",
+        "5": "键盘层 5",
+        "6": "键盘层 6",
+        "7": "键盘层 7",
+        "8": "键盘层 8",
+        "9": "键盘层 9",
+        "Q": "60% 键盘",
+        "W": "80% 键盘",
+        "E": "标准键盘",
+        "R": "隐藏主键盘",
+        "X": "显示扩展键盘\n在主键盘下方显示扩展键盘",
+        "Shift+X": "隐藏扩展键盘",
+        "shift+X": "隐藏扩展键盘",
+        "C": "显示备注框\n在页面最下方显示备注框",
+        "Shift+C": "隐藏备注框",
+        "shift+C": "隐藏备注框",
+        "Tab": "开启键帽提示\n在键帽上显示主快捷键，以及快捷键信息的第一行文字",
+        "Shift+Tab": "关闭键帽提示",
+        "tab": "开启键帽提示\n在键帽上显示主快捷键，以及快捷键信息的第一行文字",
+        "shift+tab": "关闭键帽提示",
+        "K": "“键图”页",
+        "L": "“键表”页",
+        ";": "“数据”页",
+        "P": "单页模式\n将键图和键表显示在一个长页面内，简化页面，隐藏操作台（以便打印）",
+        "Shift+P": "分页模式\n将键图和键表显示在不同分页，提供完整操作界面",
+        "shift+P": "分页模式\n将键图和键表显示在不同分页，提供完整操作界面",
+        "M": "Mac键盘布局\nPC 和 Mac 有些键是不同的，基本上除字母键、Fn键以外的都不同。",
+        "Shift+M": "PC键盘布局",
+        "shift+M": "PC键盘布局",
+        // "F": "* 显示全部映射\n  显示 包含“非本键盘按键”的映射信息\n  当组合键中包含有“非本键盘按键”时，受本开关控制。",
+        // "Shift+F": "关闭显示全部映射",
+        // "shift+F": "关闭显示全部映射",
+        "F2": "键盘层改名\n也可以双击上方的键盘层名字进行修改",
+        "LB": "录入快捷键信息",
+        "RB": "筛选快捷键\n键图：突出显示快捷键中包含选中键的那些键帽\n键表：只显示选中键相关的快捷键\n按 p 切换到单页模式后会有更直观的感受",
+        "Ctrl+RB": "多键筛选\n可同时选择多个键进行筛选，结果为同时包含这些键的快捷键",
+        "Ctrl+O": "* 从文件载入",
+        "Ctrl+S": "* 保存至文件",
+        "Ctrl+P": "生成单页模式图片",
         "#comment": HELP1
     },
     "#2": {
-        "Alt+1": "* 未分组",
-        "Ctrl+Q": "* 未分组 …",
-        "Shift+A": "* 未分组",
-        "Win+Z": "* 未分组",
-        "Alt+Ctrl+3": "* 组1\n::g1",
-        "Ctrl+Shift+E": "组1，但不是主映射，所以键帽不显示分组色\n::g1",
-        "Shift+Win+D": "* 组1 …\n::g1",
-        "RAlt+Win+C": "* 组1\n::g1",
-        "Alt+Ctrl+Shift+5": "* 组2\n::g2",
-        "Ctrl+Shift+Win+T": "* 组2 …\n::g2",
-        "RAlt+Shift+Win+G": "* 组2\n::g2",
-        "RAlt+RCtrl+Win+B": "* 组2\n::g2",
-        "Ctrl+RShift+D": "组3，但不是主映射\n::g3",
-        "Ctrl+Shift+Q": "组1，但不是主映射，所以键帽不显示分组色\n::g1",
+        "Caps": "自定义修饰键\n可以将任意键设为修饰键",
+        "XK1": "扩展键做修饰键\n扩展键也可以做修饰键",
+        "Caps+A": "* 使用自定义修饰键的快捷键",
+        "XK1+Z": "* 使用扩展键做修饰键的快捷键",
+        "Alt+1": "未分组",
+        "Ctrl+Q": "未分组",
+        "Shift+A": "未分组",
+        "Win+Z": "未分组",
+        "Alt+Ctrl+3": "组1\n::g1",
+        "Ctrl+Shift+E": "组1\n::g1",
+        "Shift+Win+D": "组1\n::g1",
+        "RAlt+Win+C": "组1\n::g1",
+        "Alt+Ctrl+Shift+5": "组2\n::g2",
+        "Ctrl+Shift+Win+T": "组2\n::g2",
+        "RAlt+Shift+Win+G": "组2\n::g2",
+        "RAlt+RCtrl+Win+B": "组2\n::g2",
+        "Ctrl+RShift+D": "组3，但不是主快捷键\n::g3",
+        "Ctrl+Shift+Q": "组1，但不是主快捷键\n::g1",
         "RCtrl+Shift+Win+T": "组4\n::g4",
         "Ctrl+RShift+Win+T": "组5\n::g5",
         "#comment": HELP2
@@ -1505,7 +1545,7 @@ var Keymap = {
         "view": "k",
         "kbsize": 2,
         "kbext": false,
-        "kbhint": false,
+        "kbhint": true,
         "showall": false,
         "ks1": 0.75,
         "kw1": 3,
@@ -1535,6 +1575,7 @@ var Keymap = {
         "group_colors": KEY_GROUP_COLORS, // {},
         "comment-font-size": 0.9,
         "show_comment": false,
+        "show_cnt": true,
     },
 
     get DefaultCfg() {
@@ -1716,34 +1757,44 @@ var Keymap = {
     },
 
     /**
-     * @return {[combo_str, mapping_info, total_mappings_count]}
+     * @return {{combo:string, info:string, count:int}}
     */
-    getFilteredMapping(mk, ln = null) {
+    getKeyCapMapping(mk, ln = null) {
         let ks = this.getAllMappings(mk, ln);
-        let cnt = Object.keys(ks).length;
+        let ret = {combo: "", info: "", count: Object.keys(ks).length};
         if (!this.isFiltered()) {
             for (const kn in ks) {
                 if (ks[kn].startsWith("* ") || ks[kn].startsWith("~ ") ) {
-                    return [kn, ks[kn], cnt];
+                    ret.combo = kn;
+                    ret.info = ks[ret.combo];
+                    return ret;
                 }
             }
             if (mk in ks) {
-                return [mk, ks[mk], cnt];
-            } else if (cnt == 1) {
-                return [Object.keys(ks)[0], Object.values(ks)[0], cnt];
+                ret.combo = mk;
+                ret.info = ks[ret.combo];
+                return ret;
+            } else if (ret.count == 1) {
+                ret.combo = Object.keys(ks)[0];
+                ret.info = ks[ret.combo];
+                return ret;
             }
         } else {
             let combo = [...this.FilterKeys, mk].join("+");
             if (combo in ks) {
-                return [combo, ks[combo], cnt];
+                ret.combo = combo;
+                ret.info = ks[ret.combo];
+                return ret;
             }
             for (const kn in ks) {
                 if (this.checkFilter(kn)) {
-                    return [kn, ks[kn], cnt];
+                    ret.combo = kn;
+                    ret.info = ks[ret.combo];
+                    return ret;
                 }
             }
         }
-        return ["", "", cnt];
+        return ret;
     },
 
     setMapping(kn, info, ln = null) {
@@ -2001,6 +2052,7 @@ var UI = {
         Util.setFlag("kbext", cfg.kbext);
         Util.setFlag("showall", cfg.showall);
         Util.setFlag("comment", cfg.show_comment);
+        Util.setFlag("cnt", cfg.show_cnt);
         Util.setCSS("--ks1", cfg["ks1"]);
         Util.setCSS("--kw1", cfg["kw1"]);
         Util.setCSS("--kh1", cfg["kh1"]);
@@ -2117,13 +2169,13 @@ var UI = {
                     await this.setKBType("mac");
                 }
                 break;
-            case "F":
-                if (evt.shiftKey) {
-                    await this.setShowAll(false);
-                } else {
-                    await this.setShowAll(true);
-                }
-                break;
+            // case "F":
+            //     if (evt.shiftKey) {
+            //         await this.setShowAll(false);
+            //     } else {
+            //         await this.setShowAll(true);
+            //     }
+            //     break;
             case "F2":
                 await this.setLayerName();
                 break;
@@ -2349,11 +2401,11 @@ var UI = {
     present() {
         Keymap._virtual = true;
         if (Keymap.getMapping("#comment")) {
-            this.elm("#pcomment").style.display = "";
-            this.elm("#pcomment").innerHTML = Keymap.getMapping("#comment");
+            this.elm("#pcomment").style.display = "initial";
+            this.elm("#pcomment").innerText = Keymap.getMapping("#comment");
         } else {
             this.elm("#pcomment").style.display = "none";
-            this.elm("#pcomment").innerHTML = "";
+            this.elm("#pcomment").innerText = "";
         }
         for (const e of this.Keyboard.Ks) {
             e.style.setProperty("cursor", "unset");
@@ -2642,15 +2694,15 @@ UI.Keyboard = {
             elm_tip.style.left = elm_k.offsetLeft + elm_k.offsetWidth - elm_tip.offsetWidth;
         else
             elm_tip.style.left = elm_k.offsetLeft;
-        if (elm_k.offsetTop > elm_parent.offsetHeight - elm_tip.offsetHeight - 2) {
-            elm_tip.style.top = elm_parent.offsetHeight - elm_tip.offsetHeight - 4;
-        } else {
+        // if (elm_k.offsetTop > elm_parent.offsetHeight - elm_tip.offsetHeight - 2) {
+        //     elm_tip.style.top = elm_parent.offsetHeight - elm_tip.offsetHeight - 4;
+        // } else {
             elm_tip.style.top = elm_k.offsetTop;
-        }
-        if (elm_tip.offsetTop < 2) {
-            elm_tip.style.top = 0;
-            elm_tip.style.maxHeight = elm_parent.offsetHeight - 4;
-        }
+        // }
+        // if (elm_tip.offsetTop < 2) {
+        //     elm_tip.style.top = 0;
+        //     elm_tip.style.maxHeight = elm_parent.offsetHeight - 4;
+        // }
         if (elm_tip.offsetLeft < 2) {
             elm_tip.style.left = 2;
             elm_tip.style.maxWidth = elm_parent.offsetWidth - 4;
@@ -2840,16 +2892,16 @@ UI.Keyboard = {
         let elm_ktm = elm_k.querySelector(".ktm");
         elm_ktm.innerHTML = "";
         elm_ktm.classList.remove("na");
-        let [combo, mapping, cnt] = Keymap.getFilteredMapping(mk);
+        let fm = Keymap.getKeyCapMapping(mk);
         let ktable = Keymap.getLayoutKeyTable();
-        if (cnt) {
+        if (fm.count) {
             elm_k.classList.add("set");
             elm_ktm.classList.remove("na");
             let na = false;
-            if (combo) {
-                cnt --;
-                elm_ktr.dataset.k = combo;
-                let l = Util.split_combo(combo);
+            if (fm.combo) {
+                fm.count --;
+                elm_ktr.dataset.k = fm.combo;
+                let l = Util.split_combo(fm.combo);
                 l.pop();
                 let s = "";
                 for (const m of l) {
@@ -2866,7 +2918,7 @@ UI.Keyboard = {
                     }
                 }
                 elm_modkeys.innerHTML = s;
-                let mps = mapping.trim().split('\n');
+                let mps = fm.info.trim().split('\n');
                 elm_ktm.innerHTML = (mps[0].startsWith("* ") || mps[0].startsWith("~ ")) ? mps[0].substr(2) : mps[0];
                 // keycap group color
                 if (Keymap.GroupMode && !na) {
@@ -2879,7 +2931,7 @@ UI.Keyboard = {
                     }
                 }
             }
-            elm_cnt.innerText = cnt ? "+"+cnt : "";
+            elm_cnt.innerText = fm.count ? "+"+fm.count : "";
         }
         // set modkey style
         if (Keymap.isModKey(mk)) {
@@ -2897,7 +2949,7 @@ UI.Keyboard = {
         if (Keymap.isFiltered()) {
             if (Keymap.isFilterKey(mk)) {
                 elm_k.classList.add("sel");
-            } else if (combo) {
+            } else if (fm.combo) {
                 elm_k.classList.add("rel");
             } else {
                 elm_k.classList.add("no-rel");
@@ -2910,6 +2962,7 @@ UI.Keyboard = {
             this.updateK(elm_k);
         }
         UI.elm("#comment").value = Keymap.getMapping("#comment");
+        UI.elm("#pcomment").innerText = Keymap.getMapping("#comment");
     },
 };
 
@@ -3039,10 +3092,10 @@ async function setmapping_dlg(combo_str) {
                 <textarea id="mapping" style="flex: 1;border-width:1px;" autofocus>${Keymap.getMapping(combo_str) || ""}</textarea>
             </div>
             <div>
-            映射信息以"* "、"~ "（星号或者波浪号+空格）开头的组合键定义为主映射，在“键帽提示”模式下会在键帽上显示第一行文字，并且主映射的组合键会直接显示在键帽上。
+            快捷键信息以"* "、"~ "（星号或者波浪号+空格）开头的快捷键定义为主快捷键，在“键帽提示”模式下会在键帽上显示第一行文字，并且修饰键会直接显示在键帽上。
             </div>
             <div style="text-align: right;">
-                <button class="btn btnclr danger" style="float:left;">清空本键所有映射信息</button>
+                <button class="btn btnclr danger" style="float:left;">清空本键所有快捷键</button>
                 <button class="btn btnok">确定</button>
                 <button class="btn btncancel">取消</button>
             </div>
@@ -3083,7 +3136,7 @@ async function setmapping_dlg(combo_str) {
             resolver([kn.join("+"), inf.trim()]);
         };
         dlg.querySelector(".btnclr").onclick = (evt) => {
-            if (!confirm(`确认要清空键【 ${mk} 】所有映射信息？`)) return;
+            if (!confirm(`确认要清空键【 ${mk} 】上的所有快捷键？`)) return;
             dlg.remove();
             resolver([]);
         };
@@ -3113,13 +3166,14 @@ async function setting_dlg() {
                     <option value="2">80%</option>
                     <option value="3">标准</option>
                 </select>
-                <label style="grid-column: span 2;"><input type="checkbox" id="kbext" />显示扩展键区</label>
+                <label style="grid-column: span 2;"><input type="checkbox" id="kbext" />显示扩展键盘</label>
                 <span>键盘层数</span><input type="number" id="layers" min="1" step="1" style="width: 3rem;" />
                 <span>键表列数</span><input type="number" id="cols" min="1" max="10" step="1" style="width: 3rem;" />
-                <span>自定义扩展键</span><textarea id="extkeys" style="height: 5rem;border:1px solid black;white-space: nowrap;grid-column: 2 / -1;"></textarea>
+                <span>扩展键盘</span><textarea id="extkeys" style="height: 3rem;border:1px solid black;white-space: nowrap;grid-column: 2 / -1;"></textarea>
                 <span><label><input type="checkbox" id="group" />分组颜色</label></span><textarea id="group_colors" style="grid-column: 2 / -1;height: 3rem;border:1px solid black;"></textarea>
-                <label><input type="checkbox" id="show_comment" />显示备注框</label>
+                <span><label><input type="checkbox" id="show_comment" />显示备注框</label></span>
                 <span>备注文字大小</span><input type="number" id="comment-font-size" min="0.1" max="10" step="0.05" style="width: 3rem;" />
+                <span><label style="grid-column: span 2;"><input type="checkbox" id="showall" />显示不属于本键盘布局的按键</label></span>
                 <div class="subttl"></div>
                 <div id="demo" data-kbhint="true" style="grid-column: 1 / -1;display:flex;gap:10px;align-items:center;justify-content:center;">
                     <keyboard>
@@ -3135,7 +3189,7 @@ async function setting_dlg() {
                                 <div class="mk" style="display:inline-block;font-size:calc(1rem * var(--ks2));">K</div>
                                 <div class="cnt">+1</div>
                             </div>
-                            <div class="ktm" style="display:unset;font-size:calc(1rem * var(--kt2));">主映射信息</div>
+                            <div class="ktm" style="display:unset;font-size:calc(1rem * var(--kt2));">快捷键信息</div>
                         </k>
                     </keyboard>
                 </div>
@@ -3150,12 +3204,13 @@ async function setting_dlg() {
                 <div class="subttl">键帽标准模式</div>
                 <span>键帽宽</span><input type="number" id="kw1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>键帽高</span><input type="number" id="kh1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <span>字符大小</span><input type="number" id="ks1" min="0.1" max="10" step="0.05" style="width: 3rem;grid-column: 6 / -1" />
+                <span>键名字符大小</span><input type="number" id="ks1" min="0.1" max="10" step="0.05" style="width: 3rem;grid-column: 6 / -1" />
                 <div class="subttl">键帽提示模式</div>
                 <span>键帽宽</span><input type="number" id="kw2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>键帽高</span><input type="number" id="kh2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
-                <span>字符大小</span><input type="number" id="ks2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
-                <span>提示文字大小</span><input type="number" id="kt2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
+                <span>键名字符大小</span><input type="number" id="ks2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
+                <span>信息文字大小</span><input type="number" id="kt2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
+                <span style="grid-column: span 2;"><label><input type="checkbox" id="show_cnt" />显示快捷键数量提示</label></span>
                 <div class="subttl">修饰键</div>
                 <span>自定义键</span><input type="text" id="modkeys" style="grid-column: 2 / -1;" />
                 <span>键帽显示</span>
@@ -3276,6 +3331,12 @@ async function setting_dlg() {
                 case "show_comment":
                     c.checked = cfg.show_comment;
                     break;
+                case "showall":
+                    c.checked = cfg.showall;
+                    break;
+                case "show_cnt":
+                    c.checked = cfg.show_cnt;
+                    break;
                 default:
                     c.value = cfg[c.id];
             }
@@ -3353,6 +3414,12 @@ async function setting_dlg() {
                         break;
                     case "show_comment":
                         cfg.show_comment = c.checked;
+                        break;
+                    case "showall":
+                        cfg.showall = c.checked;
+                        break;
+                    case "show_cnt":
+                        cfg.show_cnt = c.checked;
                         break;
                     default:
                         cfg[c.id] = c.value;
@@ -3575,7 +3642,7 @@ async function webwin_init() {
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "2.7.0-beta-2";
+var __version__ = "2.7.0";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
@@ -3592,6 +3659,15 @@ __init__();
 <!-- Img convert libraries -->
 <script src="js/html2canvas.js"></script>
 <script src="js/FileSaver.min.js"></script>
+<script>
+if (!("saveAs" in window)) {
+    UI.elm("#btn_save_file").style.display = "none";
+    UI.elm("#btn_save_as_img").style.display = "none";
+}
+if (!("html2canvas" in window)) {
+    UI.elm("#btn_save_as_img").style.display = "none";
+}
+</script>
 <script src="custom.js"></script>
 <script src="present.js"></script>
 </body>
