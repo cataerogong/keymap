@@ -308,6 +308,7 @@ kn {
     padding: 2px 5px;
     margin: 0px 1px;
     text-align: center;
+    position: relative;
 }
 kn.ck {
     font-weight: normal;
@@ -318,6 +319,25 @@ kn.sel {
     outline: 2px dotted lightseagreen;
     outline-offset: 1px;
 }
+kn.mk {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.kinfo.is_main kn.mk {
+    border-color: #333;
+}
+.kinfo.is_main kn.mk::after {
+/* km.kinfo.is_main::before { */
+    content: "★";
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding: 0px;
+    font-weight: normal;
+    font-size: 12px;
+    line-height: 10px;
+    color: #333;
+}
 
 .f-end {
     justify-self: end;
@@ -325,6 +345,7 @@ kn.sel {
 }
 
 km {
+    position: relative;
     width: fit-content;
     height: fit-content;
     white-space: pre-wrap;
@@ -592,6 +613,12 @@ kn.na,
     position: static;
 }
 
+#mods {
+    margin: 2px 10px;
+}
+#mods::before {
+    content: "筛选：";
+}
 #list {
     display: grid;
     grid-template-columns: repeat(var(--cols), max-content 1fr);
@@ -603,6 +630,13 @@ kn.na,
     width: 100%;
     overflow-y: auto;
 }
+#list .group_label {
+    padding: 2px 10px;
+    font-weight: bold;
+}
+/* .group_label::before {
+    content: "";
+} */
 
 #json {
     width: 100%;
@@ -792,7 +826,7 @@ dialog {
     overflow: auto;
 }
 [data-ui="tab"] #row_name,
-[data-ui="single"] :is(#btn_load_file, #btn_save_file, #row_tabbar, #kb_ops, #comment, #json_ops, #tab_json) {
+[data-ui="single"] :is(#btn_load_file, #btn_save_file, #row_tabbar, #kb_ops, #comment, #mods, #json_ops, #tab_json) {
     display: none;
 }
 [data-ui="single"] :is(#tab_kb, #tab_list) {
@@ -1131,6 +1165,7 @@ dialog {
     <!-- </div> -->
 </div>
 <div id="tab_list" class="tab">
+    <div id="mods"></div>
     <div id="list"></div>
 </div>
 <div id="tab_json" class="tab">
@@ -1219,7 +1254,7 @@ const MODKEY_CHARS = {
     "r-cmd": "M",
     "fn": "f"
 };
-const KEY_GROUP_COLORS = {
+const KEY_GROUPS = {
     "g1": "#ACE1AF",
     "g2": "#F7CAC9",
     "g3": "#E7E28C",
@@ -1316,22 +1351,22 @@ var Util = {
         // group color
         let g = "";
         let c = "";
-        if (Keymap.GroupMode) {
-            g = "group";
-            let info = Keymap.getMapping(kn);
-            if (info) {
-                let l = info.trim().split("\n").pop();
-                c = l.startsWith("::") ? `--gc: ${Keymap.getGroupColor(l.substr(2))};` : "";
-            }
+        let mi = Keymap.getMapping(kn);
+        if (mi.group) {
+            g += " group";
+            c = `--gc: ${Keymap.getGroupColor(mi.group)};`;
         }
-        l.push(`<kn data-k="${mk}">${mk}</kn>`)
+        if (mi.is_main) {
+            g += " is_main";
+        }
+        l.push(`<kn data-k="${mk}" class="mk">${mk}</kn>`)
         return `<span data-mainkey="${mk}" data-combo="${kn}" class="kinfo f-end combo ${g}" style="${c}">${l.join("+")}</span>`;
     },
 
     parseVersion(v) {
-        let s = v.split(/[\.\-]/);
+        let s = v.trim().split(/[\.\-]+/);
         for (let i=0; i<s.length; i++) {
-            s[i] = Number.isNaN(Number(s[i])) ? s[i] : Number(s[i]);
+            s[i] = Number.isNaN(Number(s[i].trim())) ? s[i] : Number(s[i].trim());
         }
         return s;
     },
@@ -1449,7 +1484,6 @@ const KeymapHelp = {
             "#1": "键谱的快捷键",
             "#2": "进阶技巧",
         },
-        "group": true,
         "show_comment": true,
     },
     "#0": {
@@ -1571,11 +1605,12 @@ var Keymap = {
         "mod-cs2": 0.7,
         "mod-ds2": 0.5,
         "layer_names": {},
-        "group": false,
-        "group_colors": KEY_GROUP_COLORS, // {},
+        // "group": false,
+        "groups": KEY_GROUPS, // {},
         "comment-font-size": 0.9,
         "show_comment": false,
         "show_cnt": true,
+        "list_by": "key", // "key", "group"
     },
 
     get DefaultCfg() {
@@ -1611,8 +1646,26 @@ var Keymap = {
                 data[k] = src[k];
             }
         }
+        // ver 2 -> 3
+        let cfg = data["#config"]
+        if ("group" in cfg) {
+            delete cfg["group"];
+        }
+        if ("group_colors" in cfg) {
+            cfg["groups"] = cfg["group_colors"];
+            delete cfg["group_colors"];
+        }
+        if ("layer_names" in cfg) {
+            for (const ln in cfg["layer_names"]) {
+                if (!(ln in data)) {
+                    data[ln] = {};
+                }
+                data[ln]["#name"] = cfg["layer_names"][ln];
+            }
+            delete cfg["layer_names"];
+        }
         // normalize combo keys
-        for (let i=0; i<data["#config"]["layers"]; i++) {
+        for (let i=0; i<cfg["layers"]; i++) {
             let s = data["#"+i];
             let d = {};
             for (const n in s) {
@@ -1711,7 +1764,7 @@ var Keymap = {
             ln = this.CurLayer;
         this.checkLayer(ln);
         if (!(("#"+ln) in this._data))
-            this._data["#"+ln] = {}
+            this._data["#"+ln] = {"#name": ""};
         return this._data["#"+ln];
     },
 
@@ -1719,13 +1772,13 @@ var Keymap = {
         if (ln == null)
             ln = this.CurLayer;
         this.checkLayer(ln);
-        this._data["#"+ln] = {};
+        this._data["#"+ln] = {"#name": this.getLayerName(ln)};
     },
 
     getLayerName(ln = null) {
         if (ln == null)
             ln = this.CurLayer;
-        return (this.Config.layer_names["#"+ln] || "");
+        return (this.LayerData(ln)["#name"] || "");
     },
 
     getLayerPrintName(ln = null) {
@@ -1739,34 +1792,81 @@ var Keymap = {
     setLayerName(name, ln = null) {
         if (ln == null)
             ln = this.CurLayer;
-        this.Config["layer_names"]["#"+ln] = name;
+        this.LayerData(ln)["#name"] = name;
     },
 
-    getMapping(kn, ln = null) {
-        return this.LayerData(ln)[Util.normalize_combo(kn)] || null;
+    /**
+     * @return {{text: string, digest: string, is_main: boolean, group: string}}
+     */
+     getMapping(kn, ln = null) {
+        // return this.LayerData(ln)[Util.normalize_combo(kn)] || null;
+        return this.parseMappingInfo(this.LayerData(ln)[Util.normalize_combo(kn)] || null);
     },
 
-    getAllMappings(mk, ln = null) {
+    /**
+     * @return {{string: {text: string, digest: string, is_main: boolean, group: string}}}
+     */
+     getAllMappings(mk, ln = null) {
         let ret = {};
         for (const kn in this.LayerData(ln)) {
             if (Util.get_mainkey(kn) == mk && this.LayerData(ln)[kn] && this.isKBKeys(kn)) {
-                ret[kn] = this.LayerData(ln)[kn];
+                let i = this.parseMappingInfo(this.LayerData(ln)[kn]);
+                i["combo"] = kn;
+                i["mainkey"] = mk;
+                ret[kn] = i;
             }
         }
         return ret;
     },
 
     /**
-     * @return {{combo:string, info:string, count:int}}
-    */
+     * @return {{text: string, digest: string, is_main: boolean, group: string}}
+     */
+     parseMappingInfo(m) {
+        let ret = {text: "", digest: "", is_main: false, group: ""};
+        if (!m) return ret;
+        let s = m.trim().split("\n");
+        for (let i=0; i<s.length; i++) {
+            s[i] = s[i].trim();
+        }
+        if (s[0] && (s[0].startsWith("* ") || s[0].startsWith("~ "))) {
+            ret.is_main = true;
+            s[0] = s[0].substr(2);
+        }
+        let g = s.pop();
+        if (g && g.startsWith("::")) {
+            ret.group = g.substr(2);
+        } else {
+            s.push(g);
+        }
+        ret.digest = s[0] || "";
+        ret.text = s.join("\n");
+        return ret;
+    },
+
+    packMappingInfo(text, is_main, group) {
+        let ret = text.trim();
+        if (is_main) {
+            ret = "* " + text;
+        }
+        if (group) {
+            ret += "\n::" + group;
+        }
+        return ret;
+    },
+
+    /**
+     * @return {{combo:string, info: {text: string, digest: string, is_main: boolean, group: string}, count:int}}
+     */
     getKeyCapMapping(mk, ln = null) {
         let ks = this.getAllMappings(mk, ln);
-        let ret = {combo: "", info: "", count: Object.keys(ks).length};
+        let ret = {combo: "", info: {text: "", digest: "", is_main: false, group: ""}, count: Object.keys(ks).length};
         if (!this.isFiltered()) {
             for (const kn in ks) {
-                if (ks[kn].startsWith("* ") || ks[kn].startsWith("~ ") ) {
+                let mi = ks[kn];
+                if (mi.is_main) {
                     ret.combo = kn;
-                    ret.info = ks[ret.combo];
+                    ret.info = mi;
                     return ret;
                 }
             }
@@ -1979,19 +2079,12 @@ var Keymap = {
         return rel;
     },
 
-    // 键帽分组色
-    get GroupMode() {
-        return this.Config.group;
-    },
-    set GroupMode(v) {
-        this.Config.group = Boolean(v);
-    },
-    get GroupColors() {
-        // return Object.assign({}, KEY_GROUP_COLORS, this.Config.group_colors);
-        return this.Config.group_colors;
+    // 键帽分组
+    get Groups() {
+        return this.Config.groups;
     },
     getGroupColor(g) {
-        return this.GroupColors[g] || "transparent";
+        return this.Groups[g] || "var(--c1)"; //"transparent";
     },
 };
 
@@ -2400,9 +2493,10 @@ var UI = {
 
     present() {
         Keymap._virtual = true;
-        if (Keymap.getMapping("#comment")) {
+        let cmt = Keymap.getMapping("#comment");
+        if (cmt.text) {
             this.elm("#pcomment").style.display = "initial";
-            this.elm("#pcomment").innerText = Keymap.getMapping("#comment");
+            this.elm("#pcomment").innerText = cmt.text;
         } else {
             this.elm("#pcomment").style.display = "none";
             this.elm("#pcomment").innerText = "";
@@ -2670,7 +2764,8 @@ UI.Keyboard = {
         let s = [];
         let l = Keymap.getAllMappings(elm_k.dataset.k);
         for (const kn in l) {
-            s.push(`${Util.gen_combo_kn_elm(kn)}<km>${l[kn]}</km>`);
+            if (!Keymap.checkFilter(kn)) continue;
+            s.push(`${Util.gen_combo_kn_elm(kn)}<km class="kinfo ${l[kn].is_main?"is_main":""}">${l[kn].text}</km>`);
         }
         if (s.length <= 0) return;
         let temp = document.createElement("span");
@@ -2764,115 +2859,18 @@ UI.Keyboard = {
                 elm.onmouseleave = (evt) => { this.clearTips() };
                 // elm.onclick = (evt) => { UI.setMapping(elm.dataset.k); };
                 elm.onclick = (evt) => { UI.setMapping(elm.querySelector(".ktr").dataset.k || elm.dataset.k); };
-                elm.oncontextmenu = (evt) => {
-                    evt.preventDefault();
-                    UI.toggleMapping(elm.dataset.k, evt.ctrlKey);
+                if (Keymap.isModKey(elm.dataset.k)) {
+                    elm.oncontextmenu = (evt) => {
+                        evt.preventDefault();
+                        UI.toggleMapping(elm.dataset.k, evt.ctrlKey);
+                    }
                 }
             } else {
                 elm.classList.add("dis");
             }
         }
     },
-    /*
-    updateK(elm_k) {
-        let mk = elm_k.dataset.k;
-        if (!mk || !(mk in Keymap.KeyTable)) {
-            console.log(mk);
-            return;
-        }
-        // 清理 css class
-        elm_k.classList.remove("mod", "set", "sel", "rel", "no-rel", "group");
-        let elm_ktr = elm_k.querySelector(".ktr");
-        elm_ktr.dataset.k = "";
-        let elm_mk = elm_ktr.querySelector(".mk");
-        elm_mk.innerHTML = Keymap.KeyTable[mk] || mk;
-        let elm_modkeys = elm_ktr.querySelector(".modkeys");
-        elm_modkeys.innerHTML = "";
-        let elm_cnt = elm_ktr.querySelector(".cnt");
-        elm_cnt.innerHTML = "";
-        let elm_ktm = elm_k.querySelector(".ktm");
-        elm_ktm.innerHTML = "";
-        elm_ktm.classList.remove("na");
-        let ks = Keymap.getAllMappings(mk);
-        let ktable = Keymap.getLayoutKeyTable();
-        if (!Util.is_empty_obj(ks)) {
-            elm_k.classList.add("set");
-            let cnt = Object.keys(ks).length;
-            for (const k in ks) {
-                elm_ktm.classList.remove("na");
-                let ktm = ks[k];
-                let na = false;
-                if (ktm.startsWith("* ")) {
-                    cnt = Object.keys(ks).length - 1;
-                    elm_ktr.dataset.k = k;
-                    let l = Util.split_combo(k);
-                    l.pop();
-                    let s = "";
-                    for (const m of l) {
-                        let txt = "";
-                        if (Keymap.ModKeyMode == "raw")
-                            txt = m;
-                        else if (Keymap.ModKeyMode == "chr")
-                            txt = Keymap.getModChar(m) || m[0];
-                        let clr = Keymap.getModColor(m) || ["transparent", "transparent"];
-                        s += `<div class="mod ${Keymap.ModKeyColorMode?'mod_color':''} mod_${Keymap.ModKeyMode} ${m in ktable?'':'na'}" data-k="${m}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${txt}</div>`;
-                        if (!(m in ktable)) {
-                            elm_ktm.classList.add("na");
-                            na = true;
-                        }
-                    }
-                    elm_modkeys.innerHTML = s;
-                    let mps = ktm.trim().split('\n');
-                    elm_ktm.innerHTML = mps[0].substr(2);
-                    // keycap group color
-                    if (Keymap.GroupMode && !na) {
-                        elm_k.classList.add("group");
-                        let g = mps.pop();
-                        if (g.startsWith("::")) {
-                            elm_k.style.setProperty("--gc", Keymap.getGroupColor(g.substr(2)));
-                        } else {
-                            elm_k.style.removeProperty("--gc");
-                        }
-                    }
-                }
-            }
-            elm_cnt.innerText = cnt ? "+"+cnt : "";
-        }
-        // set modkey style
-        if (Keymap.isModKey(mk)) {
-            elm_k.classList.add("mod");
-            if (Keymap.ModKeyColorMode) {
-                let clr = Keymap.getModColor(mk);
-                if (clr) {
-                    elm_mk.classList.add("mod_color")
-                    elm_mk.style.setProperty("--mod-c1", clr[0]);
-                    elm_mk.style.setProperty("--mod-c2", clr[1]);
-                }
-            }
-        }
-        // check filter keys
-        if (Keymap.isFiltered()) {
-            if (Keymap.isFilterKey(mk)) {
-                elm_k.classList.add("sel");
-            } else if (Util.is_empty_obj(ks)) {
-                elm_k.classList.add("no-rel");
-            } else {
-                let rel = false;
-                for (const kn in ks) {
-                    if (Keymap.checkFilter(kn)) {
-                        rel = true;
-                        break;
-                    }
-                }
-                if (rel) {
-                    elm_k.classList.add("rel");
-                } else {
-                    elm_k.classList.add("no-rel");
-                }
-            }
-        }
-    },
-    */
+
     updateK(elm_k) {
         let mk = elm_k.dataset.k;
         if (!mk || !(mk in Keymap.KeyTable)) {
@@ -2918,14 +2916,17 @@ UI.Keyboard = {
                     }
                 }
                 elm_modkeys.innerHTML = s;
-                let mps = fm.info.trim().split('\n');
-                elm_ktm.innerHTML = (mps[0].startsWith("* ") || mps[0].startsWith("~ ")) ? mps[0].substr(2) : mps[0];
+                // let mps = fm.info.trim().split('\n');
+                // elm_ktm.innerHTML = (mps[0].startsWith("* ") || mps[0].startsWith("~ ")) ? mps[0].substr(2) : mps[0];
+                elm_ktm.innerHTML = fm.info.digest;
                 // keycap group color
-                if (Keymap.GroupMode && !na) {
+                if (!na) {
                     elm_k.classList.add("group");
-                    let g = mps.pop();
-                    if (g.startsWith("::")) {
-                        elm_k.style.setProperty("--gc", Keymap.getGroupColor(g.substr(2)));
+                    // let g = mps.pop();
+                    // if (g.startsWith("::")) {
+                    //     elm_k.style.setProperty("--gc", Keymap.getGroupColor(g.substr(2)));
+                    if (fm.info.group) {
+                        elm_k.style.setProperty("--gc", Keymap.getGroupColor(fm.info.group));
                     } else {
                         elm_k.style.removeProperty("--gc");
                     }
@@ -2961,8 +2962,9 @@ UI.Keyboard = {
         for (const elm_k of this.Ks) {
             this.updateK(elm_k);
         }
-        UI.elm("#comment").value = Keymap.getMapping("#comment");
-        UI.elm("#pcomment").innerText = Keymap.getMapping("#comment");
+        let cmt = Keymap.getMapping("#comment")
+        UI.elm("#comment").value = cmt.text;
+        UI.elm("#pcomment").innerText = cmt.text;
     },
 };
 
@@ -2974,14 +2976,72 @@ UI.List = {
     },
 
     update() {
-        let s = [];
-        for (const mk in Keymap.KeyTable) {
-            let l = Keymap.getAllMappings(mk);
-            if (Util.is_empty_obj(l)) continue;
-            for (const kn in l) {
-                s.push(`${Util.gen_combo_kn_elm(kn)}<km data-mainkey="${mk}" data-combo="${kn}" class="kinfo">${l[kn]}</km>`);
+        let mods = [];
+        for (const k of Keymap.ModKeys) {
+            if (Keymap.isKBKeys(k)) {
+                let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
+                mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn class="ck ${Keymap.ModKeyColorMode?'mod_color':''}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
             }
         }
+        UI.elm("#mods").innerHTML = mods.join("");
+        for (const e of UI.elm("#mods").querySelectorAll('input[type="checkbox"]')) {
+            e.checked = Keymap.isFilterKey(e.value);
+            e.onchange = (evt) => {
+                if (e.checked) {
+                    Keymap.addFilterKey(e.value);
+                } else {
+                    Keymap.delFilterKey(e.value);
+                }
+                UI.List.update();
+            }
+        }
+        let ks = {};
+        for (const mk in Keymap.KeyTable) {
+            let l = Keymap.getAllMappings(mk);
+            for (const kn in l) {
+                if (!Keymap.checkFilter(kn)) continue;
+                let by = "";
+                if (Keymap.Config.list_by == "key") {
+                    by = l[kn].mainkey;
+                } else if (Keymap.Config.list_by == "group") {
+                    by = (l[kn].group && l[kn].group in Keymap.Groups) ? l[kn].group : "未分组";
+                }
+                if (!(by in ks))
+                    ks[by] = [];
+                ks[by].push(l[kn]);
+            }
+        }
+        for (const by in ks) {
+            ks[by].sort((a, b) => {
+                if (a.mainkey > b.mainkey) return 1;
+                if (a.mainkey < b.mainkey) return -1;
+                if (a.mainkey === b.mainkey) return 0;
+            });
+        }
+        let lst = {};
+        if (Keymap.Config.list_by == "key") {
+            lst = Keymap.KeyTable;
+        } else if (Keymap.Config.list_by == "group") {
+            lst = Object.assign({}, Keymap.Groups);
+            lst["未分组"] = "var(--c1)";
+        }
+        let s = [];
+        for (const by in lst) {
+            if (!ks[by]) continue;
+            if (Keymap.Config.list_by == "group")
+                s.push(`<div class="group_label" style="grid-column:1 / -1;background-color: ${lst[by]||"var(--c1)"}">${by}</div>`);
+            for (const mi of ks[by]) {
+                s.push(`${Util.gen_combo_kn_elm(mi.combo)}<km data-mainkey="${mi.mainkey}" data-combo="${mi.combo}" class="kinfo ${mi.is_main?"is_main":""}">${mi.text}</km>`);
+            }
+        }
+        // let s = [];
+        // for (const mk in Keymap.KeyTable) {
+        //     let l = Keymap.getAllMappings(mk);
+        //     if (Util.is_empty_obj(l)) continue;
+        //     for (const kn in l) {
+        //         s.push(`${Util.gen_combo_kn_elm(kn)}<km data-mainkey="${mk}" data-combo="${kn}" class="kinfo">${l[kn].text}</km>`);
+        //     }
+        // }
         this.Elm.innerHTML = s.join('\n');
         let ktable = Keymap.getLayoutKeyTable();
         for (const kn of this.Elm.querySelectorAll("kn")) {
@@ -3076,23 +3136,38 @@ async function setmapping_dlg(combo_str) {
     return new Promise((resolver) => {
         let cks = Util.split_combo(combo_str);
         let mk = cks.pop();
-        let s = [];
+        let mods = [];
         for (const k of Keymap.ModKeys) {
             if (k != mk && Keymap.isKBKeys(k)) {
                 let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
-                s.push(`<label><input type="checkbox" value="${k}" /><kn class="ck ${Keymap.ModKeyColorMode?'mod_color':''}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
+                mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn class="ck ${Keymap.ModKeyColorMode?'mod_color':''}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
             }
         }
+        let grps = ['<option value="" style="background-color: var(--c1);">未分组</option>'];
+        for (const g in Keymap.Groups) {
+            grps.push(`<option value="${g}" style="background-color: ${Keymap.getGroupColor(g)}">${g}</option>`);
+        }
+        let mi = Keymap.getMapping(combo_str);
         let html = `<dialog class="kmdlg">
             <div style="flex: 1;display: flex;gap: 5px;">
-                <div style="display:grid;grid-auto-flow:column;grid-template-rows:repeat(7, max-content);gap: 10px;width:fit-content;">
-                    ${s.join("")}
+                <div id="st_mods" style="display:grid;grid-auto-flow:column;grid-template-rows:repeat(8, max-content);gap: 5px;width: fit-content;padding: 5px;border: 1px dashed darkgray;">
+                    ${mods.join("")}
                 </div>
-                <kn>${mk}</kn>
-                <textarea id="mapping" style="flex: 1;border-width:1px;" autofocus>${Keymap.getMapping(combo_str) || ""}</textarea>
+                <div style="padding-top: 5px;">
+                +
+                <kn style="grid-row: 1 / -1;">${mk}</kn>
+                </div>
+                <div style="flex:1;display:flex;flex-flow:column;">
+                    <textarea id="st_mapping" style="flex:1;border-width:1px;" autofocus>${mi.text || ""}</textarea>
+                    <div style="margin-top: 5px;">
+                        <label><input type="checkbox" id="is_main">主快捷键</label>
+                        <label style="margin-left:20px;">分组</label>
+                        <select id="group" style="width: 5rem;background-color: var(--c1);">${grps.join("")}</select>
+                    </div>
+                </div>
             </div>
-            <div>
-            快捷键信息以"* "、"~ "（星号或者波浪号+空格）开头的快捷键定义为主快捷键，在“键帽提示”模式下会在键帽上显示第一行文字，并且修饰键会直接显示在键帽上。
+            <div style="color: #666;">
+            说明：如设定为主快捷键，在键图中，会在键帽上优先显示主快捷键的信息；在键表中，主快捷键的右上角会有一个“★”标记。
             </div>
             <div style="text-align: right;">
                 <button class="btn btnclr danger" style="float:left;">清空本键所有快捷键</button>
@@ -3109,7 +3184,15 @@ async function setmapping_dlg(combo_str) {
                 kn.classList.add("na");
             }
         }
-        dlg.querySelectorAll('input[type="checkbox"]').forEach(elm => {
+        let st_mods = dlg.querySelector("#st_mods");
+        dlg.querySelector("#is_main").checked = mi.is_main;
+        let selGrp = dlg.querySelector("#group");
+        selGrp.value = mi.group;
+        selGrp.style.backgroundColor = Keymap.getGroupColor(mi.group);
+        selGrp.onchange = (evt) => {
+            selGrp.style.backgroundColor = selGrp.options[selGrp.selectedIndex].style.backgroundColor;
+        }
+        st_mods.querySelectorAll('input[type="checkbox"]').forEach(elm => {
             if (cks.includes(elm.value)) elm.checked = true;
             elm.onclick = (evt) => {
                 let kn = [];
@@ -3118,22 +3201,28 @@ async function setmapping_dlg(combo_str) {
                 }
                 kn.sort();
                 kn.push(mk);
-                let inf = Keymap.getMapping(kn.join("+"));
-                let m = dlg.querySelector("#mapping");
-                m.value = (inf || "").trim();
+                let mi = Keymap.getMapping(kn.join("+"));
+                dlg.querySelector("#is_main").checked = mi.is_main;
+                selGrp.value = mi.group;
+                let m = dlg.querySelector("#st_mapping");
+                m.value = (mi.text || "").trim();
                 m.focus();
             }
         });
         dlg.querySelector(".btnok").onclick = (evt) => {
             let kn = [];
-            for (const elm of dlg.querySelectorAll('input[type="checkbox"]:checked')) {
+            for (const elm of st_mods.querySelectorAll('input[type="checkbox"]:checked')) {
                 kn.push(elm.value);
             }
             kn.sort();
             kn.push(mk);
-            let inf = dlg.querySelector("#mapping").value;
+            let txt = dlg.querySelector("#st_mapping").value.trim();
             dlg.remove();
-            resolver([kn.join("+"), inf.trim()]);
+            if (dlg.querySelector("#is_main").checked)
+                txt = "* " + txt;
+            if (selGrp.value)
+                txt += "\n::" + selGrp.value;
+            resolver([kn.join("+"), txt]);
         };
         dlg.querySelector(".btnclr").onclick = (evt) => {
             if (!confirm(`确认要清空键【 ${mk} 】上的所有快捷键？`)) return;
@@ -3168,12 +3257,13 @@ async function setting_dlg() {
                 </select>
                 <label style="grid-column: span 2;"><input type="checkbox" id="kbext" />显示扩展键盘</label>
                 <span>键盘层数</span><input type="number" id="layers" min="1" step="1" style="width: 3rem;" />
-                <span>键表列数</span><input type="number" id="cols" min="1" max="10" step="1" style="width: 3rem;" />
+                <span style="grid-column: span 2;"><label><input type="checkbox" id="showall" />显示不属于本键盘布局的按键</label></span>
                 <span>扩展键盘</span><textarea id="extkeys" style="height: 3rem;border:1px solid black;white-space: nowrap;grid-column: 2 / -1;"></textarea>
-                <span><label><input type="checkbox" id="group" />分组颜色</label></span><textarea id="group_colors" style="grid-column: 2 / -1;height: 3rem;border:1px solid black;"></textarea>
+                <span>分组</span><textarea id="groups" style="grid-column: 2 / -1;height: 3rem;border:1px solid black;"></textarea>
+                <span>键表列数</span><input type="number" id="cols" min="1" max="10" step="1" style="width: 3rem;" />
+                <label style="grid-column: 3 / -1;"><input type="checkbox" id="list_by" />键表按分组显示</label>
                 <span><label><input type="checkbox" id="show_comment" />显示备注框</label></span>
                 <span>备注文字大小</span><input type="number" id="comment-font-size" min="0.1" max="10" step="0.05" style="width: 3rem;" />
-                <span><label style="grid-column: span 2;"><input type="checkbox" id="showall" />显示不属于本键盘布局的按键</label></span>
                 <div class="subttl"></div>
                 <div id="demo" data-kbhint="true" style="grid-column: 1 / -1;display:flex;gap:10px;align-items:center;justify-content:center;">
                     <keyboard>
@@ -3316,14 +3406,11 @@ async function setting_dlg() {
                 case "modkey_clr":
                     c.checked = cfg.modkey_clr;
                     break;
-                case "group":
-                    c.checked = cfg.group;
-                    break;
-                case "group_colors": {
+                case "groups": {
                     let l = [];
-                    for (const gn in cfg.group_colors) {
-                        if (cfg.group_colors[gn])
-                            l.push(gn+"::"+cfg.group_colors[gn]);
+                    for (const gn in cfg.groups) {
+                        if (gn)
+                            l.push(gn+"::"+cfg.groups[gn]);
                     }
                     c.value = l.join(", ");
                     break;
@@ -3336,6 +3423,9 @@ async function setting_dlg() {
                     break;
                 case "show_cnt":
                     c.checked = cfg.show_cnt;
+                    break;
+                case "list_by":
+                    c.checked = (cfg.list_by == "group");
                     break;
                 default:
                     c.value = cfg[c.id];
@@ -3400,16 +3490,12 @@ async function setting_dlg() {
                     case "modkey_clr":
                         cfg.modkey_clr = c.checked;
                         break;
-                    case "group":
-                        cfg.group = c.checked;
-                        break;
-                    case "group_colors":
-                        cfg.group_colors = {};
+                    case "groups":
+                        cfg.groups = {};
                         for (const g of c.value.trim().split(/\s*,\s*/)) {
                             let gg = g.split("::", 2);
-                            if (gg[1]) {
-                                cfg.group_colors[gg[0]] = gg[1];
-                            }
+                            if (gg[0])
+                                cfg.groups[gg[0]] = gg[1] || "";
                         }
                         break;
                     case "show_comment":
@@ -3420,6 +3506,9 @@ async function setting_dlg() {
                         break;
                     case "show_cnt":
                         cfg.show_cnt = c.checked;
+                        break;
+                    case "list_by":
+                        cfg.list_by = c.checked ? "group" : "key";
                         break;
                     default:
                         cfg[c.id] = c.value;
@@ -3642,7 +3731,7 @@ async function webwin_init() {
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "2.7.0";
+var __version__ = "3.0.0-alpha";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
