@@ -315,23 +315,25 @@ kn {
 }
 kn.ck {
     font-weight: normal;
-    /* background-color: var(--c1); */
+    background-color: var(--c1);
     border-color: white;
 }
 kn.ck.no-sel {
-    opacity: 0.6;
+    /* mode 2 */
+    /* background-image: linear-gradient(rgba(255, 255, 255, 0.5) , rgba(255, 255, 255, 0.5)); */
+    /* mode 3 with mod_color */
+    /* color: #000;
+    background-color: rgba(255, 255, 255, 0.85);
+    background-blend-mode: overlay; */
 }
 kn.ck.sel {
     /* mode 1 */
     /* outline: 1px dashed darkgreen;
     outline-offset: 0px; */
     /* mode 2 */
-    /* background-color: darkgreen !important;
+    background-color: darkgreen !important;
     color: whitesmoke !important;
-    font-weight: bold; */
-    /* mode 3 */
-    /* opacity: 1;
-    font-weight: bold; */
+    font-weight: bold;
 }
 kn.mk {
     padding-left: 10px;
@@ -379,6 +381,9 @@ kn.mk {
     white-space: pre;
     z-index: 1;
     pointer-events: none;
+}
+.hidden {
+    display: none !important;
 }
 
 .f-end {
@@ -552,6 +557,7 @@ kn.na,
     border: 1px solid darkgray;
     cursor: pointer;
     background-color:whitesmoke;
+    white-space: nowrap;
 }
 
 .danger:hover {
@@ -625,7 +631,7 @@ kn.na,
     border-width: 0px 0px 1px 0px;
     background-color: whitesmoke;
     align-items: center;
-    height: 2rem;
+    min-height: 2rem;
     margin-bottom: 1px;
 }
 
@@ -1093,7 +1099,7 @@ dialog {
 <div id="row_op_btns">
     <div id="kb_ops">
         <span>&nbsp;</span>
-        <span>&nbsp;键盘层:</span>
+        <span>键盘层:</span>
         <div id="layer_btns"></div>
         <span>&nbsp;</span>
         <button id="btn_l_clr" class="btn rnd danger BIND-CLICK">清空本层</button>
@@ -1641,7 +1647,6 @@ var Keymap = {
     _extkeys: [],
 
     _filterkeys: [],
-    _filterstr: "",
 
     _default_cfg: {
         "uimode": "tab",
@@ -2157,19 +2162,12 @@ var Keymap = {
         return rel;
     },
 
-    setFilterStr(v) {
-        this._filterstr = v;
-    },
-    getFilterStr() {
-        return this._filterstr;
-    },
-
     // 键帽分组
     get Groups() {
         return this.Config.groups;
     },
     getGroupColor(g) {
-        return (g in this.Groups) ? this.Groups[g][0] : "var(--c1)"; //"transparent";
+        return (g in this.Groups) ? this.Groups[g][0] || "var(--c1)" : "var(--c1)"; //"transparent";
     },
     getGroupAlias(g) {
         return (g in this.Groups) ? this.Groups[g][1] || g : g;
@@ -3097,7 +3095,7 @@ UI.List = {
                 mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn class="ck">${k}</kn></label>`)
             }
         }
-        mods.push(`<input class="search" placeholder="按信息文字筛选" value="${Keymap.getFilterStr()}" />`);
+        mods.push(`<span style="flex: 1;text-align:end;"><input class="search" style="width: 6rem;border: 1px solid gray;border-radius: 3px;" placeholder="按文字筛选" /></span>`);
         UI.elm("#mods").innerHTML = mods.join("");
         for (const e of UI.elm("#mods").querySelectorAll('input[type="checkbox"]')) {
             e.checked = Keymap.isFilterKey(e.value);
@@ -3110,10 +3108,21 @@ UI.List = {
                 UI.List.update();
             }
         }
-        UI.elm("#mods").querySelector(".search").onkeydown = (evt) => {
-            if (evt.key == "Enter") {
-                Keymap.setFilterStr(evt.target.value);
-                UI.List.update();
+        UI.elm("#mods").querySelector(".search").onkeyup = (evt) => {
+            if (evt.key == "Enter") evt.target.blur();
+            let srch = evt.target.value.toLowerCase();
+            for (const i of this.Items) {
+                if (i.tagName == "KM") {
+                    if (!i.innerText.toLowerCase().includes(srch)) {
+                        for (const e of this.Elm.querySelectorAll(`[data-combo="${i.dataset.combo}"]`)) {
+                            e.classList.add("hidden");
+                        }
+                    } else {
+                        for (const e of this.Elm.querySelectorAll(`[data-combo="${i.dataset.combo}"]`)) {
+                            e.classList.remove("hidden");
+                        }
+                    }
+                }
             }
         }
         // 筛选+分组
@@ -3121,7 +3130,7 @@ UI.List = {
         for (const mk in Keymap.KeyTable) {
             let l = Keymap.getAllMappings(mk);
             for (const kn in l) {
-                if (!Keymap.checkFilter(kn) || (Keymap.getFilterStr() && !l[kn].text.includes(Keymap.getFilterStr()))) continue;
+                if (!Keymap.checkFilter(kn)) continue;
                 let by = "";
                 if (Keymap.Config.list_by == "group") {
                     by = (l[kn].group && l[kn].group in Keymap.Groups) ? l[kn].group : "未分组";
