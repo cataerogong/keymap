@@ -222,6 +222,9 @@ k.no-rel {
     height: var(--kh);
 }
 
+.kinfo {
+    cursor: pointer;
+}
 .kinfo.no-rel {
     display: none;
 }
@@ -312,19 +315,30 @@ kn {
 }
 kn.ck {
     font-weight: normal;
-    background-color: var(--c1);
+    /* background-color: var(--c1); */
     border-color: white;
 }
 kn.sel {
-    outline: 2px dotted lightseagreen;
+    outline: 1px dashed lightseagreen;
     outline-offset: 1px;
 }
 kn.mk {
     padding-left: 10px;
     padding-right: 10px;
 }
+.new_combo {
+    color: #333;
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 3px 5px;
+    height: fit-content;
+    width: fit-content;
+    grid-column: span 2;
+    cursor: pointer;
+    margin-top: 10px;
+}
 .kinfo.is_main kn.mk {
-    border-color: #333;
+    /* border-color: #333; */
 }
 .kinfo.is_main kn.mk::after {
 /* km.kinfo.is_main::before { */
@@ -337,6 +351,23 @@ kn.mk {
     font-size: 12px;
     line-height: 10px;
     color: #333;
+}
+.kinfo:hover::after {
+    content: "点击修改";
+    position: absolute;
+    transform: translate(-1px, 1px);
+    font-size: 0.9rem;
+    font-weight: normal;
+    line-height: 1rem;
+    color: #666;
+    display: block;
+    border: 1px solid darkgray;
+    background-color: whitesmoke;
+    box-shadow: 2px 2px 4px;
+    padding: 3px;
+    white-space: pre;
+    z-index: 1;
+    pointer-events: none;
 }
 
 .f-end {
@@ -481,6 +512,7 @@ kn.na,
     display: none;
 }
 
+
 .kms_info {
     box-sizing: border-box;
     border: 1px solid var(--c2);
@@ -493,7 +525,7 @@ kn.na,
     grid-template-columns: max-content 1fr;
     gap: 3px 1px;
     align-content: flex-start;
-    pointer-events: none;
+    /* pointer-events: none; */
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: calc(var(--w) * 0.5);
@@ -550,9 +582,9 @@ kn.na,
 .btn_l:hover,
 .btn_l_cur {
     font-weight: bold;
-    color: var(--c0);
-    border-color: var(--c2);
-    background-color: var(--c1);
+    color: var(--ui-fc);
+    border-color: var(--ui-bdc);
+    background-color: var(--ui-bgc);
 }
 
 .tabbtn {
@@ -591,6 +623,12 @@ kn.na,
 [data-view="j"] #kb_ops {
     display: none;
 }
+[data-view="l"] #btn_hint {
+    display: none;
+}
+[data-view="k"] #btn_list_by {
+    display: none;
+}
 
 .tab {
     display: flex;
@@ -615,6 +653,10 @@ kn.na,
 
 #mods {
     margin: 2px 10px;
+    /* border: 1px dashed gray; */
+    border-radius: 5px;
+    padding: 5px;
+    background-color: #e0e0e0;
 }
 #mods::before {
     content: "筛选：";
@@ -657,7 +699,7 @@ dialog {
 
 .kmdlg {
     width: 40rem;
-    height: 20rem;
+    /* height: 20rem; */
 }
 
 .name_dlg input[type="text"] {
@@ -916,6 +958,7 @@ dialog {
 [data-kbhint="true"] #btn_hint,
 [data-layout="mac"] #btn_layout,
 [data-showall="true"] #btn_showall,
+[data-list-by="group"] #btn_list_by,
 .btn_icon:hover {
     font-weight: bold;
     color:  var(--ui-bdc);
@@ -925,6 +968,7 @@ dialog {
 [data-kbhint="true"] #btn_hint svg,
 [data-layout="mac"] #btn_layout svg,
 [data-showall="true"] #btn_showall svg,
+[data-list-by="group"] #btn_list_by svg,
 .btn_icon:hover svg {
     fill: var(--ui-bdc);
 }
@@ -942,30 +986,30 @@ dialog {
     width: 20px;
 }
 
-.btn_icon::after {
-    content: attr(data-hint);
+[data-help]:hover::after {
+    content: attr(data-help);
     position: absolute;
-    visibility: hidden;
+    /* visibility: hidden; */
     transform: translate(-1px, 1px);
     font-size: 0.9rem;
     font-weight: normal;
     line-height: 1rem;
-    color: black;
+    color: #666;
     display: block;
     border: 1px solid darkgray;
     background-color: whitesmoke;
     box-shadow: 2px 2px 4px;
     padding: 3px;
-    white-space: nowrap;
+    white-space: pre;
     z-index: 1;
-    opacity: 0;
-    transition: opacity 0.3s;
+    /* opacity: 0; */
+    /* transition: opacity 0.3s; */
     pointer-events: none;
 }
-.btn_icon:hover::after {
+/* .show-help:hover::after {
     visibility: visible;
     opacity: 1;
-}
+} */
 /* exe mode */
 /* [data-launch-mode="exe"] :is(#btn_load_file, #btn_save_file, #btn_save_as_img) {
     display: none;
@@ -983,15 +1027,15 @@ dialog {
         <span>&nbsp;</span>
     </span>
     <div id="ui_switch">
-        <span id="btn_ui_tab" class="btn_icon btn_icon_sm BIND-CLICK" data-hint="分页模式">
+        <span id="btn_ui_tab" class="btn_icon btn_icon_sm BIND-CLICK" data-help="分页模式">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="var(--ui-bdc)" d="M11 3H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V8h-7.75A2.25 2.25 0 0 1 11 5.75zm10 3.5V6a3 3 0 0 0-3-3h-5.5v2.75c0 .414.336.75.75.75z"/></svg>
         </span>
-        <span id="btn_ui_single" class="btn_icon btn_icon_sm BIND-CLICK" data-hint="单页模式">
+        <span id="btn_ui_single" class="btn_icon btn_icon_sm BIND-CLICK" data-help="单页模式">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="var(--ui-bdc)" d="M6.25 2A2.25 2.25 0 0 0 4 4.25v15.5A2.25 2.25 0 0 0 6.25 22h11.5A2.25 2.25 0 0 0 20 19.75V4.25A2.25 2.25 0 0 0 17.75 2zm1.5 4h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5M7 16.75a.75.75 0 0 1 .75-.75h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1-.75-.75M7.75 11h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5"/></svg>
         </span>
         <span class="slider"></span>
     </div>
-    <span id="btn_save_as_img" class="btn_icon BIND-CLICK" data-hint="截图：生成单页模式图片" style="margin-left:5px;align-self: center;">
+    <span id="btn_save_as_img" class="btn_icon BIND-CLICK" data-help="截图：生成单页模式图片" style="margin-left:5px;align-self: center;">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5.25 4C4.56 4 4 4.56 4 5.25V8a1 1 0 0 1-2 0V5.25A3.25 3.25 0 0 1 5.25 2H8a1 1 0 0 1 0 2zm0 16C4.56 20 4 19.44 4 18.75V16a1 1 0 1 0-2 0v2.75A3.25 3.25 0 0 0 5.25 22H8a1 1 0 1 0 0-2zM20 5.25C20 4.56 19.44 4 18.75 4H16a1 1 0 1 1 0-2h2.75A3.25 3.25 0 0 1 22 5.25V8a1 1 0 1 1-2 0zM18.75 20c.69 0 1.25-.56 1.25-1.25V16a1 1 0 1 1 2 0v2.75A3.25 3.25 0 0 1 18.75 22H16a1 1 0 1 1 0-2zM12 13a1 1 0 1 0 0-2a1 1 0 0 0 0 2m-1.152-6c-.473 0-.906.263-1.118.678L9.242 9h-.575C7.747 9 7 9.596 7 10.5v3.864C7 15.267 7.746 16 8.667 16h6.666c.92 0 1.667-.733 1.667-1.636V10.5c0-.904-.746-1.5-1.667-1.5h-.575l-.488-1.322A1.253 1.253 0 0 0 13.152 7zM12 14a2 2 0 1 1 0-4a2 2 0 0 1 0 4"/></svg>
     </span>
     <span style="margin-right: 10px"></span>
@@ -1006,22 +1050,22 @@ dialog {
     <div style="flex: 1;display: flex;padding: 2px 0px;gap:2px;">
         <span style="font-weight: bold;padding: 3px 10px;font-size:1rem;">键谱</span>
         <div id="prof_name" class="prof_name prof_cur" style="margin-right: 5px;"></div>
-        <span id="btn_setting" class="btn_icon BIND-CLICK" data-hint="设置">
+        <span id="btn_setting" class="btn_icon BIND-CLICK" data-help="设置">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.5 2a5.5 5.5 0 0 0-5.348 6.789L2.841 17.1a2.871 2.871 0 1 0 4.06 4.06l4.115-4.113a6.5 6.5 0 0 1 9.172-5.467A5.486 5.486 0 0 0 22 7.5a5.51 5.51 0 0 0-.282-1.745a.75.75 0 0 0-1.242-.292l-2.444 2.444a.75.75 0 0 1-1.06 0l-.879-.878a.75.75 0 0 1 0-1.06l2.445-2.445a.75.75 0 0 0-.293-1.241A5.495 5.495 0 0 0 16.5 2m-2.223 11.976a2 2 0 0 1-1.441 2.496l-.584.144a5.728 5.728 0 0 0 .006 1.808l.54.13a2 2 0 0 1 1.45 2.51l-.187.631c.44.386.94.699 1.485.922l.493-.519a2 2 0 0 1 2.899 0l.499.525a5.277 5.277 0 0 0 1.482-.913l-.198-.686a2 2 0 0 1 1.442-2.496l.583-.144a5.729 5.729 0 0 0-.006-1.808l-.54-.13a2 2 0 0 1-1.449-2.51l.186-.63a5.282 5.282 0 0 0-1.484-.922l-.493.518a2 2 0 0 1-2.9 0l-.498-.525c-.544.22-1.044.53-1.483.912zM17.5 19c-.8 0-1.45-.672-1.45-1.5S16.7 16 17.5 16c.8 0 1.45.672 1.45 1.5S18.3 19 17.5 19"/></svg>
         </span>
-        <span id="btn_clr" class="btn_icon danger BIND-CLICK" data-hint="清空">
+        <span id="btn_clr" class="btn_icon danger BIND-CLICK" data-help="清空">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m15.87 2.669l4.968 4.968a2.25 2.25 0 0 1 0 3.182l-8.682 8.68l6.098.001a.75.75 0 0 1 .743.648l.007.102a.75.75 0 0 1-.648.743l-.102.007l-8.41.001a2.244 2.244 0 0 1-1.714-.655l-4.969-4.969a2.25 2.25 0 0 1 0-3.182l9.527-9.526a2.25 2.25 0 0 1 3.182 0m-4.172 15.09l-5.955-5.956l-1.507 1.467a.75.75 0 0 0 0 1.06l4.946 4.946a.75.75 0 0 0 1.06-.016z"/></svg>
         </span>
-        <span id="btn_del" class="btn_icon danger BIND-CLICK" data-hint="删除">
+        <span id="btn_del" class="btn_icon danger BIND-CLICK" data-help="删除">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 5h4a2 2 0 1 0-4 0M8.5 5a3.5 3.5 0 1 1 7 0h5.75a.75.75 0 0 1 0 1.5h-1.32l-1.17 12.111A3.75 3.75 0 0 1 15.026 22H8.974a3.75 3.75 0 0 1-3.733-3.389L4.07 6.5H2.75a.75.75 0 0 1 0-1.5zm2 4.75a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0zM14.25 9a.75.75 0 0 0-.75.75v7.5a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75"/></svg>
         </span>
-        <span id="btn_load_file" class="btn_icon BIND-CLICK" data-hint="从文件载入">
+        <span id="btn_load_file" class="btn_icon BIND-CLICK" data-help="从文件载入">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5.25 3A3.25 3.25 0 0 0 2 6.25v8.912l2.045-3.541a4.25 4.25 0 0 1 3.68-2.125H20V8.75a3.25 3.25 0 0 0-3.25-3.25h-5.19L9.72 3.659A2.25 2.25 0 0 0 8.129 3zm2.475 7.996h13.02c1.732 0 2.814 1.875 1.948 3.375l-3.036 5.258a2.75 2.75 0 0 1-2.382 1.375H4.255c-1.731 0-2.814-1.875-1.948-3.375l3.037-5.258a2.75 2.75 0 0 1 2.381-1.375"/></svg>
         </span>
-        <span id="btn_save_file" class="btn_icon BIND-CLICK" data-hint="保存至文件">
+        <span id="btn_save_file" class="btn_icon BIND-CLICK" data-help="保存至文件">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.75 3h-1A2.75 2.75 0 0 0 3 5.75v12.5A2.75 2.75 0 0 0 5.75 21H6v-6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 15v6h.25A2.75 2.75 0 0 0 21 18.25V8.286a3.25 3.25 0 0 0-.952-2.299l-2.035-2.035A3.25 3.25 0 0 0 15.75 3v4.5a2.25 2.25 0 0 1-2.25 2.25H9A2.25 2.25 0 0 1 6.75 7.5zm7.5 0v4.5a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75V3zm2.25 18v-6a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0-.75.75v6z"/></svg>
         </span>
-        <span id="btn_saveas" class="btn_icon BIND-CLICK" data-hint="复制到">
+        <span id="btn_saveas" class="btn_icon BIND-CLICK" data-help="复制到">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 12a5.5 5.5 0 1 1 0 11a5.5 5.5 0 0 1 0-11M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25l2.985.001a6.521 6.521 0 0 0 1.08 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123m12.781 9.962a.5.5 0 0 0-.568 0l-.07.057l-.057.07a.5.5 0 0 0 0 .568l.057.07l1.646 1.645l-4.798.001l-.09.008a.5.5 0 0 0-.402.402l-.008.09l.008.09a.5.5 0 0 0 .402.402l.09.008l4.8-.001l-1.648 1.647l-.057.07a.5.5 0 0 0 .695.695l.07-.057l2.53-2.533l.036-.05l.042-.08l.026-.083l.01-.064v-.088l-.01-.064l-.011-.043l-.032-.078l-.024-.042l-.038-.05l-2.53-2.533zM17.75 2A2.25 2.25 0 0 1 20 4.25v7.248a6.5 6.5 0 0 0-8.687 8.002H8.75a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2z"/></svg>
         </span>
         <span style="flex: 1;">&nbsp;</span>
@@ -1038,11 +1082,15 @@ dialog {
         <div id="layer_btns"></div>
         <span>&nbsp;</span>
         <button id="btn_l_clr" class="btn rnd danger BIND-CLICK">清空本层</button>
-        <span id="btn_hint" class="btn_icon btn_chk BIND-CLICK" data-hint="键帽提示">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4.25 4A2.25 2.25 0 0 0 2 6.25v2.5A2.25 2.25 0 0 0 4.25 11h2.5A2.25 2.25 0 0 0 9 8.75v-2.5A2.25 2.25 0 0 0 6.75 4zm7 1a.75.75 0 0 0 0 1.5h10a.75.75 0 0 0 0-1.5zm0 3a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5zm-7 5A2.25 2.25 0 0 0 2 15.25v2.5A2.25 2.25 0 0 0 4.25 20h2.5A2.25 2.25 0 0 0 9 17.75v-2.5A2.25 2.25 0 0 0 6.75 13zm7 1a.75.75 0 0 0 0 1.5h10a.75.75 0 0 0 0-1.5zm0 3a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5z"/></svg>
-        </span>
-        <span id="btn_layout" class="btn_icon btn_chk BIND-CLICK" data-hint="Mac 键盘布局">
+        <span id="btn_layout" class="btn_icon btn_chk BIND-CLICK" data-help="Mac 键盘布局">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 18 18"><path d="M11.182.008C11.148-.03 9.923.023 8.857 1.18c-1.066 1.156-.902 2.482-.878 2.516s1.52.087 2.475-1.258s.762-2.391.728-2.43m3.314 11.733c-.048-.096-2.325-1.234-2.113-3.422s1.675-2.789 1.698-2.854s-.597-.79-1.254-1.157a3.7 3.7 0 0 0-1.563-.434c-.108-.003-.483-.095-1.254.116c-.508.139-1.653.589-1.968.607c-.316.018-1.256-.522-2.267-.665c-.647-.125-1.333.131-1.824.328c-.49.196-1.422.754-2.074 2.237c-.652 1.482-.311 3.83-.067 4.56s.625 1.924 1.273 2.796c.576.984 1.34 1.667 1.659 1.899s1.219.386 1.843.067c.502-.308 1.408-.485 1.766-.472c.357.013 1.061.154 1.782.539c.571.197 1.111.115 1.652-.105c.541-.221 1.324-1.059 2.238-2.758q.52-1.185.473-1.282"/></svg>
+        </span>
+        <span id="btn_hint" class="btn_icon btn_chk BIND-CLICK" data-help="键帽提示">
+            <!-- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4.25 4A2.25 2.25 0 0 0 2 6.25v2.5A2.25 2.25 0 0 0 4.25 11h2.5A2.25 2.25 0 0 0 9 8.75v-2.5A2.25 2.25 0 0 0 6.75 4zm7 1a.75.75 0 0 0 0 1.5h10a.75.75 0 0 0 0-1.5zm0 3a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5zm-7 5A2.25 2.25 0 0 0 2 15.25v2.5A2.25 2.25 0 0 0 4.25 20h2.5A2.25 2.25 0 0 0 9 17.75v-2.5A2.25 2.25 0 0 0 6.75 13zm7 1a.75.75 0 0 0 0 1.5h10a.75.75 0 0 0 0-1.5zm0 3a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5z"/></svg> -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.25 10.5a.75.75 0 0 1 .743.648l.007.102v8.5a2.25 2.25 0 0 1-2.096 2.245L19.75 22h-2a.75.75 0 0 1-.102-1.493l.102-.007h2a.75.75 0 0 0 .743-.648l.007-.102v-8.5a.75.75 0 0 1 .75-.75m0-8.5l.07.003l.101.017l.068.019l.06.023l.07.035l.082.054l.08.07l.051.056l.045.062l.05.09l.017.037l.024.066c.011.037.02.076.025.116L22 2.75v5a.75.75 0 0 1-1.493.102L20.5 7.75V4.56l-4.47 4.47a.75.75 0 0 1-1.133-.976l.073-.084l4.468-4.47H16.25a.75.75 0 0 1-.743-.648L15.5 2.75a.75.75 0 0 1 .648-.743L16.25 2zm-8 8.5a2.25 2.25 0 0 1 2.245 2.096l.005.154v7a2.25 2.25 0 0 1-2.096 2.245L13.25 22h-9a2.25 2.25 0 0 1-2.245-2.096L2 19.75v-7a2.25 2.25 0 0 1 2.096-2.245l.154-.005zm-2.5 7h-4c-.41 0-.75.37-.75.75s.282.694.648.743L6.75 19h4c.41 0 .75-.37.75-.75a.75.75 0 0 0-.648-.743zM6 13.5a1 1 0 1 0 0 2a1 1 0 0 0 0-2m5.5 0a1 1 0 1 0 0 2a1 1 0 0 0 0-2m-2.75 0a1 1 0 1 0 0 2a1 1 0 0 0 0-2m4-11.5a.75.75 0 0 1 .102 1.493l-.102.007h-8.5a.75.75 0 0 0-.743.648L3.5 4.25v4a.75.75 0 0 1-1.493.102L2 8.25v-4a2.25 2.25 0 0 1 2.096-2.245L4.25 2z"/></svg>
+        </span>
+        <span id="btn_list_by" class="btn_icon btn_chk BIND-CLICK" data-help="按分组显示">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m3.001 11.996l3 .004a1 1 0 0 1 .114 1.993L6 14l-2-.004v5.003L6 19a1 1 0 0 1 .993.883L7 20a1 1 0 0 1-.883.993L6 21H3a1 1 0 0 1-.993-.883L2 20v-7.004a1 1 0 0 1 .885-.994zM21 17a1 1 0 0 1 .117 1.993L21 19H9a1 1 0 0 1-.117-1.993L9 17zm0-3a1 1 0 0 1 .117 1.993L21 16H9a1 1 0 0 1-.117-1.993L9 14zM6 2a1 1 0 0 1 .117 1.993L6 4H4v4.995h2a1 1 0 0 1 .993.883L7 9.995a1 1 0 0 1-.883.993L6 10.995H3a1 1 0 0 1-.993-.883L2 9.995V3a1 1 0 0 1 .883-.993L3 2zm15 5a1 1 0 0 1 .117 1.993L21 9H9a1 1 0 0 1-.117-1.993L9 7zm0-3a1 1 0 0 1 .117 1.993L21 6H9a1 1 0 0 1-.117-1.993L9 4z"/></svg>
         </span>
         <!-- <span id="btn_showall" class="btn_icon btn_chk BIND-CLICK" title="所有映射">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path d="m28.89 20.91l-5-2.91l4.87-2.86a3.11 3.11 0 0 0 1.14-1.08a3 3 0 0 0-4.09-4.15L21 12.76V7a3 3 0 0 0-6 0v5.76l-4.85-2.85a3 3 0 1 0-3 5.18l5 2.91l-4.95 2.86a3.11 3.11 0 0 0-1.14 1.08a3 3 0 0 0 4.09 4.14L15 23.24v5.66a3 3 0 0 0 2 2.94A3 3 0 0 0 21 29v-5.76l4.85 2.85a3 3 0 1 0 3-5.18Z" /></svg>
@@ -1340,19 +1388,23 @@ var Util = {
         }
     },
 
-    gen_combo_kn_elm(kn) {
+    gen_combo_kn_elm(kn, group_color = true, mod_color = true) {
         let ck = this.split_combo(kn);
         let mk = ck.pop();
         let l = [];
         for (const k of ck) {
-            let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
-            l.push(`<kn data-k="${k}" class="ck ${Keymap.ModKeyColorMode?'mod_color':''}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn>`);
+            if (mod_color) {
+                let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
+                l.push(`<kn data-k="${k}" class="ck ${Keymap.ModKeyColorMode?'mod_color':''}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn>`);
+            } else {
+                l.push(`<kn data-k="${k}" class="ck">${k}</kn>`);
+            }
         }
         // group color
         let g = "";
         let c = "";
         let mi = Keymap.getMapping(kn);
-        if (mi.group) {
+        if (mi.group && group_color) {
             g += " group";
             c = `--gc: ${Keymap.getGroupColor(mi.group)};`;
         }
@@ -1510,6 +1562,9 @@ const KeymapHelp = {
         "C": "显示备注框\n在页面最下方显示备注框",
         "Shift+C": "隐藏备注框",
         "shift+C": "隐藏备注框",
+        "G": "键表分组显示",
+        "Shift+G": "关闭键表分组显示",
+        "shift+G": "关闭键表分组显示",
         "Tab": "开启键帽提示\n在键帽上显示主快捷键，以及快捷键信息的第一行文字",
         "Shift+Tab": "关闭键帽提示",
         "tab": "开启键帽提示\n在键帽上显示主快捷键，以及快捷键信息的第一行文字",
@@ -1663,6 +1718,13 @@ var Keymap = {
                 data[ln]["#name"] = cfg["layer_names"][ln];
             }
             delete cfg["layer_names"];
+        }
+        if ("groups" in cfg) {
+            for (const g in cfg["groups"]) {
+                if (typeof(cfg["groups"][g]) == "string") {
+                    cfg["groups"][g] = [cfg["groups"][g], ""];
+                }
+            }
         }
         // normalize combo keys
         for (let i=0; i<cfg["layers"]; i++) {
@@ -2084,7 +2146,10 @@ var Keymap = {
         return this.Config.groups;
     },
     getGroupColor(g) {
-        return this.Groups[g] || "var(--c1)"; //"transparent";
+        return (g in this.Groups) ? this.Groups[g][0] : "var(--c1)"; //"transparent";
+    },
+    getGroupAlias(g) {
+        return (g in this.Groups) ? this.Groups[g][1] || g : g;
     },
 };
 
@@ -2146,6 +2211,7 @@ var UI = {
         Util.setFlag("showall", cfg.showall);
         Util.setFlag("comment", cfg.show_comment);
         Util.setFlag("cnt", cfg.show_cnt);
+        Util.setFlag("list-by", cfg.list_by);
         Util.setCSS("--ks1", cfg["ks1"]);
         Util.setCSS("--kw1", cfg["kw1"]);
         Util.setCSS("--kh1", cfg["kh1"]);
@@ -2295,6 +2361,13 @@ var UI = {
                     await this.setShowComment(true);
                 }
                 break;
+            case "G":
+                if (evt.shiftKey) {
+                    await this.setListBy("key");
+                } else {
+                    await this.setListBy("group");
+                }
+                break;
             default:
                 handled = false;
         }
@@ -2334,6 +2407,9 @@ var UI = {
                 break;
             case "btn_layout":
                 await this.toggleKBType();
+                break;
+            case "btn_list_by":
+                await this.toggleListBy();
                 break;
             case "btn_showall":
                 await this.toggleShowAll();
@@ -2664,6 +2740,14 @@ var UI = {
         await this.setKBHint(!Keymap.Config.kbhint);
     },
 
+    async setListBy(v) {
+        Keymap.Config.list_by = v;
+        await this.save(false);
+    },
+    async toggleListBy() {
+        await this.setListBy(Keymap.Config.list_by == "group" ? "key" : "group");
+    },
+
     async setKBType(v) {
         Keymap.Config.layout = v;
         await this.save(false);
@@ -2765,12 +2849,18 @@ UI.Keyboard = {
         let l = Keymap.getAllMappings(elm_k.dataset.k);
         for (const kn in l) {
             if (!Keymap.checkFilter(kn)) continue;
-            s.push(`${Util.gen_combo_kn_elm(kn)}<km class="kinfo ${l[kn].is_main?"is_main":""}">${l[kn].text}</km>`);
+            s.push(`${Util.gen_combo_kn_elm(kn)}<km data-combo="${kn}" class="kinfo ${l[kn].is_main?"is_main":""}">${l[kn].text}</km>`);
         }
+        // s.push(`<div class="new_combo">录入新快捷键</div>`);
         if (s.length <= 0) return;
         let temp = document.createElement("span");
         temp.innerHTML = `<div class="kms_info">${s.join("")}</div>`;
         let elm_tip = temp.children[0];
+        elm_tip.onmouseleave = (evt) => { this.clearTips() };
+        for (const i of elm_tip.querySelectorAll(".kinfo")) {
+            i.onclick = async (evt) => { await UI.setMapping(i.dataset.combo); };
+        }
+        // elm_tip.querySelector(".new_combo").onclick = async (evt) => { await UI.setMapping(elm_k.dataset.k); };
         let ktable = Keymap.getLayoutKeyTable();
         for (const kn of elm_tip.querySelectorAll("kn")) {
             if (!(kn.dataset.k in ktable)) {
@@ -2856,8 +2946,7 @@ UI.Keyboard = {
                 elm.classList.remove("dis");
                 elm.innerHTML = this._genElmK(Keymap.KeyTable[elm.dataset.k] || elm.dataset.k);
                 elm.onmouseenter = (evt) => { this.showTip(elm) };
-                elm.onmouseleave = (evt) => { this.clearTips() };
-                // elm.onclick = (evt) => { UI.setMapping(elm.dataset.k); };
+                // elm.onmouseleave = (evt) => { this.clearTips() };
                 elm.onclick = (evt) => { UI.setMapping(elm.querySelector(".ktr").dataset.k || elm.dataset.k); };
                 if (Keymap.isModKey(elm.dataset.k)) {
                     elm.oncontextmenu = (evt) => {
@@ -2976,11 +3065,13 @@ UI.List = {
     },
 
     update() {
+        // 筛选框
         let mods = [];
         for (const k of Keymap.ModKeys) {
             if (Keymap.isKBKeys(k)) {
-                let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
-                mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn class="ck ${Keymap.ModKeyColorMode?'mod_color':''}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
+                // let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
+                // mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn class="ck ${Keymap.ModKeyColorMode?'mod_color':''}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
+                mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn class="ck">${k}</kn></label>`)
             }
         }
         UI.elm("#mods").innerHTML = mods.join("");
@@ -2995,16 +3086,18 @@ UI.List = {
                 UI.List.update();
             }
         }
+        // 键表排序
         let ks = {};
         for (const mk in Keymap.KeyTable) {
             let l = Keymap.getAllMappings(mk);
             for (const kn in l) {
                 if (!Keymap.checkFilter(kn)) continue;
                 let by = "";
-                if (Keymap.Config.list_by == "key") {
-                    by = l[kn].mainkey;
-                } else if (Keymap.Config.list_by == "group") {
+                if (Keymap.Config.list_by == "group") {
                     by = (l[kn].group && l[kn].group in Keymap.Groups) ? l[kn].group : "未分组";
+                } else { //if (Keymap.Config.list_by == "key") {
+                    // by = mk;
+                    by = "KEY";
                 }
                 if (!(by in ks))
                     ks[by] = [];
@@ -3013,25 +3106,35 @@ UI.List = {
         }
         for (const by in ks) {
             ks[by].sort((a, b) => {
+                if (Keymap.isFiltered()) {
+                    let la = Util.split_combo(a.combo);
+                    let lb = Util.split_combo(b.combo);
+                    if (la.length - lb.length) {
+                        return la.length - lb.length;
+                    }
+                }
                 if (a.mainkey > b.mainkey) return 1;
                 if (a.mainkey < b.mainkey) return -1;
                 if (a.mainkey === b.mainkey) return 0;
             });
         }
         let lst = {};
+        let group_color = true;
         if (Keymap.Config.list_by == "key") {
-            lst = Keymap.KeyTable;
+            // lst = Keymap.KeyTable;
+            lst = {"KEY": ""};
         } else if (Keymap.Config.list_by == "group") {
             lst = Object.assign({}, Keymap.Groups);
             lst["未分组"] = "var(--c1)";
+            group_color = false;
         }
         let s = [];
         for (const by in lst) {
             if (!ks[by]) continue;
             if (Keymap.Config.list_by == "group")
-                s.push(`<div class="group_label" style="grid-column:1 / -1;background-color: ${lst[by]||"var(--c1)"}">${by}</div>`);
+                s.push(`<div class="group_label" style="grid-column:1 / -1;background-color: ${Keymap.getGroupColor(by)||"var(--c1)"}">${Keymap.getGroupAlias(by)}</div>`);
             for (const mi of ks[by]) {
-                s.push(`${Util.gen_combo_kn_elm(mi.combo)}<km data-mainkey="${mi.mainkey}" data-combo="${mi.combo}" class="kinfo ${mi.is_main?"is_main":""}">${mi.text}</km>`);
+                s.push(`${Util.gen_combo_kn_elm(mi.combo, group_color, false)}<km data-mainkey="${mi.mainkey}" data-combo="${mi.combo}" class="kinfo ${mi.is_main?"is_main":""}">${mi.text}</km>`);
             }
         }
         // let s = [];
@@ -3042,6 +3145,7 @@ UI.List = {
         //         s.push(`${Util.gen_combo_kn_elm(kn)}<km data-mainkey="${mk}" data-combo="${kn}" class="kinfo">${l[kn].text}</km>`);
         //     }
         // }
+        // 显示
         this.Elm.innerHTML = s.join('\n');
         let ktable = Keymap.getLayoutKeyTable();
         for (const kn of this.Elm.querySelectorAll("kn")) {
@@ -3050,7 +3154,7 @@ UI.List = {
             }
         }
         for (const i of this.Items) {
-            i.ondblclick = async (evt) => { await UI.setMapping(i.dataset.combo); };
+            i.onclick = async (evt) => { await UI.setMapping(i.dataset.combo); };
         }
         // check filter keys
         if (Keymap.isFiltered()) {
@@ -3145,12 +3249,12 @@ async function setmapping_dlg(combo_str) {
         }
         let grps = ['<option value="" style="background-color: var(--c1);">未分组</option>'];
         for (const g in Keymap.Groups) {
-            grps.push(`<option value="${g}" style="background-color: ${Keymap.getGroupColor(g)}">${g}</option>`);
+            grps.push(`<option value="${g}" style="background-color: ${Keymap.getGroupColor(g)}">${Keymap.getGroupAlias(g)}</option>`);
         }
         let mi = Keymap.getMapping(combo_str);
         let html = `<dialog class="kmdlg">
             <div style="flex: 1;display: flex;gap: 5px;">
-                <div id="st_mods" style="display:grid;grid-auto-flow:column;grid-template-rows:repeat(8, max-content);gap: 5px;width: fit-content;padding: 5px;border: 1px dashed darkgray;">
+                <div id="st_mods" style="display:grid;grid-auto-flow:column;grid-template-rows:repeat(10, max-content);gap: 5px;width: fit-content;padding: 5px;background-color: #f0f0f0;">
                     ${mods.join("")}
                 </div>
                 <div style="padding-top: 5px;">
@@ -3160,18 +3264,23 @@ async function setmapping_dlg(combo_str) {
                 <div style="flex:1;display:flex;flex-flow:column;">
                     <textarea id="st_mapping" style="flex:1;border-width:1px;" autofocus>${mi.text || ""}</textarea>
                     <div style="margin-top: 5px;">
-                        <label><input type="checkbox" id="is_main">主快捷键</label>
-                        <label style="margin-left:20px;">分组</label>
-                        <select id="group" style="width: 5rem;background-color: var(--c1);">${grps.join("")}</select>
+                        <label style="position: relative;" data-help="将快捷键设定为“主快捷键”\n在键图中，会在键帽上优先显示主快捷键的信息\n在键表中，主快捷键的右上角会有一个“★”标记">
+                            <input type="checkbox" id="is_main">在键帽上优先显示
+                        </label>
+                        <label style="margin-left:20px;float: right">
+                            分组
+                            <select id="group" style="width: 5rem;background-color: var(--c1);">${grps.join("")}</select>
+                        </label>
                     </div>
                 </div>
             </div>
             <div style="color: #666;">
-            说明：如设定为主快捷键，在键图中，会在键帽上优先显示主快捷键的信息；在键表中，主快捷键的右上角会有一个“★”标记。
+            
             </div>
             <div style="text-align: right;">
                 <button class="btn btnclr danger" style="float:left;">清空本键所有快捷键</button>
-                <button class="btn btnok">确定</button>
+                <button class="btn btndel danger">删除</button>
+                <button class="btn btnok">保存</button>
                 <button class="btn btncancel">取消</button>
             </div>
         </dialog>`;
@@ -3204,6 +3313,7 @@ async function setmapping_dlg(combo_str) {
                 let mi = Keymap.getMapping(kn.join("+"));
                 dlg.querySelector("#is_main").checked = mi.is_main;
                 selGrp.value = mi.group;
+                selGrp.style.backgroundColor = Keymap.getGroupColor(mi.group);
                 let m = dlg.querySelector("#st_mapping");
                 m.value = (mi.text || "").trim();
                 m.focus();
@@ -3223,6 +3333,17 @@ async function setmapping_dlg(combo_str) {
             if (selGrp.value)
                 txt += "\n::" + selGrp.value;
             resolver([kn.join("+"), txt]);
+        };
+        dlg.querySelector(".btndel").onclick = (evt) => {
+            let kn = [];
+            for (const elm of st_mods.querySelectorAll('input[type="checkbox"]:checked')) {
+                kn.push(elm.value);
+            }
+            kn.sort();
+            kn.push(mk);
+            if (!confirm(`确认要清除快捷键【 ${kn.join("+")} 】？`)) return;
+            dlg.remove();
+            resolver([kn.join("+"), ""]);
         };
         dlg.querySelector(".btnclr").onclick = (evt) => {
             if (!confirm(`确认要清空键【 ${mk} 】上的所有快捷键？`)) return;
@@ -3410,7 +3531,7 @@ async function setting_dlg() {
                     let l = [];
                     for (const gn in cfg.groups) {
                         if (gn)
-                            l.push(gn+"::"+cfg.groups[gn]);
+                            l.push(gn+"::"+cfg.groups[gn].join("::"));
                     }
                     c.value = l.join(", ");
                     break;
@@ -3493,9 +3614,9 @@ async function setting_dlg() {
                     case "groups":
                         cfg.groups = {};
                         for (const g of c.value.trim().split(/\s*,\s*/)) {
-                            let gg = g.split("::", 2);
+                            let gg = g.split("::", 3);
                             if (gg[0])
-                                cfg.groups[gg[0]] = gg[1] || "";
+                                cfg.groups[gg[0]] = [gg[1] || "", gg[2] || ""];
                         }
                         break;
                     case "show_comment":
