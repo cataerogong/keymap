@@ -318,9 +318,20 @@ kn.ck {
     /* background-color: var(--c1); */
     border-color: white;
 }
-kn.sel {
-    outline: 1px dashed lightseagreen;
-    outline-offset: 1px;
+kn.ck.no-sel {
+    opacity: 0.6;
+}
+kn.ck.sel {
+    /* mode 1 */
+    /* outline: 1px dashed darkgreen;
+    outline-offset: 0px; */
+    /* mode 2 */
+    /* background-color: darkgreen !important;
+    color: whitesmoke !important;
+    font-weight: bold; */
+    /* mode 3 */
+    /* opacity: 1;
+    font-weight: bold; */
 }
 kn.mk {
     padding-left: 10px;
@@ -657,9 +668,13 @@ kn.na,
     border-radius: 5px;
     padding: 5px;
     background-color: #e0e0e0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-items: center;
 }
 #mods::before {
-    content: "筛选：";
+    content: "筛选";
 }
 #list {
     display: grid;
@@ -1496,7 +1511,7 @@ const HELP2 = `一些进阶小技巧
 
 【显示在键帽上的快捷键信息】
   * 主快捷键：快捷键信息以"* "、"~ "（星号或者波浪号+空格）开头的快捷键为主快捷键
-  * 如果用户没有筛选按键，优先显示主快捷键，如果没有著快捷键，则显示单键（无修饰键）的快捷键，如果单键也没有，但快捷键只有一组，则显示这个快捷键，如果不止一组，则不显示，只高亮
+  * 如果用户没有筛选按键，优先显示主快捷键，如果没有主快捷键，则显示单键（无修饰键）的快捷键，如果单键也没有，但快捷键只有一组，则显示这个快捷键，如果不止一组，则不显示，只高亮
   * 如果筛选了按键，就显示包含按键的快捷键，如果没有包含的，就不显示，如果有多条，优先显示完全匹配的那条，没有完全匹配的，显示第一条匹配的
 
 【显示在键帽上的修饰键】
@@ -1626,6 +1641,7 @@ var Keymap = {
     _extkeys: [],
 
     _filterkeys: [],
+    _filterstr: "",
 
     _default_cfg: {
         "uimode": "tab",
@@ -2139,6 +2155,13 @@ var Keymap = {
             }
         }
         return rel;
+    },
+
+    setFilterStr(v) {
+        this._filterstr = v;
+    },
+    getFilterStr() {
+        return this._filterstr;
     },
 
     // 键帽分组
@@ -3074,6 +3097,7 @@ UI.List = {
                 mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn class="ck">${k}</kn></label>`)
             }
         }
+        mods.push(`<input class="search" placeholder="按信息文字筛选" value="${Keymap.getFilterStr()}" />`);
         UI.elm("#mods").innerHTML = mods.join("");
         for (const e of UI.elm("#mods").querySelectorAll('input[type="checkbox"]')) {
             e.checked = Keymap.isFilterKey(e.value);
@@ -3086,12 +3110,18 @@ UI.List = {
                 UI.List.update();
             }
         }
-        // 键表排序
+        UI.elm("#mods").querySelector(".search").onkeydown = (evt) => {
+            if (evt.key == "Enter") {
+                Keymap.setFilterStr(evt.target.value);
+                UI.List.update();
+            }
+        }
+        // 筛选+分组
         let ks = {};
         for (const mk in Keymap.KeyTable) {
             let l = Keymap.getAllMappings(mk);
             for (const kn in l) {
-                if (!Keymap.checkFilter(kn)) continue;
+                if (!Keymap.checkFilter(kn) || (Keymap.getFilterStr() && !l[kn].text.includes(Keymap.getFilterStr()))) continue;
                 let by = "";
                 if (Keymap.Config.list_by == "group") {
                     by = (l[kn].group && l[kn].group in Keymap.Groups) ? l[kn].group : "未分组";
@@ -3104,6 +3134,7 @@ UI.List = {
                 ks[by].push(l[kn]);
             }
         }
+        // 排序
         for (const by in ks) {
             ks[by].sort((a, b) => {
                 if (Keymap.isFiltered()) {
@@ -3159,14 +3190,16 @@ UI.List = {
         // check filter keys
         if (Keymap.isFiltered()) {
             for (const i of this.Items) {
-                if (Keymap.checkFilter(i.dataset.combo)) {
+                // if (Keymap.checkFilter(i.dataset.combo)) {
                     for (const ck of i.querySelectorAll("kn")) {
                         if (Keymap.isFilterKey(ck.dataset.k)) {
                             ck.classList.add("sel");
+                        } else {
+                            ck.classList.add("no-sel");
                         }
                     }
-                } else
-                    i.classList.add("no-rel");
+                // } else
+                //     i.classList.add("no-rel");
             }
         }
     },
