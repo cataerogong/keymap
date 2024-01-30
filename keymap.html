@@ -299,8 +299,8 @@ kn, km {
 kn {
     font-weight: bold;
     color: var(--c0);
-    /* background-color: var(--gc, var(--c1));
-    border: 1px solid var(--gc, var(--c1)); */
+    background-color: var(--gc, var(--c1));
+    border: 1px solid transparent;
     border-radius: 4px;
     height: fit-content;
     width: fit-content;
@@ -338,6 +338,19 @@ kn.mk {
     background-color: white;
     border: 1px solid lightgray;
 }
+.kinfo.group kn.mk {
+    /* background-color: var(--gc, var(--c1)); */
+}
+.kinfo.group kn.mk::after {
+    content: "";
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    width: 7px;
+    height: 7px;
+    background-color: var(--gc);
+    border-radius: 2px;
+}
 .new_combo {
     color: #333;
     border: 1px solid gray;
@@ -368,6 +381,8 @@ kn.mk {
     /* position: relative; */
     cursor: pointer;
     /* width: 15rem; */
+    display: flex;
+    gap: 2px;
 }
 .hidden {
     display: none !important;
@@ -674,7 +689,8 @@ kn.na,
     grid-template-columns: repeat(var(--cols), max-content 1fr);
     gap: 10px 2px;
     align-content: flex-start; */
-    columns: var(--cols);
+    /* columns: var(--cols); */
+    columns: 450px auto;
     padding: 10px;
     box-sizing: border-box;
     /* height: 100%; */
@@ -684,7 +700,7 @@ kn.na,
 }
 #list>.group {
     display: grid;
-    grid-template-columns: minmax(6rem, max-content) 1fr;
+    grid-template-columns: 2fr 3fr;
     gap: 10px 2px;
     align-content: flex-start;
     box-sizing: border-box;
@@ -701,29 +717,31 @@ kn.na,
     grid-column:1 / -1;
     padding: 2px 10px;
     font-weight: bold;
-    /* border: 0px solid darkgray;
-    border-bottom-width: 1px; */
-    display: flex;
+    /* border: 0px solid darkgray; */
+    border-radius: 5px;
+    background-color: var(--gc);
+    /* display: flex;
     align-items: center;
+    text-align: center;
+    justify-content: center; */
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    align-content: flex-start;
 }
 #list .group_label::before {
     content: "";
     display: inline-block;
-    width: 15px;
-    height: 15px;
+    width: 10px;
+    height: 10px;
     background-color: var(--gc);
-    border: 1px solid lightgray;
+    border: 1px solid gray;
     border-radius: 3px;
-    box-shadow: 1px 1px;
+    box-shadow: 1px 1px #000;
     margin-right: 10px;
+    /* filter: brightness(1.1); */
+    justify-self: end;
+    align-self: center;
 }
-#list>.group km {
-    /* background-color: unset;
-    border-width: 0px; */
-}
-/* .group_label::before {
-    content: "";
-} */
 
 #json {
     width: 100%;
@@ -780,6 +798,15 @@ dialog {
 .stdlg input[type="text"] {
     font-size: 0.9rem;
     height: 1.4em;
+}
+.stdlg textarea {
+    padding: 1px;
+    border:1px solid black;
+    height: 1.5em;
+    transition: height 0.3s;
+}
+.stdlg textarea:focus {
+    height: 6em;
 }
 
 .about {
@@ -1440,7 +1467,7 @@ var Util = {
         for (const k of ck) {
             if (mod_color) {
                 let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
-                l.push(`<kn data-k="${k}" class="ck ${Keymap.ModKeyColorMode?'mod_color':''}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn>`);
+                l.push(`<kn data-k="${k}" class="ck mod_color" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn>`);
             } else {
                 l.push(`<kn data-k="${k}" class="ck">${k}</kn>`);
             }
@@ -1456,8 +1483,12 @@ var Util = {
         if (mi.is_main) {
             g += " is_main";
         }
-        l.push(`<kn data-k="${mk}" class="mk">${mk}</kn>`)
-        return `<span data-mainkey="${mk}" data-combo="${kn}" class="kinfo f-end combo ${g}" style="${c}" title="点击修改">${l.join("+")}</span>`;
+        let s = "";
+        if (l.length) {
+            s = `<span class="modkeys">` + l.join("") + `</span>`;
+        }
+        s += `<kn data-k="${mk}" class="mk">${mk}</kn>`;
+        return `<span data-mainkey="${mk}" data-combo="${kn}" class="kinfo f-end combo ${g}" style="${c}" title="点击修改">${s}</span>`;
     },
 
     parseVersion(v) {
@@ -1601,59 +1632,59 @@ const KeymapHelp = {
         "W": "80% 键盘",
         "E": "标准键盘",
         "R": "隐藏主键盘",
-        "X": "显示扩展键盘\n在主键盘下方显示扩展键盘",
+        "X": "显示扩展键盘\n\n在主键盘下方显示扩展键盘",
         "Shift+X": "隐藏扩展键盘",
         "shift+X": "隐藏扩展键盘",
-        "C": "显示备注框\n在页面最下方显示备注框",
+        "C": "显示备注\n\n在页面最下方显示备注框",
         "Shift+C": "隐藏备注框",
         "shift+C": "隐藏备注框",
         "G": "键表分组显示",
         "Shift+G": "关闭键表分组显示",
         "shift+G": "关闭键表分组显示",
-        "Tab": "开启键帽提示\n在键帽上显示主快捷键，以及快捷键信息的第一行文字",
+        "Tab": "开启键帽提示\n\n在键帽上显示主快捷键，以及快捷键信息的第一行文字",
         "Shift+Tab": "关闭键帽提示",
-        "tab": "开启键帽提示\n在键帽上显示主快捷键，以及快捷键信息的第一行文字",
+        "tab": "开启键帽提示\n\n在键帽上显示主快捷键，以及快捷键信息的第一行文字",
         "shift+tab": "关闭键帽提示",
         "K": "“键图”页",
         "L": "“键表”页",
         ";": "“数据”页",
-        "P": "单页模式\n将键图和键表显示在一个长页面内，简化页面，隐藏操作台（以便打印）",
-        "Shift+P": "分页模式\n将键图和键表显示在不同分页，提供完整操作界面",
-        "shift+P": "分页模式\n将键图和键表显示在不同分页，提供完整操作界面",
-        "M": "Mac键盘布局\nPC 和 Mac 有些键是不同的，基本上除字母键、Fn键以外的都不同。",
+        "P": "单页模式\n\n将键图和键表显示在一个长页面内，简化页面，隐藏操作台（以便打印）",
+        "Shift+P": "分页模式\n\n将键图和键表显示在不同分页，提供完整操作界面",
+        "shift+P": "分页模式\n\n将键图和键表显示在不同分页，提供完整操作界面",
+        "M": "Mac键盘布局\n\nPC 和 Mac 有些键是不同的，基本上除字母键、Fn键以外的都不同。",
         "Shift+M": "PC键盘布局",
         "shift+M": "PC键盘布局",
         // "F": "* 显示全部映射\n  显示 包含“非本键盘按键”的映射信息\n  当组合键中包含有“非本键盘按键”时，受本开关控制。",
         // "Shift+F": "关闭显示全部映射",
         // "shift+F": "关闭显示全部映射",
-        "F2": "键盘层改名\n也可以双击上方的键盘层名字进行修改",
+        "F2": "键盘层改名\n\n也可以双击上方的键盘层名字进行修改",
         "LB": "录入快捷键信息",
-        "RB": "筛选快捷键\n键图：突出显示快捷键中包含选中键的那些键帽\n键表：只显示选中键相关的快捷键\n按 p 切换到单页模式后会有更直观的感受",
-        "Ctrl+RB": "多键筛选\n可同时选择多个键进行筛选，结果为同时包含这些键的快捷键",
+        "RB": "筛选快捷键\n\n键图：突出显示快捷键中包含选中键的那些键帽\n键表：只显示选中键相关的快捷键\n按 p 切换到单页模式后会有更直观的感受",
+        "Ctrl+RB": "多键筛选\n\n可同时选择多个键进行筛选，结果为同时包含这些键的快捷键",
         "Ctrl+O": "* 从文件载入",
         "Ctrl+S": "* 保存至文件",
         "Ctrl+P": "生成单页模式图片",
         "#comment": HELP1
     },
     "#2": {
-        "Caps": "自定义修饰键\n可以将任意键设为修饰键",
-        "XK1": "扩展键做修饰键\n扩展键也可以做修饰键",
+        "Caps": "自定义修饰键\n\n可以将任意键设为修饰键",
+        "XK1": "扩展键做修饰键\n\n扩展键也可以做修饰键",
         "Caps+A": "* 使用自定义修饰键的快捷键",
         "XK1+Z": "* 使用扩展键做修饰键的快捷键",
         "Alt+1": "未分组",
-        "Ctrl+Q": "未分组",
+        "Ctrl+Q": "* 未分组",
         "Shift+A": "未分组",
         "Win+Z": "未分组",
-        "Alt+Ctrl+3": "组1\n::g1",
-        "Ctrl+Shift+E": "组1\n::g1",
-        "Shift+Win+D": "组1\n::g1",
-        "RAlt+Win+C": "组1\n::g1",
-        "Alt+Ctrl+Shift+5": "组2\n::g2",
-        "Ctrl+Shift+Win+T": "组2\n::g2",
-        "RAlt+Shift+Win+G": "组2\n::g2",
-        "RAlt+RCtrl+Win+B": "组2\n::g2",
-        "Ctrl+RShift+D": "组3，但不是主快捷键\n::g3",
-        "Ctrl+Shift+Q": "组1，但不是主快捷键\n::g1",
+        "Alt+Ctrl+3": "组1\n\n::g1",
+        "Ctrl+Shift+E": "组1\n\n::g1",
+        "Shift+Win+D": "* 组1\n\n::g1",
+        "RAlt+Win+C": "组1\n\n::g1",
+        "Alt+Ctrl+Shift+5": "组2\n\n::g2",
+        "Ctrl+Shift+Win+T": "组2\n\n::g2",
+        "RAlt+Shift+Win+G": "组2\n\n::g2",
+        "RAlt+RCtrl+Win+B": "组2\n\n::g2",
+        "Ctrl+RShift+D": "组3\n\n但不是主快捷键::g3",
+        "Ctrl+Shift+Q": "组1\n\n但不是主快捷键::g1",
         "RCtrl+Shift+Win+T": "组4\n::g4",
         "Ctrl+RShift+Win+T": "组5\n::g5",
         "#comment": HELP2
@@ -1700,8 +1731,9 @@ var Keymap = {
         "modkeys": [],
         "modkey_colors": MODKEY_COLORS, // {},
         "modkey_chars": MODKEY_CHARS, // {},
-        "modkey_mode": "raw", // "raw", "chr", "dot",
-        "modkey_clr": false,
+        "modkey_mode": "chr", // "raw", "chr", "dot",
+        "modkey_clr": true,
+        "modkey_clr_list": true,
         "mod-cs2": 0.7,
         "mod-ds2": 0.5,
         "layer_names": {},
@@ -2121,7 +2153,6 @@ var Keymap = {
     get ModKeyMode() {
         return this.Config.modkey_mode;
     },
-
     set ModKeyMode(v) {
         this.Config.modkey_mode = v;
     },
@@ -2129,9 +2160,15 @@ var Keymap = {
     get ModKeyColorMode() {
         return this.Config.modkey_clr;
     },
-
     set ModKeyColorMode(v) {
         this.Config.modkey_clr = Boolean(v);
+    },
+
+    get ModKeyInListColorMode() {
+        return this.Config.modkey_clr_list;
+    },
+    set ModKeyInListColorMode(v) {
+        this.Config.modkey_clr_list = Boolean(v);
     },
 
     getLayoutKeyTable(l = null) {
@@ -2902,7 +2939,7 @@ UI.Keyboard = {
         let l = Keymap.getAllMappings(elm_k.dataset.k);
         for (const kn in l) {
             if (!Keymap.checkFilter(kn)) continue;
-            s.push(`${Util.gen_combo_kn_elm(kn)}<km data-combo="${kn}" class="kinfo ${l[kn].is_main?"is_main":""}">${l[kn].text}</km>`);
+            s.push(`${Util.gen_combo_kn_elm(kn, true, Keymap.ModKeyColorMode)}<km data-combo="${kn}" class="kinfo ${l[kn].is_main?"is_main":""}">${l[kn].text}</km>`);
         }
         // s.push(`<div class="new_combo">录入新快捷键</div>`);
         if (s.length <= 0) return;
@@ -3002,9 +3039,9 @@ UI.Keyboard = {
                 elm.onmouseenter = (evt) => { this.showTip(elm) };
                 // elm.onmouseleave = (evt) => { this.clearTips() };
                 elm.onclick = (evt) => { UI.setMapping(elm.querySelector(".ktr").dataset.k || elm.dataset.k); };
-                if (Keymap.isModKey(elm.dataset.k)) {
-                    elm.oncontextmenu = (evt) => {
-                        evt.preventDefault();
+                elm.oncontextmenu = (evt) => {
+                    evt.preventDefault();
+                    if (Keymap.isModKey(elm.dataset.k)) {
                         UI.toggleFilter(elm.dataset.k, evt.ctrlKey);
                     }
                 }
@@ -3124,9 +3161,12 @@ UI.List = {
         let mods = [];
         for (const k of Keymap.ModKeys) {
             if (Keymap.isKBKeys(k)) {
-                let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
-                mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn data-k="${k}" class="ck ${Keymap.ModKeyColorMode?'mod_color':''}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
-                // mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn class="ck">${k}</kn></label>`)
+                if (Keymap.ModKeyInListColorMode) {
+                    let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
+                    mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn data-k="${k}" class="ck mod_color" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
+                } else {
+                    mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn data-k="${k}" class="ck">${k}</kn></label>`)
+                }
             }
         }
         mods.push(`<span style="flex: 1;text-align:end;"><input class="search" style="width: 6rem;border: 1px solid gray;border-radius: 3px;" placeholder="按文字筛选" /></span>`);
@@ -3216,11 +3256,11 @@ UI.List = {
             lst.push("未分组");
             group_color = false;
         }
-        if (Object.keys(ks).length <= 1) {
-            this.Elm.style.setProperty("columns", "unset");
-        } else {
-            this.Elm.style.removeProperty("columns");
-        }
+        // if (Object.keys(ks).length <= 1) {
+        //     this.Elm.style.setProperty("columns", "unset");
+        // } else {
+        //     this.Elm.style.removeProperty("columns");
+        // }
         let s = [];
         for (const by of lst) {
             if (!ks[by]) continue;
@@ -3232,7 +3272,7 @@ UI.List = {
                 s.push(`<div class="group_label">${by}</div>`);
             }
             for (const mi of ks[by]) {
-                s.push(`${Util.gen_combo_kn_elm(mi.combo, group_color, true)}<km data-mainkey="${mi.mainkey}" data-combo="${mi.combo}" class="kinfo ${mi.is_main?"is_main":""}">${mi.text}</km>`);
+                s.push(`${Util.gen_combo_kn_elm(mi.combo, group_color, Keymap.ModKeyInListColorMode)}<km data-mainkey="${mi.mainkey}" data-combo="${mi.combo}" class="kinfo ${mi.is_main?"is_main":""}">${mi.text}</km>`);
             }
             s.push(`</div>`);
         }
@@ -3345,8 +3385,12 @@ async function setmapping_dlg(combo_str) {
         let mods = [];
         for (const k of Keymap.ModKeys) {
             if (k != mk && Keymap.isKBKeys(k)) {
-                let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
-                mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn class="ck ${Keymap.ModKeyColorMode?'mod_color':''}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
+                if (Keymap.ModKeyColorMode) {
+                    let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
+                    mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn data-k="${k}" class="ck mod_color" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
+                } else {
+                    mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn data-k="${k}" class="ck">${k}</kn></label>`)
+                }
             }
         }
         let grps = ['<option value="" style="background-color: var(--c1);">未分组</option>'];
@@ -3364,7 +3408,7 @@ async function setmapping_dlg(combo_str) {
                 <kn style="grid-row: 1 / -1;">${mk}</kn>
                 </div>
                 <div style="flex:1;display:flex;flex-flow:column;">
-                    <textarea id="st_mapping" style="flex:1;border-width:1px;" autofocus>${mi.text || ""}</textarea>
+                    <textarea id="st_mapping" style="flex:1;border-width:1px;" autofocus placeholder="在这里记录快捷键的说明信息文字\n\n第一个空行之前的文字会显示在键帽上">${mi.text || ""}</textarea>
                     <div style="margin-top: 5px;">
                         <label style="position: relative;" data-help="将快捷键设定为“主快捷键”\n在键图中，会在键帽上优先显示主快捷键的信息\n在键表中，主快捷键的右上角会有一个“★”标记">
                             <input type="checkbox" id="is_main">在键帽上优先显示
@@ -3481,11 +3525,11 @@ async function setting_dlg() {
                 <label style="grid-column: span 2;"><input type="checkbox" id="kbext" />显示扩展键盘</label>
                 <span>键盘层数</span><input type="number" id="layers" min="1" step="1" style="width: 3rem;" />
                 <span style="grid-column: span 2;"><label><input type="checkbox" id="showall" />显示不属于本键盘布局的按键</label></span>
-                <span>扩展键盘</span><textarea id="extkeys" style="height: 3rem;border:1px solid black;white-space: nowrap;grid-column: 2 / -1;"></textarea>
-                <span>分组</span><textarea id="groups" style="grid-column: 2 / -1;height: 3rem;border:1px solid black;"></textarea>
-                <span>键表列数</span><input type="number" id="cols" min="1" max="10" step="1" style="width: 3rem;" />
-                <label style="grid-column: 3 / -1;"><input type="checkbox" id="list_by" />键表按分组显示</label>
-                <span><label><input type="checkbox" id="show_comment" />显示备注框</label></span>
+                <span>扩展键盘</span><textarea id="extkeys" style="white-space: nowrap;grid-column: 2 / -1;"></textarea>
+                <span>分组</span><textarea id="groups" style="grid-column: 2 / -1;"></textarea>
+                <!--<span>键表列数</span><input type="number" id="cols" min="1" max="10" step="1" style="width: 3rem;" />-->
+                <label style="grid-column: 2 / -1;"><input type="checkbox" id="list_by" />键表按分组显示</label>
+                <span><label><input type="checkbox" id="show_comment" />显示备注</label></span>
                 <span>备注文字大小</span><input type="number" id="comment-font-size" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <div class="subttl"></div>
                 <div id="demo" data-kbhint="true" style="grid-column: 1 / -1;display:flex;gap:10px;align-items:center;justify-content:center;">
@@ -3534,8 +3578,10 @@ async function setting_dlg() {
                 </select>
                 <span>字符大小</span><input type="number" id="mod-cs2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <span>颜色块大小</span><input type="number" id="mod-ds2" min="0.1" max="10" step="0.05" style="width: 3rem;grid-column: 6 / -1;" />
-                <span>缩写</span><textarea id="modkey_chars" style="height: 3rem;border:1px solid black;grid-column: 2 / -1;"></textarea>
-                <span><label><input type="checkbox" id="modkey_clr" />启用颜色</label></span><textarea id="modkey_colors" style="height: 3rem;border:1px solid black;grid-column: 2 / -1;"></textarea>
+                <span>缩写</span><textarea id="modkey_chars" style="grid-column: 2 / -1;"></textarea>
+                <span>颜色</span><textarea id="modkey_colors" style="grid-column: 2 / -1;"></textarea>
+                <label style="grid-column: 2;"><input type="checkbox" id="modkey_clr" />在键图中启用颜色</label>
+                <label><input type="checkbox" id="modkey_clr_list" />在键表中启用颜色</label>
             </div>
             <div style="text-align: right;">
                 <button class="btn btnclr danger" style="float:left;">Reset</button>
@@ -3629,6 +3675,9 @@ async function setting_dlg() {
                 case "modkey_clr":
                     c.checked = cfg.modkey_clr;
                     break;
+                case "modkey_clr_list":
+                    c.checked = cfg.modkey_clr_list;
+                    break;
                 case "groups": {
                     let l = [];
                     for (const gn in cfg.groups) {
@@ -3712,6 +3761,9 @@ async function setting_dlg() {
                         break;
                     case "modkey_clr":
                         cfg.modkey_clr = c.checked;
+                        break;
+                    case "modkey_clr_list":
+                        cfg.modkey_clr_list = c.checked;
                         break;
                     case "groups":
                         cfg.groups = {};
