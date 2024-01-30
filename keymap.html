@@ -222,9 +222,6 @@ k.no-rel {
     height: var(--kh);
 }
 
-.kinfo {
-    cursor: pointer;
-}
 .kinfo.no-rel {
     display: none;
 }
@@ -302,9 +299,9 @@ kn, km {
 kn {
     font-weight: bold;
     color: var(--c0);
-    background-color: var(--gc, var(--c1));
-    border: 1px solid var(--gc, var(--c1));
-    border-radius: 5px;
+    /* background-color: var(--gc, var(--c1));
+    border: 1px solid var(--gc, var(--c1)); */
+    border-radius: 4px;
     height: fit-content;
     width: fit-content;
     min-width: 2rem;
@@ -322,22 +319,24 @@ kn.ck.no-sel {
     /* mode 2 */
     /* background-image: linear-gradient(rgba(255, 255, 255, 0.5) , rgba(255, 255, 255, 0.5)); */
     /* mode 3 with mod_color */
-    /* color: #000;
+    color: gray;
     background-color: rgba(255, 255, 255, 0.85);
-    background-blend-mode: overlay; */
+    background-blend-mode: overlay;
 }
 kn.ck.sel {
     /* mode 1 */
     /* outline: 1px dashed darkgreen;
     outline-offset: 0px; */
     /* mode 2 */
-    background-color: darkgreen !important;
+    /* background-color: darkgreen !important;
     color: whitesmoke !important;
-    font-weight: bold;
+    font-weight: bold; */
 }
 kn.mk {
     padding-left: 10px;
     padding-right: 10px;
+    background-color: white;
+    border: 1px solid lightgray;
 }
 .new_combo {
     color: #333;
@@ -353,7 +352,7 @@ kn.mk {
 .kinfo.is_main kn.mk {
     /* border-color: #333; */
 }
-.kinfo.is_main kn.mk::after {
+.kinfo.is_main kn.mk::before {
 /* km.kinfo.is_main::before { */
     content: "★";
     position: absolute;
@@ -365,22 +364,10 @@ kn.mk {
     line-height: 10px;
     color: #333;
 }
-.kinfo:hover::after {
-    content: "点击修改";
-    position: absolute;
-    transform: translate(-1px, 1px);
-    font-size: 0.9rem;
-    font-weight: normal;
-    line-height: 1rem;
-    color: #666;
-    display: block;
-    border: 1px solid darkgray;
-    background-color: whitesmoke;
-    box-shadow: 2px 2px 4px;
-    padding: 3px;
-    white-space: pre;
-    z-index: 1;
-    pointer-events: none;
+.kinfo.combo {
+    /* position: relative; */
+    cursor: pointer;
+    /* width: 15rem; */
 }
 .hidden {
     display: none !important;
@@ -398,11 +385,11 @@ km {
     white-space: pre-wrap;
     word-break: break-all;
     word-wrap: break-word;
-    padding: 2px 5px;
+    padding: 2px 10px;
     margin-right: 5px;
     border: 1px solid lightgray;
-    border-radius: 5px;
-    background-color: lightgray;
+    border-radius: 4px;
+    background-color: #e0e0e0;
 }
 
 .mod_color {
@@ -546,7 +533,7 @@ kn.na,
     text-overflow: ellipsis;
     max-width: calc(var(--w) * 0.5);
     position: absolute;
-    box-shadow: 0px 3px 5px #000;
+    box-shadow: 2px 3px 10px 3px #000;
     opacity: 0;
     transition: opacity 0.3s;
     z-index: 2;
@@ -673,7 +660,7 @@ kn.na,
     /* border: 1px dashed gray; */
     border-radius: 5px;
     padding: 5px;
-    background-color: #e0e0e0;
+    background-color: #eaeaea;
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
@@ -683,19 +670,56 @@ kn.na,
     content: "筛选";
 }
 #list {
-    display: grid;
+    /* display: grid;
     grid-template-columns: repeat(var(--cols), max-content 1fr);
     gap: 10px 2px;
-    align-content: flex-start;
+    align-content: flex-start; */
+    columns: var(--cols);
     padding: 10px;
     box-sizing: border-box;
-    height: 100%;
+    /* height: 100%; */
+    flex: 1;
     width: 100%;
     overflow-y: auto;
 }
+#list>.group {
+    display: grid;
+    grid-template-columns: minmax(6rem, max-content) 1fr;
+    gap: 10px 2px;
+    align-content: flex-start;
+    box-sizing: border-box;
+    margin-bottom:10px;
+    padding: 5px;
+    overflow: auto;
+    background-color: #ececec;
+    /* border: 1px solid darkgray; */
+    border-radius: 10px;
+    /* background-image: linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6));
+    background-color: var(--gc); */
+}
 #list .group_label {
+    grid-column:1 / -1;
     padding: 2px 10px;
     font-weight: bold;
+    /* border: 0px solid darkgray;
+    border-bottom-width: 1px; */
+    display: flex;
+    align-items: center;
+}
+#list .group_label::before {
+    content: "";
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    background-color: var(--gc);
+    border: 1px solid lightgray;
+    border-radius: 3px;
+    box-shadow: 1px 1px;
+    margin-right: 10px;
+}
+#list>.group km {
+    /* background-color: unset;
+    border-width: 0px; */
 }
 /* .group_label::before {
     content: "";
@@ -1433,7 +1457,7 @@ var Util = {
             g += " is_main";
         }
         l.push(`<kn data-k="${mk}" class="mk">${mk}</kn>`)
-        return `<span data-mainkey="${mk}" data-combo="${kn}" class="kinfo f-end combo ${g}" style="${c}">${l.join("+")}</span>`;
+        return `<span data-mainkey="${mk}" data-combo="${kn}" class="kinfo f-end combo ${g}" style="${c}" title="点击修改">${l.join("+")}</span>`;
     },
 
     parseVersion(v) {
@@ -1922,8 +1946,16 @@ var Keymap = {
         } else {
             s.push(g);
         }
-        ret.digest = s[0] || "";
+        // ret.digest = s[0] || "";
         ret.text = s.join("\n");
+        for (const l of s) {
+            if (l.trim()) {
+                ret.digest += l.trim() + "\n";
+            } else {
+                break;
+            }
+        }
+        ret.digest = ret.digest.trim();
         return ret;
     },
 
@@ -2798,7 +2830,7 @@ var UI = {
         await this.save();
     },
 
-    toggleMapping(mk, multi) {
+    toggleFilter(mk, multi) {
         // this.List.toggleMapping(this.Keyboard.toggleMapping(mk));
         if (Keymap.isFilterKey(mk)) {
             if (multi)
@@ -2864,8 +2896,8 @@ UI.Keyboard = {
     },
 
     showTip(elm_k) {
-        if (!elm_k.classList.contains("set")) return;
         this.clearTips();
+        if (!elm_k.classList.contains("set")) return;
         let s = [];
         let l = Keymap.getAllMappings(elm_k.dataset.k);
         for (const kn in l) {
@@ -2878,7 +2910,7 @@ UI.Keyboard = {
         temp.innerHTML = `<div class="kms_info">${s.join("")}</div>`;
         let elm_tip = temp.children[0];
         elm_tip.onmouseleave = (evt) => { this.clearTips() };
-        for (const i of elm_tip.querySelectorAll(".kinfo")) {
+        for (const i of elm_tip.querySelectorAll(".kinfo.combo")) {
             i.onclick = async (evt) => { await UI.setMapping(i.dataset.combo); };
         }
         // elm_tip.querySelector(".new_combo").onclick = async (evt) => { await UI.setMapping(elm_k.dataset.k); };
@@ -2896,23 +2928,24 @@ UI.Keyboard = {
         elm_tip.style.minHeight = "var(--kh)";
         let elm_parent = (this.Elm.contains(elm_k)) ? this.Elm : this.ElmExt;
         elm_parent.appendChild(elm_tip);
-        if (elm_k.offsetLeft > elm_parent.offsetWidth - elm_tip.offsetWidth)
-            elm_tip.style.left = elm_k.offsetLeft + elm_k.offsetWidth - elm_tip.offsetWidth;
-        else
-            elm_tip.style.left = elm_k.offsetLeft;
-        // if (elm_k.offsetTop > elm_parent.offsetHeight - elm_tip.offsetHeight - 2) {
-        //     elm_tip.style.top = elm_parent.offsetHeight - elm_tip.offsetHeight - 4;
-        // } else {
-            elm_tip.style.top = elm_k.offsetTop;
+        // if (elm_k.offsetLeft > elm_parent.offsetWidth - elm_tip.offsetWidth)
+        //     elm_tip.style.left = elm_k.offsetLeft + elm_k.offsetWidth - elm_tip.offsetWidth;
+        // else
+        //     elm_tip.style.left = elm_k.offsetLeft;
+        // if (elm_tip.offsetLeft < 2) {
+        //     elm_tip.style.left = 2;
+        //     elm_tip.style.maxWidth = elm_parent.offsetWidth - 4;
         // }
-        // if (elm_tip.offsetTop < 2) {
-        //     elm_tip.style.top = 0;
-        //     elm_tip.style.maxHeight = elm_parent.offsetHeight - 4;
-        // }
-        if (elm_tip.offsetLeft < 2) {
-            elm_tip.style.left = 2;
-            elm_tip.style.maxWidth = elm_parent.offsetWidth - 4;
+        let left = elm_k.offsetLeft; // + elm_k.offsetWidth;
+        let maxWidth = elm_parent.offsetWidth - elm_k.offsetLeft - elm_k.offsetWidth;
+        if (elm_k.offsetLeft > elm_parent.offsetWidth - elm_tip.offsetWidth) {
+            left = elm_k.offsetLeft - elm_tip.offsetWidth + elm_k.offsetWidth;
+            maxWidth = elm_k.offsetLeft;
         }
+        elm_tip.style.left = left;
+        elm_tip.style.width = Math.min(elm_tip.style.offsetWidth, maxWidth);
+        
+        elm_tip.style.top = elm_k.offsetTop + elm_k.offsetHeight;
         elm_tip.style.opacity = 1;
     },
 
@@ -2972,7 +3005,7 @@ UI.Keyboard = {
                 if (Keymap.isModKey(elm.dataset.k)) {
                     elm.oncontextmenu = (evt) => {
                         evt.preventDefault();
-                        UI.toggleMapping(elm.dataset.k, evt.ctrlKey);
+                        UI.toggleFilter(elm.dataset.k, evt.ctrlKey);
                     }
                 }
             } else {
@@ -3080,6 +3113,7 @@ UI.Keyboard = {
 
 UI.List = {
     Elm: UI.elm("#list"),
+    ElmMods: UI.elm("#mods"),
 
     get Items() {
         return this.Elm.querySelectorAll(".kinfo");
@@ -3090,15 +3124,16 @@ UI.List = {
         let mods = [];
         for (const k of Keymap.ModKeys) {
             if (Keymap.isKBKeys(k)) {
-                // let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
-                // mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn class="ck ${Keymap.ModKeyColorMode?'mod_color':''}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
-                mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn class="ck">${k}</kn></label>`)
+                let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
+                mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn data-k="${k}" class="ck ${Keymap.ModKeyColorMode?'mod_color':''}" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
+                // mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn class="ck">${k}</kn></label>`)
             }
         }
         mods.push(`<span style="flex: 1;text-align:end;"><input class="search" style="width: 6rem;border: 1px solid gray;border-radius: 3px;" placeholder="按文字筛选" /></span>`);
-        UI.elm("#mods").innerHTML = mods.join("");
-        for (const e of UI.elm("#mods").querySelectorAll('input[type="checkbox"]')) {
+        this.ElmMods.innerHTML = mods.join("");
+        for (const e of this.ElmMods.querySelectorAll('input[type="checkbox"]')) {
             e.checked = Keymap.isFilterKey(e.value);
+            // this.ElmMods.querySelector(`kn[data-k="${e.value}"]`).classList.add(e.checked ? "sel" : "no-sel");
             e.onchange = (evt) => {
                 if (e.checked) {
                     Keymap.addFilterKey(e.value);
@@ -3108,7 +3143,7 @@ UI.List = {
                 UI.List.update();
             }
         }
-        UI.elm("#mods").querySelector(".search").onkeyup = (evt) => {
+        this.ElmMods.querySelector(".search").onkeyup = (evt) => {
             if (evt.key == "Enter") evt.target.blur();
             let srch = evt.target.value.toLowerCase();
             for (const i of this.Items) {
@@ -3136,7 +3171,20 @@ UI.List = {
                     by = (l[kn].group && l[kn].group in Keymap.Groups) ? l[kn].group : "未分组";
                 } else { //if (Keymap.Config.list_by == "key") {
                     // by = mk;
-                    by = "KEY";
+                    // by = "KEY";
+                    let MK = mk[0].toUpperCase();
+                    if (MK >= "0" && MK <= "9")
+                        by = "0-9";
+                    else if (MK >= "A" && MK <= "G")
+                        by = "A-G";
+                    else if (MK >= "H" && MK <= "N")
+                        by = "H-N";
+                    else if (MK >= "O" && MK <= "T")
+                        by = "O-T";
+                    else if (MK >= "U" && MK <= "Z")
+                        by = "U-Z";
+                    else
+                        by = "其他";
                 }
                 if (!(by in ks))
                     ks[by] = [];
@@ -3158,24 +3206,35 @@ UI.List = {
                 if (a.mainkey === b.mainkey) return 0;
             });
         }
-        let lst = {};
+        let lst = [];
         let group_color = true;
         if (Keymap.Config.list_by == "key") {
-            // lst = Keymap.KeyTable;
-            lst = {"KEY": ""};
+            lst = ["A-G", "H-N", "O-T", "U-Z", "0-9", "其他"];
+            // lst = {"KEY": ""};
         } else if (Keymap.Config.list_by == "group") {
-            lst = Object.assign({}, Keymap.Groups);
-            lst["未分组"] = "var(--c1)";
+            lst = Object.keys(Keymap.Groups);
+            lst.push("未分组");
             group_color = false;
         }
+        if (Object.keys(ks).length <= 1) {
+            this.Elm.style.setProperty("columns", "unset");
+        } else {
+            this.Elm.style.removeProperty("columns");
+        }
         let s = [];
-        for (const by in lst) {
+        for (const by of lst) {
             if (!ks[by]) continue;
-            if (Keymap.Config.list_by == "group")
-                s.push(`<div class="group_label" style="grid-column:1 / -1;background-color: ${Keymap.getGroupColor(by)||"var(--c1)"}">${Keymap.getGroupAlias(by)}</div>`);
-            for (const mi of ks[by]) {
-                s.push(`${Util.gen_combo_kn_elm(mi.combo, group_color, false)}<km data-mainkey="${mi.mainkey}" data-combo="${mi.combo}" class="kinfo ${mi.is_main?"is_main":""}">${mi.text}</km>`);
+            if (Keymap.Config.list_by == "group") {
+                s.push(`<div class="group" style="--gc: ${Keymap.getGroupColor(by)||"var(--c1)"};">`);
+                s.push(`<div class="group_label">${Keymap.getGroupAlias(by)}</div>`);
+            } else {
+                s.push(`<div class="group" style="--gc: var(--c1);">`);
+                s.push(`<div class="group_label">${by}</div>`);
             }
+            for (const mi of ks[by]) {
+                s.push(`${Util.gen_combo_kn_elm(mi.combo, group_color, true)}<km data-mainkey="${mi.mainkey}" data-combo="${mi.combo}" class="kinfo ${mi.is_main?"is_main":""}">${mi.text}</km>`);
+            }
+            s.push(`</div>`);
         }
         // let s = [];
         // for (const mk in Keymap.KeyTable) {
@@ -3194,7 +3253,8 @@ UI.List = {
             }
         }
         for (const i of this.Items) {
-            i.onclick = async (evt) => { await UI.setMapping(i.dataset.combo); };
+            if (i.classList.contains("combo"))
+                i.onclick = async (evt) => { await UI.setMapping(i.dataset.combo); };
         }
         // check filter keys
         if (Keymap.isFiltered()) {
