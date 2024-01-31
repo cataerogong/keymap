@@ -222,17 +222,6 @@ k.no-rel {
     height: var(--kh);
 }
 
-.kinfo.no-rel {
-    display: none;
-}
-.kinfo.combo.group {
-    align-self: start;
-    /* padding: 3px;
-    border: 1px solid darkgray;
-    border-radius: 5px;
-    background-color: var(--gc, transparent); */
-}
-
 .k1 {
     width: var(--kw);
 }
@@ -299,7 +288,6 @@ kn, km {
 kn {
     font-weight: bold;
     color: var(--c0);
-    background-color: var(--gc, var(--c1));
     border: 1px solid transparent;
     border-radius: 4px;
     height: fit-content;
@@ -315,33 +303,26 @@ kn.ck {
     background-color: var(--c1);
     border-color: white;
 }
-kn.ck.no-sel {
-    /* mode 2 */
-    /* background-image: linear-gradient(rgba(255, 255, 255, 0.5) , rgba(255, 255, 255, 0.5)); */
-    /* mode 3 with mod_color */
-    color: gray;
-    background-color: rgba(255, 255, 255, 0.85);
-    background-blend-mode: overlay;
-}
-kn.ck.sel {
-    /* mode 1 */
-    /* outline: 1px dashed darkgreen;
-    outline-offset: 0px; */
-    /* mode 2 */
-    /* background-color: darkgreen !important;
-    color: whitesmoke !important;
-    font-weight: bold; */
-}
 kn.mk {
     padding-left: 10px;
     padding-right: 10px;
     background-color: white;
     border: 1px solid lightgray;
 }
-.kinfo.group kn.mk {
-    /* background-color: var(--gc, var(--c1)); */
+
+kcombo {
+    cursor: pointer;
+    display: flex;
+    gap: 2px;
 }
-.kinfo.group kn.mk::after {
+kcombo.group {
+    /* padding: 3px;
+    border: 1px solid darkgray;
+    border-radius: 5px;
+    background-color: var(--gc, transparent); */
+}
+kcombo.group kn.mk::after {
+    /* 快捷键列表中，主键上显示分组色块 */
     content: "";
     position: absolute;
     bottom: 1px;
@@ -351,22 +332,8 @@ kn.mk {
     background-color: var(--gc);
     border-radius: 2px;
 }
-.new_combo {
-    color: #333;
-    border: 1px solid gray;
-    border-radius: 5px;
-    padding: 3px 5px;
-    height: fit-content;
-    width: fit-content;
-    grid-column: span 2;
-    cursor: pointer;
-    margin-top: 10px;
-}
-.kinfo.is_main kn.mk {
-    /* border-color: #333; */
-}
-.kinfo.is_main kn.mk::before {
-/* km.kinfo.is_main::before { */
+kcombo.is_main kn.mk::before {
+    /* 快捷键列表中，主键上显示主快捷键标志 */
     content: "★";
     position: absolute;
     top: 0px;
@@ -375,15 +342,9 @@ kn.mk {
     font-weight: normal;
     font-size: 12px;
     line-height: 10px;
-    color: #333;
+    color: #666;
 }
-.kinfo.combo {
-    /* position: relative; */
-    cursor: pointer;
-    /* width: 15rem; */
-    display: flex;
-    gap: 2px;
-}
+
 .hidden {
     display: none !important;
 }
@@ -393,7 +354,7 @@ kn.mk {
     text-align: right;
 }
 
-km {
+kinfo {
     position: relative;
     width: fit-content;
     height: fit-content;
@@ -402,9 +363,9 @@ km {
     word-wrap: break-word;
     padding: 2px 10px;
     margin-right: 5px;
-    border: 1px solid lightgray;
+    border: 1px solid #e0e0e0;
     border-radius: 4px;
-    background-color: #e0e0e0;
+    background-color: #f0f0f0;
 }
 
 .mod_color {
@@ -450,16 +411,6 @@ k.mod .ktn,
 k.mod .ktr .mk {
     text-decoration: underline dashed;
     text-underline-offset: 2px;
-}
-k.mod .ktr .mk {
-    /* border: 1px solid white; */
-}
-k.set .ktr .mk {
-    /* outline: 1px solid darkgray; */
-    /* background-color: var(--c1); */
-}
-k.set.group .ktr .mk {
-    /* outline: 1px solid darkgray; */
 }
 .ktr .mod {
     font-size: var(--mod-cs);
@@ -546,7 +497,7 @@ kn.na,
     /* pointer-events: none; */
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: calc(var(--w) * 0.5);
+    /* max-width: calc(var(--w) * 0.5); */
     position: absolute;
     box-shadow: 2px 3px 10px 3px #000;
     opacity: 0;
@@ -608,8 +559,6 @@ kn.na,
 
 .tabbtn {
     display: inline-block;
-    /* border: 1px solid lightgray;
-    border-bottom: 0px; */
     border-radius: 5px 5px 0 0;
     padding: 5px 10px 0px;
     cursor: pointer;
@@ -671,10 +620,9 @@ kn.na,
 }
 
 #mods {
-    margin: 2px 10px;
-    /* border: 1px dashed gray; */
+    margin: 2px 5px;
     border-radius: 5px;
-    padding: 5px;
+    padding: 5px 10px;
     background-color: #eaeaea;
     display: flex;
     flex-wrap: wrap;
@@ -685,48 +633,27 @@ kn.na,
     content: "筛选";
 }
 #list {
-    /* display: grid;
-    grid-template-columns: repeat(var(--cols), max-content 1fr);
-    gap: 10px 2px;
-    align-content: flex-start; */
-    /* columns: var(--cols); */
-    columns: 450px auto;
-    padding: 10px;
+    padding: 10px 0px;
     box-sizing: border-box;
-    /* height: 100%; */
     flex: 1;
     width: 100%;
     overflow-y: auto;
 }
 #list>.group {
-    display: grid;
-    grid-template-columns: 2fr 3fr;
-    gap: 10px 2px;
-    align-content: flex-start;
-    box-sizing: border-box;
+    columns: 360px auto;
+    column-rule: 1px dashed darkgray;
     margin-bottom:10px;
     padding: 5px;
-    overflow: auto;
-    background-color: #ececec;
-    /* border: 1px solid darkgray; */
     border-radius: 10px;
-    /* background-image: linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6));
-    background-color: var(--gc); */
 }
 #list .group_label {
-    grid-column:1 / -1;
+    column-span: all;
     padding: 2px 10px;
     font-weight: bold;
-    /* border: 0px solid darkgray; */
     border-radius: 5px;
-    background-color: var(--gc);
-    /* display: flex;
-    align-items: center;
-    text-align: center;
-    justify-content: center; */
-    display: grid;
-    grid-template-columns: 2fr 3fr;
-    align-content: flex-start;
+    background-color: rgba(173, 216, 230, 0.5);
+    display: flex;
+    margin-bottom: 10px;
 }
 #list .group_label::before {
     content: "";
@@ -735,12 +662,29 @@ kn.na,
     height: 10px;
     background-color: var(--gc);
     border: 1px solid gray;
-    border-radius: 3px;
-    box-shadow: 1px 1px #000;
+    border-radius: 4px;
     margin-right: 10px;
-    /* filter: brightness(1.1); */
-    justify-self: end;
     align-self: center;
+}
+#list .shortcut {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    padding: 1px;
+    margin-bottom: 5px;
+    overflow-y: auto;
+}
+#list kn.mk, 
+#list kn.ck.sel {
+    box-shadow: 1px 1px #000;
+}
+#list kn.ck.no-sel {
+    color: #333;
+    /* background-color: rgba(255, 255, 255, 0.85);
+    background-blend-mode: overlay; */
+    background-image: unset;
+    /* background-color: rgba(173, 216, 230, 0.5); */
+    background-color: #e0e0e0;
 }
 
 #json {
@@ -762,7 +706,6 @@ dialog {
 
 .kmdlg {
     width: 40rem;
-    /* height: 20rem; */
 }
 
 .name_dlg input[type="text"] {
@@ -777,7 +720,7 @@ dialog {
 .stdlg .sts {
     display: grid;
     grid-auto-flow: row;
-    grid-template-columns: repeat(8, max-content);
+    grid-template-columns: repeat(8, 1fr);
     gap: 5px 1rem;
     align-items:start;
     padding-bottom: 10px;
@@ -947,7 +890,6 @@ dialog {
     position: static;
     visibility: visible;
     height: fit-content;
-    /* border-width: 1px; */
 }
 #pcomment {
     display: none;
@@ -1078,10 +1020,7 @@ dialog {
     /* transition: opacity 0.3s; */
     pointer-events: none;
 }
-/* .show-help:hover::after {
-    visibility: visible;
-    opacity: 1;
-} */
+
 /* exe mode */
 /* [data-launch-mode="exe"] :is(#btn_load_file, #btn_save_file, #btn_save_as_img) {
     display: none;
@@ -1488,7 +1427,7 @@ var Util = {
             s = `<span class="modkeys">` + l.join("") + `</span>`;
         }
         s += `<kn data-k="${mk}" class="mk">${mk}</kn>`;
-        return `<span data-mainkey="${mk}" data-combo="${kn}" class="kinfo f-end combo ${g}" style="${c}" title="点击修改">${s}</span>`;
+        return `<kcombo data-mainkey="${mk}" data-combo="${kn}" class="f-end ${g}" style="${c}" title="点击修改">${s}</kcombo><kinfo data-mainkey="${mk}" data-combo="${kn}">${mi.text}</kinfo>`;
     },
 
     parseVersion(v) {
@@ -1943,17 +1882,27 @@ var Keymap = {
     },
 
     /**
-     * @return {{string: {text: string, digest: string, is_main: boolean, group: string}}}
+     * @return {{string: {text: string, digest: string, is_main: boolean, group: string, combo: string, mainkey: string, combokeys: [string]}}}
      */
      getAllMappings(mk, ln = null) {
-        let ret = {};
+        let l = [];
         for (const kn in this.LayerData(ln)) {
-            if (Util.get_mainkey(kn) == mk && this.LayerData(ln)[kn] && this.isKBKeys(kn)) {
-                let i = this.parseMappingInfo(this.LayerData(ln)[kn]);
+            let combo = Util.split_combo(kn);
+            let mainkey = combo.pop();
+            let info = this.LayerData(ln)[kn];
+            if (mainkey == mk && info && this.isKBKeys(kn)) {
+                let i = this.parseMappingInfo(info);
                 i["combo"] = kn;
                 i["mainkey"] = mk;
-                ret[kn] = i;
+                i["combokeys"] = combo;
+                l.push(i);
             }
+        }
+        // 按键数排序
+        l.sort((a, b) => (a.combokeys.length - b.combokeys.length));
+        let ret = {};
+        for (const i of l) {
+            ret[i.combo] = i;
         }
         return ret;
     },
@@ -2939,18 +2888,16 @@ UI.Keyboard = {
         let l = Keymap.getAllMappings(elm_k.dataset.k);
         for (const kn in l) {
             if (!Keymap.checkFilter(kn)) continue;
-            s.push(`${Util.gen_combo_kn_elm(kn, true, Keymap.ModKeyColorMode)}<km data-combo="${kn}" class="kinfo ${l[kn].is_main?"is_main":""}">${l[kn].text}</km>`);
+            s.push(`${Util.gen_combo_kn_elm(kn, true, Keymap.ModKeyColorMode)}`);
         }
-        // s.push(`<div class="new_combo">录入新快捷键</div>`);
         if (s.length <= 0) return;
         let temp = document.createElement("span");
         temp.innerHTML = `<div class="kms_info">${s.join("")}</div>`;
         let elm_tip = temp.children[0];
         elm_tip.onmouseleave = (evt) => { this.clearTips() };
-        for (const i of elm_tip.querySelectorAll(".kinfo.combo")) {
+        for (const i of elm_tip.querySelectorAll("kcombo")) {
             i.onclick = async (evt) => { await UI.setMapping(i.dataset.combo); };
         }
-        // elm_tip.querySelector(".new_combo").onclick = async (evt) => { await UI.setMapping(elm_k.dataset.k); };
         let ktable = Keymap.getLayoutKeyTable();
         for (const kn of elm_tip.querySelectorAll("kn")) {
             if (!(kn.dataset.k in ktable)) {
@@ -2965,22 +2912,14 @@ UI.Keyboard = {
         elm_tip.style.minHeight = "var(--kh)";
         let elm_parent = (this.Elm.contains(elm_k)) ? this.Elm : this.ElmExt;
         elm_parent.appendChild(elm_tip);
-        // if (elm_k.offsetLeft > elm_parent.offsetWidth - elm_tip.offsetWidth)
-        //     elm_tip.style.left = elm_k.offsetLeft + elm_k.offsetWidth - elm_tip.offsetWidth;
-        // else
-        //     elm_tip.style.left = elm_k.offsetLeft;
-        // if (elm_tip.offsetLeft < 2) {
-        //     elm_tip.style.left = 2;
-        //     elm_tip.style.maxWidth = elm_parent.offsetWidth - 4;
-        // }
-        let left = elm_k.offsetLeft; // + elm_k.offsetWidth;
-        let maxWidth = elm_parent.offsetWidth - elm_k.offsetLeft - elm_k.offsetWidth;
+        let left = elm_k.offsetLeft;
+        let maxWidth = elm_parent.offsetWidth - elm_k.offsetLeft;
         if (elm_k.offsetLeft > elm_parent.offsetWidth - elm_tip.offsetWidth) {
-            left = elm_k.offsetLeft - elm_tip.offsetWidth + elm_k.offsetWidth;
-            maxWidth = elm_k.offsetLeft;
+            left = elm_k.offsetLeft + elm_k.offsetWidth - elm_tip.offsetWidth;
+            maxWidth = elm_k.offsetLeft + elm_k.offsetWidth;
         }
-        elm_tip.style.left = left;
-        elm_tip.style.width = Math.min(elm_tip.style.offsetWidth, maxWidth);
+        elm_tip.style.left = Math.max(left, 0);
+        elm_tip.style.width = Math.min(elm_tip.offsetWidth, maxWidth);
         
         elm_tip.style.top = elm_k.offsetTop + elm_k.offsetHeight;
         elm_tip.style.opacity = 1;
@@ -3152,8 +3091,11 @@ UI.List = {
     Elm: UI.elm("#list"),
     ElmMods: UI.elm("#mods"),
 
-    get Items() {
-        return this.Elm.querySelectorAll(".kinfo");
+    get Kinfos() {
+        return this.Elm.querySelectorAll("kinfo");
+    },
+    get Kcombos() {
+        return this.Elm.querySelectorAll("kcombo");
     },
 
     update() {
@@ -3186,16 +3128,14 @@ UI.List = {
         this.ElmMods.querySelector(".search").onkeyup = (evt) => {
             if (evt.key == "Enter") evt.target.blur();
             let srch = evt.target.value.toLowerCase();
-            for (const i of this.Items) {
-                if (i.tagName == "KM") {
-                    if (!i.innerText.toLowerCase().includes(srch)) {
-                        for (const e of this.Elm.querySelectorAll(`[data-combo="${i.dataset.combo}"]`)) {
-                            e.classList.add("hidden");
-                        }
-                    } else {
-                        for (const e of this.Elm.querySelectorAll(`[data-combo="${i.dataset.combo}"]`)) {
-                            e.classList.remove("hidden");
-                        }
+            for (const i of this.Kinfos) {
+                if (!i.innerText.toLowerCase().includes(srch)) {
+                    for (const e of this.Elm.querySelectorAll(`[data-combo="${i.dataset.combo}"]`)) {
+                        e.classList.add("hidden");
+                    }
+                } else {
+                    for (const e of this.Elm.querySelectorAll(`[data-combo="${i.dataset.combo}"]`)) {
+                        e.classList.remove("hidden");
                     }
                 }
             }
@@ -3234,81 +3174,75 @@ UI.List = {
         // 排序
         for (const by in ks) {
             ks[by].sort((a, b) => {
-                if (Keymap.isFiltered()) {
-                    let la = Util.split_combo(a.combo);
-                    let lb = Util.split_combo(b.combo);
+                let la = Util.split_combo(a.combo);
+                let lb = Util.split_combo(b.combo);
+                if (Keymap.isFiltered()) { // 有筛选，先按键数（匹配度）再按字母序
                     if (la.length - lb.length) {
                         return la.length - lb.length;
                     }
+                    if (a.mainkey > b.mainkey) return 1;
+                    if (a.mainkey < b.mainkey) return -1;
+                    if (a.mainkey === b.mainkey) return 0;
+                } else { // 无筛选，先按字母序再按键数
+                    if (a.mainkey > b.mainkey) return 1;
+                    if (a.mainkey < b.mainkey) return -1;
+                    if (a.mainkey === b.mainkey) return la.length - lb.length;
                 }
-                if (a.mainkey > b.mainkey) return 1;
-                if (a.mainkey < b.mainkey) return -1;
-                if (a.mainkey === b.mainkey) return 0;
             });
         }
         let lst = [];
         let group_color = true;
-        if (Keymap.Config.list_by == "key") {
-            lst = ["A-G", "H-N", "O-T", "U-Z", "0-9", "其他"];
-            // lst = {"KEY": ""};
-        } else if (Keymap.Config.list_by == "group") {
+         if (Keymap.Config.list_by == "group") {
             lst = Object.keys(Keymap.Groups);
             lst.push("未分组");
             group_color = false;
+        } else { // if (Keymap.Config.list_by == "key") {
+            lst = ["A-G", "H-N", "O-T", "U-Z", "0-9", "其他"];
+            // lst = {"KEY": ""};
         }
-        // if (Object.keys(ks).length <= 1) {
-        //     this.Elm.style.setProperty("columns", "unset");
-        // } else {
-        //     this.Elm.style.removeProperty("columns");
-        // }
         let s = [];
         for (const by of lst) {
             if (!ks[by]) continue;
             if (Keymap.Config.list_by == "group") {
                 s.push(`<div class="group" style="--gc: ${Keymap.getGroupColor(by)||"var(--c1)"};">`);
-                s.push(`<div class="group_label">${Keymap.getGroupAlias(by)}</div>`);
+                s.push(`<div class="group_label" style="--gc: ${Keymap.getGroupColor(by)||"var(--c1)"};">${Keymap.getGroupAlias(by)}</div>`);
             } else {
                 s.push(`<div class="group" style="--gc: var(--c1);">`);
-                s.push(`<div class="group_label">${by}</div>`);
+                s.push(`<div class="group_label" style="--gc: var(--c1);">${by}</div>`);
             }
             for (const mi of ks[by]) {
-                s.push(`${Util.gen_combo_kn_elm(mi.combo, group_color, Keymap.ModKeyInListColorMode)}<km data-mainkey="${mi.mainkey}" data-combo="${mi.combo}" class="kinfo ${mi.is_main?"is_main":""}">${mi.text}</km>`);
+                s.push(`<span class="shortcut">${Util.gen_combo_kn_elm(mi.combo, group_color, Keymap.ModKeyInListColorMode)}</span>`);
             }
             s.push(`</div>`);
         }
-        // let s = [];
-        // for (const mk in Keymap.KeyTable) {
-        //     let l = Keymap.getAllMappings(mk);
-        //     if (Util.is_empty_obj(l)) continue;
-        //     for (const kn in l) {
-        //         s.push(`${Util.gen_combo_kn_elm(kn)}<km data-mainkey="${mk}" data-combo="${kn}" class="kinfo">${l[kn].text}</km>`);
-        //     }
-        // }
         // 显示
         this.Elm.innerHTML = s.join('\n');
+        // 为非本键盘布局按键着色
         let ktable = Keymap.getLayoutKeyTable();
+        for (const kn of this.ElmMods.querySelectorAll("kn")) {
+            if (!(kn.dataset.k in ktable)) {
+                kn.classList.add("na");
+            }
+        }
         for (const kn of this.Elm.querySelectorAll("kn")) {
             if (!(kn.dataset.k in ktable)) {
                 kn.classList.add("na");
             }
         }
-        for (const i of this.Items) {
-            if (i.classList.contains("combo"))
-                i.onclick = async (evt) => { await UI.setMapping(i.dataset.combo); };
+        // 绑定修饰键筛选事件
+        for (const i of this.Kcombos) {
+            i.onclick = async (evt) => { await UI.setMapping(i.dataset.combo); };
         }
-        // check filter keys
-        if (Keymap.isFiltered()) {
-            for (const i of this.Items) {
-                // if (Keymap.checkFilter(i.dataset.combo)) {
-                    for (const ck of i.querySelectorAll("kn")) {
-                        if (Keymap.isFilterKey(ck.dataset.k)) {
-                            ck.classList.add("sel");
-                        } else {
-                            ck.classList.add("no-sel");
-                        }
+        // 为修饰键着色
+        if (Keymap.isFiltered()) { // 所有修饰键均未选时，都显示为选中状态
+            for (const i of this.Kcombos) {
+                for (const ck of i.querySelectorAll("kn")) {
+                    if (Keymap.isFilterKey(ck.dataset.k)) {
+                        ck.classList.add("sel");
+                    } else {
+                        ck.classList.add("no-sel");
                     }
-                // } else
-                //     i.classList.add("no-rel");
+                }
             }
         }
     },
@@ -3524,12 +3458,12 @@ async function setting_dlg() {
                 </select>
                 <label style="grid-column: span 2;"><input type="checkbox" id="kbext" />显示扩展键盘</label>
                 <span>键盘层数</span><input type="number" id="layers" min="1" step="1" style="width: 3rem;" />
-                <span style="grid-column: span 2;"><label><input type="checkbox" id="showall" />显示不属于本键盘布局的按键</label></span>
+                <label style="grid-column: span 2;"><input type="checkbox" id="showall" />显示不属于当前键盘布局的按键</label>
                 <span>扩展键盘</span><textarea id="extkeys" style="white-space: nowrap;grid-column: 2 / -1;"></textarea>
                 <span>分组</span><textarea id="groups" style="grid-column: 2 / -1;"></textarea>
                 <!--<span>键表列数</span><input type="number" id="cols" min="1" max="10" step="1" style="width: 3rem;" />-->
                 <label style="grid-column: 2 / -1;"><input type="checkbox" id="list_by" />键表按分组显示</label>
-                <span><label><input type="checkbox" id="show_comment" />显示备注</label></span>
+                <label style="grid-column: 2;"><input type="checkbox" id="show_comment" />显示备注</label>
                 <span>备注文字大小</span><input type="number" id="comment-font-size" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <div class="subttl"></div>
                 <div id="demo" data-kbhint="true" style="grid-column: 1 / -1;display:flex;gap:10px;align-items:center;justify-content:center;">
@@ -3567,7 +3501,7 @@ async function setting_dlg() {
                 <span>键帽高</span><input type="number" id="kh2" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>键名字符大小</span><input type="number" id="ks2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <span>信息文字大小</span><input type="number" id="kt2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
-                <span style="grid-column: span 2;"><label><input type="checkbox" id="show_cnt" />显示快捷键数量提示</label></span>
+                <label style="grid-column: 2 / span 2;"><input type="checkbox" id="show_cnt" />显示快捷键数量提示</label>
                 <div class="subttl">修饰键</div>
                 <span>自定义键</span><input type="text" id="modkeys" style="grid-column: 2 / -1;" />
                 <span>键帽显示</span>
@@ -3580,8 +3514,8 @@ async function setting_dlg() {
                 <span>颜色块大小</span><input type="number" id="mod-ds2" min="0.1" max="10" step="0.05" style="width: 3rem;grid-column: 6 / -1;" />
                 <span>缩写</span><textarea id="modkey_chars" style="grid-column: 2 / -1;"></textarea>
                 <span>颜色</span><textarea id="modkey_colors" style="grid-column: 2 / -1;"></textarea>
-                <label style="grid-column: 2;"><input type="checkbox" id="modkey_clr" />在键图中启用颜色</label>
-                <label><input type="checkbox" id="modkey_clr_list" />在键表中启用颜色</label>
+                <label style="grid-column: 2 / span 2;"><input type="checkbox" id="modkey_clr" />在键图中启用颜色</label>
+                <label style="grid-column: span 2;"><input type="checkbox" id="modkey_clr_list" />在键表中启用颜色</label>
             </div>
             <div style="text-align: right;">
                 <button class="btn btnclr danger" style="float:left;">Reset</button>
@@ -4006,7 +3940,7 @@ async function webwin_init() {
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "3.0.0-alpha";
+var __version__ = "3.0.0-beta-1";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
