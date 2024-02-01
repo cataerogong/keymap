@@ -499,7 +499,7 @@ kn.na,
     text-overflow: ellipsis;
     /* max-width: calc(var(--w) * 0.5); */
     position: absolute;
-    box-shadow: 2px 3px 10px 3px #000;
+    box-shadow: 2px 3px 10px 0px #000;
     opacity: 0;
     transition: opacity 0.3s;
     z-index: 2;
@@ -886,11 +886,12 @@ dialog {
 [data-ui="single"] :is(#btn_load_file, #btn_save_file, #row_tabbar, #kb_ops, #comment, #mods, #json_ops, #tab_json) {
     display: none;
 }
-[data-ui="single"] :is(#tab_kb, #tab_list) {
+[data-ui="single"] :is(#tab_kb, #tab_list, keyboard) {
     position: static;
     visibility: visible;
     height: fit-content;
 }
+
 #pcomment {
     display: none;
     white-space: pre-wrap;
@@ -1112,6 +1113,7 @@ dialog {
         &nbsp;JSON 数据随上图设置实时更新。也可在下方编辑 JSON 数据后：
         <button id="btn_imp" class="btn rnd BIND-CLICK" style="margin: 2px;">导入至当前键谱</button>
         <button id="btn_imp2" class="btn rnd BIND-CLICK" style="margin: 2px;">导入至新键谱</button>
+        <button id="btn_present_js" class="btn rnd BIND-CLICK" style="margin: 2px;" data-help='用于“演示模式”'>导出 "present.js" 文件</button>
     </div>
 </div>
 <div id="tab_kb" class="tab">
@@ -2199,6 +2201,8 @@ var UI = {
         Util.setFlag("launch-mode", v);
     },
 
+    _presenting: false,
+
     elm(sel) {
         return document.querySelector(sel);
     },
@@ -2327,7 +2331,7 @@ var UI = {
                 break;
             case "S":
                 if (evt.ctrlKey) {
-                    saveFile();
+                    saveKeymapFile();
                     upd = false;
                 }
                 break;
@@ -2469,6 +2473,9 @@ var UI = {
             case "btn_imp":
                 await this.import();
                 break;
+            case "btn_present_js":
+                await this.save_present_js();
+                break;
             case "btn_save_as_img":
                 printAsPng(2, Keymap.getLayerPrintName());
                 upd = false;
@@ -2478,7 +2485,7 @@ var UI = {
                 upd = false;
                 break;
             case "btn_save_file":
-                saveFile();
+                saveKeymapFile();
                 upd = false;
                 break;
             default:
@@ -2492,6 +2499,7 @@ var UI = {
     },
 
     async init() {
+        if (this._presenting) return;
         Keymap.init();
         window.onkeydown = async (evt) => { await this.onKeyDown(evt); };
         window.ondragenter = (evt) => { evt.preventDefault(); };
@@ -2605,7 +2613,10 @@ var UI = {
         document.body.appendChild(elm);
     },
 
-    present() {
+    present(__name, __keymap) {
+        this._presenting = true;
+        Keymap.loadJSON(JSON.stringify(__keymap));
+        Keymap.Name = __name || " ";
         Keymap._virtual = true;
         let cmt = Keymap.getMapping("#comment");
         if (cmt.text) {
@@ -2629,12 +2640,15 @@ var UI = {
         this.elm("#ui_switch").style.display = "none";
         this.elm("#btn_ui_tab").onclick = null;
         this.elm("#btn_ui_single").onclick = null;
-        this.elm("#btn_save_as_img").title = "";
-        this.elm("#btn_save_as_img").innerHTML = `?`;
-        this.elm("#btn_save_as_img").style.setProperty("height", "22px");
-        this.elm("#btn_save_as_img").style.setProperty("width", "22px");
-        this.elm("#btn_save_as_img").style.setProperty("line-height", "22px");
-        this.elm("#btn_save_as_img").onclick = () => {
+        this.elm("#mods").style.display = "unset";
+        let help = this.elm("#btn_save_as_img");
+        help.innerHTML = `?`;
+        help.style.setProperty("display", "unset");
+        help.dataset.help = "简易操作指南";
+        help.style.setProperty("height", "22px");
+        help.style.setProperty("width", "22px");
+        help.style.setProperty("line-height", "22px");
+        help.onclick = () => {
             let dlg = document.createElement("dialog");
             dlg.innerHTML = `<div style="margin:10px;padding:10px;display:flex;flex-flow:column;gap:5px;">
                 <h3>简易操作指南</h3>
@@ -2709,6 +2723,12 @@ var UI = {
             await this.save();
             await _PROFILE_.setLast(Keymap.Name);
         }
+    },
+
+    async save_present_js() {
+        let js = `let __name="${Keymap.Name}";\nlet __keymap=${Keymap.JSON};\nUI.present(__name, __keymap);`;
+        let blob = new Blob([js], { type: "text/javascript;charset=utf-8" });
+        saveFile(blob, "present.js");
     },
 
     async clear() {
@@ -2871,6 +2891,7 @@ UI.Keyboard = {
     _inited: false,
     Elm: UI.elm("#kb_std"),
     ElmExt: UI.elm("#kb_ext"),
+    _tipTimer: null,
 
     get Ks() {
         return UI.elms("k");
@@ -2893,6 +2914,7 @@ UI.Keyboard = {
         let temp = document.createElement("span");
         temp.innerHTML = `<div class="kms_info">${s.join("")}</div>`;
         let elm_tip = temp.children[0];
+        elm_tip.onmouseenter = (evt) => { clearTimeout(this._tipTimer); this._tipTimer = null; }
         elm_tip.onmouseleave = (evt) => { this.clearTips() };
         for (const i of elm_tip.querySelectorAll("kcombo")) {
             i.onclick = async (evt) => { await UI.setMapping(i.dataset.combo); };
@@ -2925,6 +2947,8 @@ UI.Keyboard = {
     },
 
     clearTips() {
+        clearTimeout(this._tipTimer);
+        this._tipTimer = null;
         for (const e of document.querySelectorAll(".kms_info")) {
             e.remove();
         }
@@ -2974,7 +2998,8 @@ UI.Keyboard = {
             if (elm.dataset.k in Keymap.KeyTable) {
                 elm.classList.remove("dis");
                 elm.innerHTML = this._genElmK(Keymap.KeyTable[elm.dataset.k] || elm.dataset.k);
-                elm.onmouseenter = (evt) => { this.showTip(elm) };
+                elm.onmouseenter = (evt) => { this.showTip(elm); };
+                elm.onmouseleave = (evt) => { this._tipTimer = setTimeout(() => { this.clearTips(); }, 100); };
                 // elm.onmouseleave = (evt) => { this.clearTips() };
                 elm.onclick = (evt) => { UI.setMapping(elm.querySelector(".ktr").dataset.k || elm.dataset.k); };
                 elm.oncontextmenu = (evt) => {
@@ -3121,7 +3146,7 @@ UI.List = {
                 } else {
                     Keymap.delFilterKey(e.value);
                 }
-                UI.List.update();
+                UI.update();
             }
         }
         this.ElmMods.querySelector(".search").onkeyup = (evt) => {
@@ -3338,10 +3363,10 @@ async function setmapping_dlg(combo_str) {
                 </div>
                 <div style="padding-top: 5px;">
                 +
-                <kn style="grid-row: 1 / -1;">${mk}</kn>
+                <kn class="mk" style="grid-row: 1 / -1;">${mk}</kn>
                 </div>
                 <div style="flex:1;display:flex;flex-flow:column;">
-                    <textarea id="st_mapping" style="flex:1;border-width:1px;" autofocus placeholder="在这里记录快捷键的说明信息文字\n\n第一个空行之前的文字会显示在键帽上">${mi.text || ""}</textarea>
+                    <textarea id="st_mapping" style="flex:1;border-width:1px;" autofocus placeholder="这里输入快捷键的说明信息。\n说明信息分为两部分：“简介”和“详细信息”，“简介”部分会直接显示在键帽上。\n\n具体格式：\n简介（可以是连续的多行文字）\n（一个空行）\n详细信息">${mi.text || ""}</textarea>
                     <div style="margin-top: 5px;">
                         <label style="position: relative;" data-help="将快捷键设定为“主快捷键”\n在键图中，会在键帽上优先显示主快捷键的信息\n在键表中，主快捷键的右上角会有一个“★”标记">
                             <input type="checkbox" id="is_main">在键帽上优先显示
@@ -3761,7 +3786,7 @@ function printAsPng(imgScale, imgName) {
         windowHeight: document.body.style.height,
         removeContainer: true
     }).then(canvas => {
-        if (UI.LaunchMode == "exe") {
+        if (UI.LaunchMode == "exe" || !("saveAs" in window)) {
             let h=canvas.height/2, w=canvas.width/2, s=1;
             if (h > (window.innerHeight-100) || w > (window.innerWidth-100)) {
                 s = Math.min((window.innerHeight-100)/h, (window.innerWidth-100)/w);
@@ -3806,13 +3831,18 @@ async function openFile() {
         fileSelector.remove();
     });
 }
-// save file
-function saveFile() {
+// save keymap to file
+function saveKeymapFile() {
     let blob = new Blob([Keymap.JSON], { type: "application/json;charset=utf-8" });
-    if (UI.LaunchMode == "exe") {
+    saveFile(blob, Keymap.Name.replace(/[\*\?\\\/\:\"\<\>\|]/, "_") + ".keymap");
+}
+
+// save file
+function saveFile(blob, filename) {
+    if (UI.LaunchMode == "exe" || !("saveAs" in window)) {
         let dlg=document.createElement("dialog");
         dlg.onclose=()=>{dlg.remove();};
-        let fname=Keymap.Name.replace(/[\*\?\\\/\:\"\<\>\|]/, "_") + ".keymap";
+        let fname=filename.replace(/[\*\?\\\/\:\"\<\>\|]/, "_");
         dlg.innerHTML=`<div style="position:absolute;top:0px;right:0px;margin:10px;font-size:1rem;outline:2px solid white;" class="btn rnd close">&times;</div>
         <div style="font-weight:bold;">保存文件</div>
             <div style="padding:10px;">
@@ -3825,7 +3855,7 @@ function saveFile() {
         document.body.appendChild(dlg);
         dlg.showModal();
     } else {
-        saveAs(blob,  Keymap.Name.replace(/[\*\?\\\/\:\"\<\>\|]/, "_") + ".keymap");
+        saveAs(blob, filename.replace(/[\*\?\\\/\:\"\<\>\|]/, "_"));
         // let fileSaver = document.createElement("a");
         // fileSaver.href = window.URL.createObjectURL(blob);
         // fileSaver.download = Keymap.Name.replace(/[\*\?\\\/\:\"\<\>\|]/, "_") + ".keymap";
@@ -3939,7 +3969,7 @@ async function webwin_init() {
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "3.0.0-beta-1";
+var __version__ = "3.0.0-beta-2";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
@@ -3957,10 +3987,6 @@ __init__();
 <script src="js/html2canvas.js"></script>
 <script src="js/FileSaver.min.js"></script>
 <script>
-if (!("saveAs" in window)) {
-    UI.elm("#btn_save_file").style.display = "none";
-    UI.elm("#btn_save_as_img").style.display = "none";
-}
 if (!("html2canvas" in window)) {
     UI.elm("#btn_save_as_img").style.display = "none";
 }
