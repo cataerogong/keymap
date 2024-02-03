@@ -366,6 +366,7 @@ kinfo {
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     background-color: #f0f0f0;
+    min-width: 4rem;
 }
 
 .mod_color {
@@ -1429,7 +1430,7 @@ var Util = {
             s = `<span class="modkeys">` + l.join("") + `</span>`;
         }
         s += `<kn data-k="${mk}" class="mk">${mk}</kn>`;
-        return `<kcombo data-mainkey="${mk}" data-combo="${kn}" class="f-end ${g}" style="${c}" title="点击修改">${s}</kcombo><kinfo data-mainkey="${mk}" data-combo="${kn}">${mi.text}</kinfo>`;
+        return `<kcombo data-mainkey="${mk}" data-combo="${kn}" class="f-end ${g}" style="${c}" title="点击修改">${s}</kcombo><kinfo data-mainkey="${mk}" data-combo="${kn}">${mi.body}</kinfo>`;
     },
 
     parseVersion(v) {
@@ -1875,7 +1876,7 @@ var Keymap = {
     },
 
     /**
-     * @return {{text: string, digest: string, is_main: boolean, group: string}}
+     * @return {{text: string, digest: string, body: string, is_main: boolean, group: string}}
      */
      getMapping(kn, ln = null) {
         // return this.LayerData(ln)[Util.normalize_combo(kn)] || null;
@@ -1883,7 +1884,7 @@ var Keymap = {
     },
 
     /**
-     * @return {{string: {text: string, digest: string, is_main: boolean, group: string, combo: string, mainkey: string, combokeys: [string]}}}
+     * @return {{string: {text: string, digest: string, body: string, is_main: boolean, group: string, combo: string, mainkey: string, combokeys: [string]}}}
      */
      getAllMappings(mk, ln = null) {
         let l = [];
@@ -1909,10 +1910,10 @@ var Keymap = {
     },
 
     /**
-     * @return {{text: string, digest: string, is_main: boolean, group: string}}
+     * @return {{text: string, digest: string, body: string, is_main: boolean, group: string}}
      */
      parseMappingInfo(m) {
-        let ret = {text: "", digest: "", is_main: false, group: ""};
+        let ret = {text: "", digest: "", body: "", is_main: false, group: ""};
         if (!m) return ret;
         let s = m.trim().split("\n");
         // for (let i=0; i<s.length; i++) {
@@ -1920,20 +1921,27 @@ var Keymap = {
         // }
         if (s[0] && (s[0].startsWith("* ") || s[0].startsWith("~ "))) {
             ret.is_main = true;
-            s[0] = s[0].substr(2);
+            s[0] = s[0].substring(2);
         }
         let g = s.pop();
         if (g && g.startsWith("::")) {
-            ret.group = g.substr(2);
+            ret.group = g.substring(2);
         } else {
             s.push(g);
         }
         // ret.digest = s[0] || "";
         ret.text = s.join("\n");
+        let isd = true;
         for (const l of s) {
-            if (l.trim()) {
+            if (!l.trim()) isd = false;
+            if (isd) {
                 ret.digest += l + "\n";
+            }
+            // if (l.trim() != "--") {
+            if (!(/^\s*[\-]+\s*$/.test(l))) {
+                ret.body += l + "\n";
             } else {
+                ret.body += "...";
                 break;
             }
         }
@@ -2669,6 +2677,9 @@ var UI = {
     async new() {
         let name = await get_name_dlg("请输入键谱名：");
         if (name) {
+            if (await _PROFILE_.isExist(name)) {
+                if (!confirm(`已存在键谱《${name}》！\n\n如果继续，该键谱的原有数据将被清空。\n\n是否继续？`)) return;
+            }
             Keymap.init(name);
             await Keymap.save();
             await _PROFILE_.setLast(Keymap.Name);
@@ -2716,6 +2727,9 @@ var UI = {
             return;
         let name = await get_name_dlg("请输入键谱名：");
         if (name) {
+            if (await _PROFILE_.isExist(name)) {
+                if (!confirm(`已存在键谱《${name}》！\n\n如果继续，该键谱的原有数据将被清空。\n\n是否继续？`)) return;
+            }
             Keymap.init();
             if (!Keymap.loadJSON(json_))
                 return;
@@ -3366,7 +3380,7 @@ async function setmapping_dlg(combo_str) {
                 <kn class="mk" style="grid-row: 1 / -1;">${mk}</kn>
                 </div>
                 <div style="flex:1;display:flex;flex-flow:column;">
-                    <textarea id="st_mapping" style="flex:1;border-width:1px;" autofocus placeholder="这里输入快捷键的说明信息。\n说明信息分为两部分：“简介”和“详细信息”，“简介”部分会直接显示在键帽上。\n\n具体格式：\n简介（可以是连续的多行文字）\n（一个空行）\n详细信息">${mi.text || ""}</textarea>
+                    <textarea id="st_mapping" style="flex:1;border-width:1px;" autofocus placeholder="这里输入快捷键的说明信息。\n\n说明信息分为三部分：“简介”，“详细信息”和“备注”。\n“简介”部分会直接显示在键帽上，“简介”和“详细信息”会显示在快捷键列表里，“备注”只会在录入界面显示。\n--\n具体格式：\n简介（可以是连续的多行文字）\n（一个空行）\n详细信息\n--（连续多个“-”(英文减号)）\n备注信息">${mi.text || ""}</textarea>
                     <div style="margin-top: 5px;">
                         <label style="position: relative;" data-help="将快捷键设定为“主快捷键”\n在键图中，会在键帽上优先显示主快捷键的信息\n在键表中，主快捷键的右上角会有一个“★”标记">
                             <input type="checkbox" id="is_main">在键帽上优先显示
@@ -3901,6 +3915,9 @@ var _PROFILE_ = {
     async getLast() {
         return localStorage.getItem("_last") || "";
     },
+    async isExist(prof) {
+        return ((prof + ".keymap") in localStorage);
+    },
 };
 
 // If run by webwin, enable local-file profiles.
@@ -3961,6 +3978,14 @@ async function webwin_init() {
                 return "";
             }
         },
+        async isExist(prof) {
+            try {
+                return (await webwin.fs.ls(this._data_fdr, prof + ".keymap", "file").length == 1);
+            } catch (e) {
+                console.log(e);
+                return false;
+            }
+        },
     }
     __loader__ = "【精装礼盒版 *^____^* 】";
     UI.LaunchMode = "exe";
@@ -3969,7 +3994,7 @@ async function webwin_init() {
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "3.0.0-beta-2";
+var __version__ = "3.0.0-beta-3";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
