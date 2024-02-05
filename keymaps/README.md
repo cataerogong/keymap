@@ -16,4 +16,5 @@
 
 文件名 | 信息 | 制作者
 -- | -- | --
-PotPlayer[逍遥制作].keymap | PotPlayer 快捷键 | @lch319 [小众论坛](https://meta.appinn.net)
+PotPlayer[逍遥制作].keymap | PotPlayer 快捷键 | [lch319](https://meta.appinn.net/u/lch319)@[小众论坛](https://meta.appinn.net)
+Windows11.keymap | Windows 11 快捷键 | [lch319](https://meta.appinn.net/u/lch319)@[小众论坛](https://meta.appinn.net)
