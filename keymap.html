@@ -1081,6 +1081,10 @@ dialog {
         <span id="btn_saveas" class="btn_icon BIND-CLICK" data-help="复制到">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 12a5.5 5.5 0 1 1 0 11a5.5 5.5 0 0 1 0-11M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25l2.985.001a6.521 6.521 0 0 0 1.08 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123m12.781 9.962a.5.5 0 0 0-.568 0l-.07.057l-.057.07a.5.5 0 0 0 0 .568l.057.07l1.646 1.645l-4.798.001l-.09.008a.5.5 0 0 0-.402.402l-.008.09l.008.09a.5.5 0 0 0 .402.402l.09.008l4.8-.001l-1.648 1.647l-.057.07a.5.5 0 0 0 .695.695l.07-.057l2.53-2.533l.036-.05l.042-.08l.026-.083l.01-.064v-.088l-.01-.064l-.011-.043l-.032-.078l-.024-.042l-.038-.05l-2.53-2.533zM17.75 2A2.25 2.25 0 0 1 20 4.25v7.248a6.5 6.5 0 0 0-8.687 8.002H8.75a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2z"/></svg>
         </span>
+        <span style="border: 0px solid darkgray;border-left-width: 1px;margin:5px 5px;"></span>
+        <a class="btn_icon" href="https://github.com/cataerogong/keymap/tree/master/keymaps" target="_blank" data-help="网友制作分享的“键谱”">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 3.002a2.998 2.998 0 1 1-2.148 5.09l-5.457 3.12a3.002 3.002 0 0 1 0 1.577l5.458 3.119a2.998 2.998 0 1 1-.746 1.304l-5.457-3.12a2.998 2.998 0 1 1 0-4.184l5.457-3.12A3 3 0 0 1 17 3.003"/></svg>
+        </a>
         <span style="flex: 1;">&nbsp;</span>
     </div>
     <span id="tabbtn_kb" class="tabbtn BIND-CLICK">键图</span>
@@ -2399,7 +2403,10 @@ var UI = {
                 } else if (evt.ctrlKey) {
                     evt.stopPropagation();
                     evt.preventDefault();
-                    openFile().then(async (file) => { await UI.loadFile(file); });
+                    openFile().then(async (files) => {
+                        for (const f of files)
+                            await UI.loadFile(f);
+                    });
                     upd = false;
                 } else
                     handled = false;
@@ -2489,7 +2496,10 @@ var UI = {
                 upd = false;
                 break;
             case "btn_load_file":
-                openFile().then(async (file) => { await UI.loadFile(file); });
+                openFile().then(async (files) => {
+                    for (const f of files)
+                        await UI.loadFile(f);
+                });
                 upd = false;
                 break;
             case "btn_save_file":
@@ -2514,7 +2524,10 @@ var UI = {
         window.ondragover = (evt) => { evt.preventDefault(); };
         window.ondrop = async (evt) => {
             evt.preventDefault();
-            await this.loadFile(evt.dataTransfer.files[0]);
+            // await this.loadFile(evt.dataTransfer.files[0]);
+            for (const f of evt.dataTransfer.files) {
+                await this.loadFile(f);
+            }
         };
         this.elm("#prof_name").onclick = async (evt) => { await this.showProfileList(); }
         this.elm("#comment").onchange = async (evt) => { Keymap.setMapping("#comment", this.elm("#comment").value); await this.save(); this.update(); }
@@ -2885,7 +2898,10 @@ var UI = {
     async loadFile(file) {
         if (file.name.toLowerCase().endsWith(".keymap")) {
             let name = file.name.slice(0, -7); //
-            if (confirm(`是否载入键谱《${name}》？\n\n【*】如果存在同名键谱将被覆盖`)) {
+            if (await _PROFILE_.isExist(name)) {
+                if (!confirm(`已存在键谱《${name}》！\n\n如果继续，该键谱的原有数据将被清空。\n\n是否继续？`)) return;
+            }
+            // if (confirm(`是否载入键谱《${name}》？\n\n【*】如果存在同名键谱将被覆盖`)) {
                 let json_ = await file.text();
                 Keymap.init();
                 if (!Keymap.loadJSON(json_))
@@ -2894,7 +2910,7 @@ var UI = {
                 await this.save();
                 await _PROFILE_.setLast(Keymap.Name);
                 this.update();
-            }
+            // }
         } else {
             alert("仅支持 '.keymap' 文件");
         }
@@ -3837,10 +3853,11 @@ async function openFile() {
         let fileSelector = document.createElement("input");
         fileSelector.setAttribute("type", "file");
         fileSelector.setAttribute("accept", ".keymap");
+        fileSelector.setAttribute("multiple", true);
         fileSelector.click();
         // get the selected filepath
         fileSelector.onchange = async function() {
-            resolver(this.files[0]);
+            resolver(this.files);
         };
         fileSelector.remove();
     });
@@ -3872,6 +3889,7 @@ function saveFile(blob, filename) {
         saveAs(blob, filename.replace(/[\*\?\\\/\:\"\<\>\|]/, "_"));
         // let fileSaver = document.createElement("a");
         // fileSaver.href = window.URL.createObjectURL(blob);
+        // fileSaver.target = "_blank";
         // fileSaver.download = Keymap.Name.replace(/[\*\?\\\/\:\"\<\>\|]/, "_") + ".keymap";
         // fileSaver.click();
         // fileSaver.remove();
@@ -3988,20 +4006,20 @@ async function webwin_init() {
         },
     }
     __loader__ = "【精装礼盒版 *^____^* 】";
-    UI.LaunchMode = "exe";
+    UI.LaunchMode = "exe1";
     await __init__();
 };
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "3.0.0";
+var __version__ = "3.1.0";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
 async function __init__() {
     Keymap._version = __version__;
     document.title = `${__appname__} ${__loader__}`.trim();
-    document.querySelector(".about").innerHTML = `${__appname__} v${__version__} ${__loader__} Copyright &COPY; 2023-2024 CataeroGong [<a href="${__homepage__}">Project Home</a>]`;
+    document.querySelector(".about").innerHTML = `${__appname__} v${__version__} ${__loader__} Copyright &COPY; 2023-2024 CataeroGong [<a href="${__homepage__}" target="_blank">Project Home</a>]`;
     await UI.init();
 }
 
