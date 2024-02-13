@@ -764,7 +764,7 @@ dialog {
 
 .prof_name {
     color: var(--ui-fc);
-    border: 1px solid var(--ui-bdc);
+    border: 1px solid var(--ui-bgc);
     border-radius: 5px;
     padding: 3px 1em;
     width: 20em;
@@ -779,24 +779,32 @@ dialog {
 }
 .prof_list {
     box-sizing: content-box;
-    outline: 1px solid var(--ui-bdc);
+    /* outline: 1px solid var(--ui-bdc); */
     border-radius: 5px;
     box-shadow: 0px 3px 6px #000;
     background-color: whitesmoke;
-    width: 22em;
     max-height: 90%;
     padding: 5px;
     overflow-y: auto;
     overflow-x: hidden;
     transition: opacity 0.3s;
     z-index: 2;
+    transform: translateX(-1rem);
 }
 .prof_list .prof_name {
     margin-bottom: 5px;
+    margin-left: 1rem;
+}
+.prof_list .prof_name[data-index]::before {
+    content: attr(data-index);
+    position: absolute;
+    left: 0.5rem;
+    color: darkgray;
 }
 .prof_cur {
     font-weight: bold;
     background-color: var(--ui-bgc);
+    border-color: var(--ui-bdc);
 }
 .prof_cmd {
     background-color: cornsilk;
@@ -934,7 +942,7 @@ dialog {
   transition: .4s;
   border-radius: 5px;
 }
-.slider:before {
+.slider::before {
   position: absolute;
   content: "";
   height: 22px;
@@ -946,7 +954,7 @@ dialog {
   background-color: var(--ui-bgc);
   transition: .4s;
 }
-[data-ui="single"] .slider:before {
+[data-ui="single"] .slider::before {
   transform: translateX(24px);
 }
 
@@ -1552,17 +1560,14 @@ const KeymapHelp = {
         "modkeys": ["Caps", "caps", "XK1"],
         "modkey_mode": "chr",
         "modkey_clr": true,
-        "layer_names": {
-            "#0": "帮助",
-            "#1": "键谱的快捷键",
-            "#2": "进阶技巧",
-        },
         "show_comment": true,
     },
     "#0": {
+        "#name": "帮助",
         "#comment": HELP
     },
     "#1": {
+        "#name": "键谱的快捷键",
         "`": "键盘层 0",
         "1": "键盘层 1",
         "2": "键盘层 2",
@@ -1573,6 +1578,17 @@ const KeymapHelp = {
         "7": "键盘层 7",
         "8": "键盘层 8",
         "9": "键盘层 9",
+        "Ctrl+1": "第1个键谱",
+        "Ctrl+2": "第2个键谱",
+        "Ctrl+3": "第3个键谱",
+        "Ctrl+4": "第4个键谱",
+        "Ctrl+5": "第5个键谱",
+        "Ctrl+6": "第6个键谱",
+        "Ctrl+7": "第7个键谱",
+        "Ctrl+8": "第8个键谱",
+        "Ctrl+9": "第9个键谱",
+        ",": "上一个键谱",
+        ".": "下一个键谱",
         "Q": "60% 键盘",
         "W": "80% 键盘",
         "E": "标准键盘",
@@ -1612,6 +1628,7 @@ const KeymapHelp = {
         "#comment": HELP1
     },
     "#2": {
+        "#name": "进阶技巧",
         "Caps": "自定义修饰键\n\n可以将任意键设为修饰键",
         "XK1": "扩展键做修饰键\n\n扩展键也可以做修饰键",
         "Caps+A": "* 使用自定义修饰键的快捷键",
@@ -1633,6 +1650,21 @@ const KeymapHelp = {
         "RCtrl+Shift+Win+T": "组4\n::g4",
         "Ctrl+RShift+Win+T": "组5\n::g5",
         "#comment": HELP2
+    },
+    "#3": {
+        "#name": "新增功能",
+        "Ctrl+1": "第1个键谱",
+        "Ctrl+2": "第2个键谱",
+        "Ctrl+3": "第3个键谱",
+        "Ctrl+4": "第4个键谱",
+        "Ctrl+5": "第5个键谱",
+        "Ctrl+6": "第6个键谱",
+        "Ctrl+7": "第7个键谱",
+        "Ctrl+8": "第8个键谱",
+        "Ctrl+9": "第9个键谱",
+        ",": "上一个键谱",
+        ".": "下一个键谱",
+        "#comment": `<Ctrl>+<1~9> 快速切换键谱列表中的第 1~9 个键谱\n\n<,> 切换上一个键谱\n\n<.> 切换下一个键谱`,
     },
 };
 
@@ -2315,7 +2347,17 @@ var UI = {
             case "7":
             case "8":
             case "9":
-                this.changeLayer(parseInt(evt.key));
+                if (evt.ctrlKey) {
+                    await this.loadNthProf(parseInt(evt.key));
+                } else {
+                    this.changeLayer(parseInt(evt.key));
+                }
+                break;
+            case ",":
+                await this.loadPrevProf();
+                break;
+            case ".":
+                await this.loadNextProf();
                 break;
             case "Q":
                 await this.setSize(1);
@@ -2547,7 +2589,6 @@ var UI = {
     async loadFirstProf() {
         let l = await _PROFILE_.all();
         if (l.length > 0) {
-            l.sort((a, b) => a.localeCompare(b, "zh"));
             if (await Keymap.load(l[0])) {
                 _PROFILE_.setLast(Keymap.Name);
             } else {
@@ -2575,13 +2616,14 @@ var UI = {
                 e.remove();
             }
         }
-        function genProf(prof, add_cls, onclick) {
+        function genProf(prof, add_cls, onclick, idx = "") {
             let elm = document.createElement("DIV");
             elm.classList.add("prof_name");
             if (add_cls) elm.classList.add(...add_cls);
             if (onclick) elm.onclick = onclick;
             elm.innerHTML = prof;
             elm.title = prof;
+            if (idx) elm.dataset.index = idx;
             return elm;
         }
 
@@ -2590,9 +2632,11 @@ var UI = {
         let s = [];
         let l = await _PROFILE_.all();
         if (l.length > 0) {
-            l.sort((a, b) => a.localeCompare(b, "zh"));
-            for (const p of l) {
-                s.push(genProf(p, null, async () => {hideList(); await this.load(p); this.update();}));
+            for (const [i, p] of l.entries()) {
+                let c = null;
+                if (p == Keymap.Name)
+                    c = ["prof_cur"];
+                s.push(genProf(p, c, async () => {hideList(); await this.load(p); this.update();}, i < 9 ? i + 1 : ""));
             }
         }
         let elm_new = genProf(NEW_KEYMAP, ["prof_cmd"], async () => {hideList(); await this.new(); this.update();});
@@ -2762,6 +2806,55 @@ var UI = {
         if (!confirm(`确认要清空整个键谱《${Keymap.Name}》？`)) return;
         Keymap.clear();
         await this.save(false);
+    },
+
+    /**
+     * @param {int} n - 从 1 开始
+     */
+    async loadNthProf(n) {
+        let l = await _PROFILE_.all();
+        if (n >= 1 && n <= l.length) {
+            if (await Keymap.load(l[n-1])) {
+                await _PROFILE_.setLast(Keymap.Name);
+                this.Keyboard.build();
+            }
+        }
+    },
+
+    async loadPrevProf() {
+        let l = await _PROFILE_.all();
+        if (l.length > 0) {
+            let n = -1;
+            if (Keymap.Name == HELP_KEYMAP) {
+                n = l.length - 1;
+            } else {
+                n = l.indexOf(Keymap.Name) - 1;
+            }
+            if (n >= 0) {
+                if (await Keymap.load(l[n])) {
+                    await _PROFILE_.setLast(Keymap.Name);
+                    this.Keyboard.build();
+                }
+            }
+        }
+    },
+
+    async loadNextProf() {
+        let l = await _PROFILE_.all();
+        if (l.length > 0) {
+            let n = -1;
+            if (Keymap.Name == HELP_KEYMAP) {
+                n = l.length - 1;
+            } else {
+                n = l.indexOf(Keymap.Name) + 1;
+            }
+            if (n < l.length) {
+                if (await Keymap.load(l[n])) {
+                    await _PROFILE_.setLast(Keymap.Name);
+                    this.Keyboard.build();
+                }
+            }
+        }
     },
 
     //Rename layer
@@ -3925,6 +4018,7 @@ var _PROFILE_ = {
                 s.push(k.slice(0, -7));
             }
         }
+        s.sort((a, b) => a.localeCompare(b, "zh"));
         return s;
     },
     async setLast(prof) {
@@ -3975,6 +4069,7 @@ async function webwin_init() {
                 (await webwin.fs.ls(this._data_fdr, "*.keymap", "file")).forEach(p => {
                     s.push(p.name.slice(0, -7));
                 });
+                s.sort((a, b) => a.localeCompare(b, "zh"));
                 return s;
             } catch (e) {
                 console.log(e);
@@ -4012,7 +4107,7 @@ async function webwin_init() {
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "3.1.0";
+var __version__ = "3.2.0";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
