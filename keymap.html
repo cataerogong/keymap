@@ -24,7 +24,7 @@
     --ui-fc: black;
     --ui-bgc: lightblue;
     --ui-bdc: lightseagreen;
-    --sw: var(--sidebar-width, 2rem);
+    --sw: var(--sidebar-width, 20rem);
 }
 [data-kbhint="true"] {
     --ks: calc(1rem * var(--ks2, 0.9)); /* key font size */
@@ -42,8 +42,8 @@ body {
     display: flex;
     flex-flow: column;
     width: var(--w, 100%);
-    /* width: calc(var(--w) + var(--sw)); */
-    margin-left: var(--sw);
+    border: 1px solid darkgray;
+    border-width: 0px 1px;
 }
 
 textarea {
@@ -587,7 +587,6 @@ kn.na,
     background-color: whitesmoke;
     align-items: center;
     min-height: 2rem;
-    margin-bottom: 1px;
 }
 
 [data-view="k"] #json_ops,
@@ -761,20 +760,25 @@ dialog {
     color: #666;
     background-color: #e0e0e0;
     padding: 0px 5px;
-    margin-top: 3px;
     text-align: right;
 }
 
 .prof_name {
+    box-sizing: border-box;
     color: var(--ui-fc);
     border: 1px solid var(--ui-bgc);
     border-radius: 5px;
-    padding: 3px 1em;
-    width: 20em;
+    padding: 3px 1rem;
+    /* width: 20rem; */
+    width: 100%;
+    height: 26px;
+    line-height: 1rem;
+    font-size: 0.9rem;
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    pointer-events: stroke;
 }
 .prof_name:hover {
     font-weight: bold;
@@ -822,21 +826,29 @@ dialog {
     font-weight: bold;
 }
 
+#prof_name,
+.prof_list.popup {
+    width: 20rem;
+}
 #sidebar {
+    box-sizing: border-box;
     position: absolute;
     top: 0;
     bottom: 0;
     padding: 5px;
     left: 0px;
     background-color: #f0f0f0;
-    box-shadow: 5px 0px 5px -5px #666;
     overflow-y: auto;
     z-index: -1;
+    width: var(--sw);
 }
 #sidebar:hover {
     z-index: 1;
 }
-#sidebar .prof_name {
+[data-sidebar-pin="false"] #sidebar {
+    box-shadow: 0px 0px 10px #666;
+}
+[data-sidebar-pin="false"] #sidebar .prof_name {
     opacity: 0.3;
 }
 #sidebar:hover .prof_name {
@@ -849,15 +861,19 @@ dialog {
 #row_cap {
     display: flex;
     box-sizing: border-box;
-    font-family: sans-serif;
-    font-size: 1.1rem;
-    font-weight: bold;
     height: 2rem;
     line-height: 2rem;
     color: #666;
     background-color: #e0e0e0;
+    position: relative;
+}
+.caption {
+    font-family: sans-serif;
+    font-size: 1.1rem;
+    font-weight: bold;
 }
 .slogan {
+    font-family: sans-serif;
     font-size: 75%;
 }
 #row_tabbar {
@@ -905,6 +921,7 @@ dialog {
     border-radius: 5px;
     background-color: whitesmoke;
     box-shadow: 0px 3px 6px #000;
+    z-index: 1;
 }
 .opt_l {
     cursor: pointer;
@@ -924,7 +941,7 @@ dialog {
     overflow: auto;
 }
 [data-ui="tab"] #row_name,
-[data-ui="single"] :is(#btn_load_file, #btn_save_file, #row_tabbar, #kb_ops, #comment, #mods, #json_ops, #tab_json, #sidebar) {
+[data-ui="single"] :is(#btn_load_file, #btn_save_file, #row_tabbar, #kb_ops, #comment, #mods, #json_ops, #tab_json, #sidebar, #btn_sidebar, #prof_name) {
     display: none;
 }
 [data-ui="single"] :is(#tab_kb, #tab_list, keyboard) {
@@ -1015,6 +1032,8 @@ dialog {
 [data-layout="mac"] #btn_layout,
 [data-showall="true"] #btn_showall,
 [data-list-by="group"] #btn_list_by,
+[data-sidebar-enable="true"] #btn_sidebar,
+[data-sidebar-pin="true"] #btn_pin,
 .btn_icon:hover {
     font-weight: bold;
     color:  var(--ui-bdc);
@@ -1025,6 +1044,8 @@ dialog {
 [data-layout="mac"] #btn_layout svg,
 [data-showall="true"] #btn_showall svg,
 [data-list-by="group"] #btn_list_by svg,
+[data-sidebar-enable="true"] #btn_sidebar svg,
+[data-sidebar-pin="true"] #btn_pin svg,
 .btn_icon:hover svg {
     fill: var(--ui-bdc);
 }
@@ -1063,6 +1084,19 @@ dialog {
     pointer-events: none;
 }
 
+[data-sidebar-enable="true"][data-sidebar-pin="true"] body {
+    margin-left: calc(var(--sw) + 2px);
+}
+[data-sidebar-enable="true"][data-sidebar-pin="false"] body {
+    margin-left: 36px;
+}
+[data-sidebar-enable="true"] #prof_name {
+    display: none;
+}
+[data-sidebar-enable="false"] #sidebar {
+    display: none;
+}
+
 /* exe mode */
 /* [data-launch-mode="exe"] :is(#btn_load_file, #btn_save_file, #btn_save_as_img) {
     display: none;
@@ -1073,8 +1107,13 @@ dialog {
 
 <body>
 <div id="row_cap">
-    <span style="flex: 1;">&nbsp;</span>
-    <span>键谱</span>
+    <div style="flex: 1;display: flex;align-self: center;">
+        <span id="btn_sidebar" class="btn_icon btn_chk BIND-CLICK" style="margin-left: 10px;" data-help="侧边栏 <- 键谱列表">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M0 0h24v24H0z"/><path fill="currentColor" d="M18 3a3 3 0 0 1 2.995 2.824L21 6v12a3 3 0 0 1-2.824 2.995L18 21H6a3 3 0 0 1-2.995-2.824L3 18V6a3 3 0 0 1 2.824-2.995L6 3zm0 2H9v14h9a1 1 0 0 0 .993-.883L19 18V6a1 1 0 0 0-.883-.993zm-2.293 4.293a1 1 0 0 1 .083 1.32l-.083.094L14.415 12l1.292 1.293a1 1 0 0 1 .083 1.32l-.083.094a1 1 0 0 1-1.32.083l-.094-.083l-2-2a1 1 0 0 1-.083-1.32l.083-.094l2-2a1 1 0 0 1 1.414 0"/></g></svg>
+        </span>
+        <div id="prof_name" class="prof prof_name prof_cur" style="margin: 0px 5px;"></div>
+    </div>
+    <span class="caption">键谱</span>
     <span class="slogan">
         —— 让“记录、展示快捷键”变得简单
         <span>&nbsp;</span>
@@ -1094,15 +1133,19 @@ dialog {
     <span style="margin-right: 10px"></span>
 </div>
 <div id="sidebar">
-    <div style="display: flex;gap: 3px;margin-bottom: 20px;">
-        <span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 100 100"><path d="M17.563 30.277h.012a2.268 2.268 0 0 0 2.246 2.267v.002H80.18v-.001a2.269 2.269 0 0 0 2.259-2.268h.01V19.818a2.269 2.269 0 0 0-2.269-2.265H19.821a2.27 2.27 0 0 0-2.269 2.269c0 .039.01.076.012.115zm62.616 12.227H19.821a2.27 2.27 0 0 0-2.269 2.269c0 .039.01.076.012.115v10.34h.012a2.268 2.268 0 0 0 2.246 2.267v.002h60.359v-.001a2.269 2.269 0 0 0 2.259-2.268h.01V44.769a2.272 2.272 0 0 0-2.271-2.265m0 24.95H19.821a2.27 2.27 0 0 0-2.269 2.269c0 .039.01.076.012.115v10.34h.012a2.268 2.268 0 0 0 2.246 2.267v.002h60.359v-.001a2.27 2.27 0 0 0 2.259-2.269h.01V69.718a2.272 2.272 0 0 0-2.271-2.264"/></svg>
+    <div style="display: flex;gap: 3px;margin-bottom: 10px;">
+        <span style="width: 30px;"></span>
+        <span id="btn_size_s" class="btn_icon BIND-CLICK">
+            <!-- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.808 9.248a.75.75 0 0 0-1.06-.055l-2.5 2.25a.75.75 0 0 0 0 1.114l2.5 2.25a.75.75 0 1 0 1.004-1.114l-1.048-.943h3.546a.75.75 0 0 0 0-1.5h-3.546l1.048-.943a.75.75 0 0 0 .055-1.059M2 6.75A2.75 2.75 0 0 1 4.75 4h14.5A2.75 2.75 0 0 1 22 6.75v10.5A2.75 2.75 0 0 1 19.25 20H4.75A2.75 2.75 0 0 1 2 17.25zM8.998 5.5v13H19.25c.69 0 1.25-.56 1.25-1.25V6.75c0-.69-.56-1.25-1.25-1.25z"/></svg> -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.707 4.293a1 1 0 0 1 0 1.414L9.414 12l6.293 6.293a1 1 0 0 1-1.414 1.414l-7-7a1 1 0 0 1 0-1.414l7-7a1 1 0 0 1 1.414 0"/></svg>
         </span>
-        <span id="btn_new" class="btn_icon BIND-CLICK" data-help="新建">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 5.75A2.75 2.75 0 0 1 5.75 3h12.5A2.75 2.75 0 0 1 21 5.75v6.272a6.463 6.463 0 0 0-2-.848V5.75a.75.75 0 0 0-.75-.75H5.75a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h5.424c.17.72.46 1.395.848 2H5.75A2.75 2.75 0 0 1 3 18.25zM23 17.5a5.5 5.5 0 1 0-11 0a5.5 5.5 0 0 0 11 0m-5 .5l.001 2.503a.5.5 0 1 1-1 0V18h-2.505a.5.5 0 0 1 0-1H17v-2.5a.5.5 0 1 1 1 0V17h2.497a.5.5 0 0 1 0 1z"/></svg>
+        <span id="btn_size_b" class="btn_icon BIND-CLICK">
+            <!-- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.193 14.751a.75.75 0 0 0 1.059.056l2.5-2.25a.75.75 0 0 0 0-1.114l-2.5-2.25a.75.75 0 0 0-1.004 1.115l1.048.942H11.75a.75.75 0 1 0 0 1.5h3.546l-1.048.942a.75.75 0 0 0-.055 1.06M2 6.75A2.75 2.75 0 0 1 4.75 4h14.5A2.75 2.75 0 0 1 22 6.75v10.5A2.75 2.75 0 0 1 19.25 20H4.75A2.75 2.75 0 0 1 2 17.25zM9 5.5v13h10.25c.69 0 1.25-.56 1.25-1.25V6.75c0-.69-.56-1.25-1.25-1.25z"/></svg> -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.293 4.293a1 1 0 0 0 0 1.414L14.586 12l-6.293 6.293a1 1 0 1 0 1.414 1.414l7-7a1 1 0 0 0 0-1.414l-7-7a1 1 0 0 0-1.414 0"/></svg>
         </span>
-        <span id="btn_help" class="btn_icon BIND-CLICK" data-help="帮助">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16v.01M12 13a2 2 0 0 0 .914-3.782a1.98 1.98 0 0 0-2.414.483"/></svg>
+        <span style="flex: 1"></span>
+        <span id="btn_pin" class="btn_icon btn_chk BIND-CLICK">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.068 7.758l-4.826-4.826a2.75 2.75 0 0 0-4.404.715l-2.435 4.87a.75.75 0 0 1-.426.374l-4.166 1.44a1.25 1.25 0 0 0-.476 2.065L7.439 15.5L3 19.94V21h1.06l4.44-4.44l3.105 3.105a1.25 1.25 0 0 0 2.065-.476l1.44-4.166a.75.75 0 0 1 .373-.426l4.87-2.435a2.75 2.75 0 0 0 .715-4.404"/></svg>
         </span>
     </div>
     <div class="prof_list" style="display: flex; flex-flow: column; gap: 3px;"></div>
@@ -1110,21 +1153,14 @@ dialog {
 <div id="row_name">
     <span style="font-weight: bold;padding: 3px 10px;font-size:1rem;">键谱</span>
     <span id="pname_keymap"></span>
-    <span style="font-weight: bold;padding: 3px 0px;">- 层</span>
-    <span id="pname_layer"></span>
+    <span class="layer" style="font-weight: bold;padding: 3px 0px;">- 层</span>
+    <span id="pname_layer" class="layer"></span>
 </div>
 <div id="row_tabbar">
     <div style="flex: 1;display: flex;padding: 2px 0px;gap:2px;">
-        <span style="font-weight: bold;padding: 3px 10px;font-size:1rem;">键谱</span>
-        <div id="prof_name" class="prof_name prof_cur" style="margin-right: 5px;"></div>
-        <span id="btn_setting" class="btn_icon BIND-CLICK" data-help="设置">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.5 2a5.5 5.5 0 0 0-5.348 6.789L2.841 17.1a2.871 2.871 0 1 0 4.06 4.06l4.115-4.113a6.5 6.5 0 0 1 9.172-5.467A5.486 5.486 0 0 0 22 7.5a5.51 5.51 0 0 0-.282-1.745a.75.75 0 0 0-1.242-.292l-2.444 2.444a.75.75 0 0 1-1.06 0l-.879-.878a.75.75 0 0 1 0-1.06l2.445-2.445a.75.75 0 0 0-.293-1.241A5.495 5.495 0 0 0 16.5 2m-2.223 11.976a2 2 0 0 1-1.441 2.496l-.584.144a5.728 5.728 0 0 0 .006 1.808l.54.13a2 2 0 0 1 1.45 2.51l-.187.631c.44.386.94.699 1.485.922l.493-.519a2 2 0 0 1 2.899 0l.499.525a5.277 5.277 0 0 0 1.482-.913l-.198-.686a2 2 0 0 1 1.442-2.496l.583-.144a5.729 5.729 0 0 0-.006-1.808l-.54-.13a2 2 0 0 1-1.449-2.51l.186-.63a5.282 5.282 0 0 0-1.484-.922l-.493.518a2 2 0 0 1-2.9 0l-.498-.525c-.544.22-1.044.53-1.483.912zM17.5 19c-.8 0-1.45-.672-1.45-1.5S16.7 16 17.5 16c.8 0 1.45.672 1.45 1.5S18.3 19 17.5 19"/></svg>
-        </span>
-        <span id="btn_clr" class="btn_icon danger BIND-CLICK" data-help="清空">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m15.87 2.669l4.968 4.968a2.25 2.25 0 0 1 0 3.182l-8.682 8.68l6.098.001a.75.75 0 0 1 .743.648l.007.102a.75.75 0 0 1-.648.743l-.102.007l-8.41.001a2.244 2.244 0 0 1-1.714-.655l-4.969-4.969a2.25 2.25 0 0 1 0-3.182l9.527-9.526a2.25 2.25 0 0 1 3.182 0m-4.172 15.09l-5.955-5.956l-1.507 1.467a.75.75 0 0 0 0 1.06l4.946 4.946a.75.75 0 0 0 1.06-.016z"/></svg>
-        </span>
-        <span id="btn_del" class="btn_icon danger BIND-CLICK" data-help="删除">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 5h4a2 2 0 1 0-4 0M8.5 5a3.5 3.5 0 1 1 7 0h5.75a.75.75 0 0 1 0 1.5h-1.32l-1.17 12.111A3.75 3.75 0 0 1 15.026 22H8.974a3.75 3.75 0 0 1-3.733-3.389L4.07 6.5H2.75a.75.75 0 0 1 0-1.5zm2 4.75a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0zM14.25 9a.75.75 0 0 0-.75.75v7.5a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75"/></svg>
+        <!-- <span style="font-weight: bold;padding: 3px 10px;font-size:1rem;">键谱</span> -->
+        <span id="btn_new" class="btn_icon BIND-CLICK" style="margin-left: 10px;" data-help="新建键谱">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 5.75A2.75 2.75 0 0 1 5.75 3h12.5A2.75 2.75 0 0 1 21 5.75v6.272a6.463 6.463 0 0 0-2-.848V5.75a.75.75 0 0 0-.75-.75H5.75a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h5.424c.17.72.46 1.395.848 2H5.75A2.75 2.75 0 0 1 3 18.25zM23 17.5a5.5 5.5 0 1 0-11 0a5.5 5.5 0 0 0 11 0m-5 .5l.001 2.503a.5.5 0 1 1-1 0V18h-2.505a.5.5 0 0 1 0-1H17v-2.5a.5.5 0 1 1 1 0V17h2.497a.5.5 0 0 1 0 1z"/></svg>
         </span>
         <span id="btn_load_file" class="btn_icon BIND-CLICK" data-help="从文件载入">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5.25 3A3.25 3.25 0 0 0 2 6.25v8.912l2.045-3.541a4.25 4.25 0 0 1 3.68-2.125H20V8.75a3.25 3.25 0 0 0-3.25-3.25h-5.19L9.72 3.659A2.25 2.25 0 0 0 8.129 3zm2.475 7.996h13.02c1.732 0 2.814 1.875 1.948 3.375l-3.036 5.258a2.75 2.75 0 0 1-2.382 1.375H4.255c-1.731 0-2.814-1.875-1.948-3.375l3.037-5.258a2.75 2.75 0 0 1 2.381-1.375"/></svg>
@@ -1136,9 +1172,22 @@ dialog {
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 12a5.5 5.5 0 1 1 0 11a5.5 5.5 0 0 1 0-11M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25l2.985.001a6.521 6.521 0 0 0 1.08 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123m12.781 9.962a.5.5 0 0 0-.568 0l-.07.057l-.057.07a.5.5 0 0 0 0 .568l.057.07l1.646 1.645l-4.798.001l-.09.008a.5.5 0 0 0-.402.402l-.008.09l.008.09a.5.5 0 0 0 .402.402l.09.008l4.8-.001l-1.648 1.647l-.057.07a.5.5 0 0 0 .695.695l.07-.057l2.53-2.533l.036-.05l.042-.08l.026-.083l.01-.064v-.088l-.01-.064l-.011-.043l-.032-.078l-.024-.042l-.038-.05l-2.53-2.533zM17.75 2A2.25 2.25 0 0 1 20 4.25v7.248a6.5 6.5 0 0 0-8.687 8.002H8.75a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2z"/></svg>
         </span>
         <span style="border: 0px solid darkgray;border-left-width: 1px;margin:5px 5px;"></span>
+        <span id="btn_setting" class="btn_icon BIND-CLICK" data-help="键谱设置">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.5 2a5.5 5.5 0 0 0-5.348 6.789L2.841 17.1a2.871 2.871 0 1 0 4.06 4.06l4.115-4.113a6.5 6.5 0 0 1 9.172-5.467A5.486 5.486 0 0 0 22 7.5a5.51 5.51 0 0 0-.282-1.745a.75.75 0 0 0-1.242-.292l-2.444 2.444a.75.75 0 0 1-1.06 0l-.879-.878a.75.75 0 0 1 0-1.06l2.445-2.445a.75.75 0 0 0-.293-1.241A5.495 5.495 0 0 0 16.5 2m-2.223 11.976a2 2 0 0 1-1.441 2.496l-.584.144a5.728 5.728 0 0 0 .006 1.808l.54.13a2 2 0 0 1 1.45 2.51l-.187.631c.44.386.94.699 1.485.922l.493-.519a2 2 0 0 1 2.899 0l.499.525a5.277 5.277 0 0 0 1.482-.913l-.198-.686a2 2 0 0 1 1.442-2.496l.583-.144a5.729 5.729 0 0 0-.006-1.808l-.54-.13a2 2 0 0 1-1.449-2.51l.186-.63a5.282 5.282 0 0 0-1.484-.922l-.493.518a2 2 0 0 1-2.9 0l-.498-.525c-.544.22-1.044.53-1.483.912zM17.5 19c-.8 0-1.45-.672-1.45-1.5S16.7 16 17.5 16c.8 0 1.45.672 1.45 1.5S18.3 19 17.5 19"/></svg>
+        </span>
+        <span id="btn_clr" class="btn_icon danger BIND-CLICK" data-help="清空键谱">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m15.87 2.669l4.968 4.968a2.25 2.25 0 0 1 0 3.182l-8.682 8.68l6.098.001a.75.75 0 0 1 .743.648l.007.102a.75.75 0 0 1-.648.743l-.102.007l-8.41.001a2.244 2.244 0 0 1-1.714-.655l-4.969-4.969a2.25 2.25 0 0 1 0-3.182l9.527-9.526a2.25 2.25 0 0 1 3.182 0m-4.172 15.09l-5.955-5.956l-1.507 1.467a.75.75 0 0 0 0 1.06l4.946 4.946a.75.75 0 0 0 1.06-.016z"/></svg>
+        </span>
+        <span id="btn_del" class="btn_icon danger BIND-CLICK" data-help="删除键谱">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 5h4a2 2 0 1 0-4 0M8.5 5a3.5 3.5 0 1 1 7 0h5.75a.75.75 0 0 1 0 1.5h-1.32l-1.17 12.111A3.75 3.75 0 0 1 15.026 22H8.974a3.75 3.75 0 0 1-3.733-3.389L4.07 6.5H2.75a.75.75 0 0 1 0-1.5zm2 4.75a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0zM14.25 9a.75.75 0 0 0-.75.75v7.5a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75"/></svg>
+        </span>
+        <span style="border: 0px solid darkgray;border-left-width: 1px;margin:5px 5px;"></span>
         <a class="btn_icon" href="https://github.com/cataerogong/keymap/tree/master/keymaps" target="_blank" data-help="网友制作分享的“键谱”">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 3.002a2.998 2.998 0 1 1-2.148 5.09l-5.457 3.12a3.002 3.002 0 0 1 0 1.577l5.458 3.119a2.998 2.998 0 1 1-.746 1.304l-5.457-3.12a2.998 2.998 0 1 1 0-4.184l5.457-3.12A3 3 0 0 1 17 3.003"/></svg>
         </a>
+        <span id="btn_help" class="btn_icon BIND-CLICK" data-help="帮助">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16v.01M12 13a2 2 0 0 0 .914-3.782a1.98 1.98 0 0 0-2.414.483"/></svg>
+        </span>
         <span style="flex: 1;">&nbsp;</span>
     </div>
     <span id="tabbtn_kb" class="tabbtn BIND-CLICK">键图</span>
@@ -1503,7 +1552,7 @@ var Util = {
 const NEW_KEYMAP = "+ 新建";
 const HELP_KEYMAP = "* 帮助";
 const HELP = `【帮助】
-  * 点击顶部的“键谱名”，可以新建和切换键谱。
+  * 点击顶部的“键谱名”，可以切换键谱。
   * 点击键盘图中的按键，可以录入快捷键信息。
   * 组合键：在录入时可以选择组合修饰键（Alt、Ctrl、Shift、Win ...）。
   * 一个按键上可以录入多组快捷键。
@@ -2283,6 +2332,45 @@ var Keymap = {
     },
 };
 
+var Setting = {
+    _json : {
+        sidebar_enable: false,
+        sidebar_pin: true,
+        sidebar_width: 300,
+    },
+    async load() {
+        try {
+            this._json = Object.assign(this._json, JSON.parse(await _PROFILE_.readSetting()));
+        } catch (e) {
+            console.log(e);
+        }
+    },
+    async save() {
+        await _PROFILE_.writeSetting(JSON.stringify(this._json));
+    },
+
+    get SidebarEnable() {
+        return this._json.sidebar_enable;
+    },
+    set SidebarEnable(v) {
+        this._json.sidebar_enable = Boolean(v);
+    },
+
+    get SidebarPin() {
+        return this._json.sidebar_pin;
+    },
+    set SidebarPin(v) {
+        this._json.sidebar_pin = Boolean(v);
+    },
+
+    get SidebarWidth() {
+        return this._json.sidebar_width;
+    },
+    set SidebarWidth(v) {
+        this._json.sidebar_width = parseInt(v);
+    },
+};
+
 var UI = {
     _launch_mode: "html",
     get LaunchMode() { return this._launch_mode; },
@@ -2303,7 +2391,7 @@ var UI = {
 
     update() {
         Util.setFlag("keymap", Keymap.Name);
-        this.elm("#prof_name").innerText = Keymap.Name || NEW_KEYMAP;
+        this.elm("#prof_name").innerText = Keymap.Name;
         this.elm("#prof_name").title = Keymap.Name;
         this.elm("#pname_keymap").innerText = Keymap.Name;
         this.elm("#pname_layer").innerText = Keymap.CurLayer + (Keymap.getLayerName() ? ": "+Keymap.getLayerName() : "");
@@ -2331,6 +2419,10 @@ var UI = {
             // `<button id="btn_l${n}" class="btn">${n}</button>`
             elm.appendChild(e);
         }
+
+        Util.setFlag("sidebar-enable", Setting.SidebarEnable);
+        Util.setFlag("sidebar-pin", Setting.SidebarPin);
+        Util.setCSS("--sidebar-width", Setting.SidebarWidth + "px");
 
         Util.setFlag('layer', Keymap.CurLayer);
         let cfg = Keymap.Config;
@@ -2603,6 +2695,22 @@ var UI = {
                 Keymap.loadHelp();
                 this.Keyboard.build();
                 break;
+            case "btn_sidebar":
+                await this.toggleSidebarEnable();
+                Util.setFlag("sidebar-enable", Setting.SidebarEnable);
+                break;
+            case "btn_pin":
+                await this.toggleSidebarPin();
+                Util.setFlag("sidebar-pin", Setting.SidebarPin);
+                break;
+            case "btn_size_s":
+                await this.resizeSidebar(-50);
+                Util.setCSS("--sidebar-width", Setting.SidebarWidth + "px");
+                break;
+            case "btn_size_b":
+                await this.resizeSidebar(50);
+                Util.setCSS("--sidebar-width", Setting.SidebarWidth + "px");
+                break;
             default:
                 upd = false;
                 console.log("Unhandled click-event. Elm: ", elm);
@@ -2721,9 +2829,9 @@ var UI = {
                 s.push(genProf(p, c, async () => {hideList(); await this.load(p); this.update();}, i < 9 ? i + 1 : ""));
             }
         }
-        let elm_new = genProf(NEW_KEYMAP, ["prof_cmd"], async () => {hideList(); await this.new(); this.update();});
-        s.push(elm_new);
-        s.push(genProf(KeymapHelp["#NAME"], ["prof_cmd"], async () => {hideList(); Keymap.loadHelp(); this.Keyboard.build(); this.update();}));
+        // let elm_new = genProf(NEW_KEYMAP, ["prof_cmd"], async () => {hideList(); await this.new(); this.update();});
+        // s.push(elm_new);
+        // s.push(genProf(KeymapHelp["#NAME"], ["prof_cmd"], async () => {hideList(); Keymap.loadHelp(); this.Keyboard.build(); this.update();}));
         let temp = document.createElement("span");
         temp.innerHTML = `<div class="prof_list popup" style="position:absolute;opacity: 0;"></div>`;
         let elm_list = temp.children[0];
@@ -2757,7 +2865,7 @@ var UI = {
         let a = UI.elm("#pname_layer");
         elm.style.left = a.offsetLeft;
         elm.style.top = a.offsetTop; // + a.offsetHeight;
-        document.body.appendChild(elm);
+        this.elm("#row_cap").appendChild(elm);
     },
 
     present(__name, __keymap) {
@@ -2908,7 +3016,7 @@ var UI = {
         if (l.length > 0) {
             let n = -1;
             if (Keymap.Name == HELP_KEYMAP) {
-                n = l.length - 1;
+                n = 0;
             } else {
                 n = l.indexOf(Keymap.Name) - 1;
             }
@@ -2926,7 +3034,7 @@ var UI = {
         if (l.length > 0) {
             let n = -1;
             if (Keymap.Name == HELP_KEYMAP) {
-                n = l.length - 1;
+                n = 0;
             } else {
                 n = l.indexOf(Keymap.Name) + 1;
             }
@@ -3030,6 +3138,27 @@ var UI = {
     },
     async toggleShowComment() {
         await this.setShowComment(!Keymap.Config.show_comment);
+    },
+
+    async setSidebarEnable(v) {
+        Setting.SidebarEnable = Boolean(v);
+        await Setting.save();
+    },
+    async toggleSidebarEnable() {
+        await this.setSidebarEnable(!Setting.SidebarEnable);
+    },
+
+    async setSidebarPin(v) {
+        Setting.SidebarPin = Boolean(v);
+        await Setting.save();
+    },
+    async toggleSidebarPin() {
+        await this.setSidebarPin(!Setting.SidebarPin);
+    },
+
+    async resizeSidebar(delta) {
+        Setting.SidebarWidth = Util.between(Setting.SidebarWidth + delta, 150, 800);
+        await Setting.save();
     },
 
     async setting() {
@@ -4112,6 +4241,12 @@ var _PROFILE_ = {
     async isExist(prof) {
         return ((prof + ".keymap") in localStorage);
     },
+    async readSetting() {
+        return localStorage.getItem("keymap.setting") || "";
+    },
+    async writeSetting(s) {
+        localStorage.setItem("keymap.setting", s);
+    },
 };
 
 // If run by webwin, enable local-file profiles.
@@ -4181,6 +4316,21 @@ async function webwin_init() {
                 return false;
             }
         },
+        async readSetting() {
+            try {
+                return await webwin.fs.readfile(this._datafile("keymap.setting"), "utf-8");
+            } catch (e) {
+                console.log(e);
+                return "";
+            }
+        },
+        async writeSetting(s) {
+            try {
+                await webwin.fs.writefile(this._datafile("keymap.setting"), s || "", "w", "utf-8");
+            } catch (e) {
+                console.log(e);
+            }
+        },
     }
     __loader__ = "【精装礼盒版 *^____^* 】";
     UI.LaunchMode = "exe1";
@@ -4189,7 +4339,7 @@ async function webwin_init() {
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "3.3.0-wip";
+var __version__ = "3.3.0-beta";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
@@ -4197,6 +4347,7 @@ async function __init__() {
     Keymap._version = __version__;
     document.title = `${__appname__} ${__loader__}`.trim();
     document.querySelector(".about").innerHTML = `${__appname__} v${__version__} ${__loader__} Copyright &COPY; 2023-2024 CataeroGong [<a href="${__homepage__}" target="_blank">Project Home</a>]`;
+    await Setting.load();
     await UI.init();
 }
 
