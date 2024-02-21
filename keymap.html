@@ -784,6 +784,11 @@ dialog {
     font-weight: bold;
     background-color: var(--ui-bgc);
 }
+.prof_list {
+    display: flex;
+    flex-flow: column;
+    gap: 3px;
+}
 .prof_list.popup {
     box-sizing: content-box;
     /* outline: 1px solid var(--ui-bdc); */
@@ -796,11 +801,10 @@ dialog {
     overflow-x: hidden;
     transition: opacity 0.3s;
     z-index: 2;
-    /* transform: translateX(-1rem); */
 }
 .prof_list .prof_name {
     position: relative;
-    margin-bottom: 5px;
+    /* margin-bottom: 5px; */
     /* margin-left: 1rem; */
 }
 .prof_list .prof_name[data-index]::before {
@@ -835,7 +839,7 @@ dialog {
     position: absolute;
     top: 0;
     bottom: 0;
-    padding: 5px;
+    padding: 3px;
     left: 0px;
     background-color: #f0f0f0;
     overflow-y: auto;
@@ -1088,7 +1092,7 @@ dialog {
     margin-left: calc(var(--sw) + 2px);
 }
 [data-sidebar-enable="true"][data-sidebar-pin="false"] body {
-    margin-left: 36px;
+    margin-left: 30px;
 }
 [data-sidebar-enable="true"] #prof_name {
     display: none;
@@ -1133,22 +1137,19 @@ dialog {
     <span style="margin-right: 10px"></span>
 </div>
 <div id="sidebar">
-    <div style="display: flex;gap: 3px;margin-bottom: 10px;">
-        <span style="width: 30px;"></span>
-        <span id="btn_size_s" class="btn_icon BIND-CLICK">
-            <!-- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.808 9.248a.75.75 0 0 0-1.06-.055l-2.5 2.25a.75.75 0 0 0 0 1.114l2.5 2.25a.75.75 0 1 0 1.004-1.114l-1.048-.943h3.546a.75.75 0 0 0 0-1.5h-3.546l1.048-.943a.75.75 0 0 0 .055-1.059M2 6.75A2.75 2.75 0 0 1 4.75 4h14.5A2.75 2.75 0 0 1 22 6.75v10.5A2.75 2.75 0 0 1 19.25 20H4.75A2.75 2.75 0 0 1 2 17.25zM8.998 5.5v13H19.25c.69 0 1.25-.56 1.25-1.25V6.75c0-.69-.56-1.25-1.25-1.25z"/></svg> -->
+    <div style="display: flex;margin-bottom: 10px;">
+        <span id="btn_size_s" class="btn_icon btn_icon_sm BIND-CLICK">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.707 4.293a1 1 0 0 1 0 1.414L9.414 12l6.293 6.293a1 1 0 0 1-1.414 1.414l-7-7a1 1 0 0 1 0-1.414l7-7a1 1 0 0 1 1.414 0"/></svg>
         </span>
-        <span id="btn_size_b" class="btn_icon BIND-CLICK">
-            <!-- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.193 14.751a.75.75 0 0 0 1.059.056l2.5-2.25a.75.75 0 0 0 0-1.114l-2.5-2.25a.75.75 0 0 0-1.004 1.115l1.048.942H11.75a.75.75 0 1 0 0 1.5h3.546l-1.048.942a.75.75 0 0 0-.055 1.06M2 6.75A2.75 2.75 0 0 1 4.75 4h14.5A2.75 2.75 0 0 1 22 6.75v10.5A2.75 2.75 0 0 1 19.25 20H4.75A2.75 2.75 0 0 1 2 17.25zM9 5.5v13h10.25c.69 0 1.25-.56 1.25-1.25V6.75c0-.69-.56-1.25-1.25-1.25z"/></svg> -->
+        <span id="btn_size_b" class="btn_icon btn_icon_sm BIND-CLICK">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.293 4.293a1 1 0 0 0 0 1.414L14.586 12l-6.293 6.293a1 1 0 1 0 1.414 1.414l7-7a1 1 0 0 0 0-1.414l-7-7a1 1 0 0 0-1.414 0"/></svg>
         </span>
         <span style="flex: 1"></span>
-        <span id="btn_pin" class="btn_icon btn_chk BIND-CLICK">
+        <span id="btn_pin" class="btn_icon btn_icon_sm btn_chk BIND-CLICK">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.068 7.758l-4.826-4.826a2.75 2.75 0 0 0-4.404.715l-2.435 4.87a.75.75 0 0 1-.426.374l-4.166 1.44a1.25 1.25 0 0 0-.476 2.065L7.439 15.5L3 19.94V21h1.06l4.44-4.44l3.105 3.105a1.25 1.25 0 0 0 2.065-.476l1.44-4.166a.75.75 0 0 1 .373-.426l4.87-2.435a2.75 2.75 0 0 0 .715-4.404"/></svg>
         </span>
     </div>
-    <div class="prof_list" style="display: flex; flex-flow: column; gap: 3px;"></div>
+    <div class="prof_list"></div>
 </div>
 <div id="row_name">
     <span style="font-weight: bold;padding: 3px 10px;font-size:1rem;">键谱</span>
@@ -2346,7 +2347,7 @@ var Setting = {
         }
     },
     async save() {
-        await _PROFILE_.writeSetting(JSON.stringify(this._json));
+        await _PROFILE_.writeSetting(JSON.stringify(this._json, null, 2));
     },
 
     get SidebarEnable() {
@@ -2367,7 +2368,7 @@ var Setting = {
         return this._json.sidebar_width;
     },
     set SidebarWidth(v) {
-        this._json.sidebar_width = parseInt(v);
+        this._json.sidebar_width = Util.between(parseInt(v), 100, 800);
     },
 };
 
@@ -3157,7 +3158,7 @@ var UI = {
     },
 
     async resizeSidebar(delta) {
-        Setting.SidebarWidth = Util.between(Setting.SidebarWidth + delta, 150, 800);
+        Setting.SidebarWidth += delta;
         await Setting.save();
     },
 
@@ -4202,6 +4203,8 @@ function saveFile(blob, filename) {
 
 // IO layer: browser storage
 var _PROFILE_ = {
+    _setting: "_keymap.setting",
+
     async read(prof) {
         if (prof)
             return localStorage.getItem(prof + ".keymap") || "";
@@ -4242,10 +4245,10 @@ var _PROFILE_ = {
         return ((prof + ".keymap") in localStorage);
     },
     async readSetting() {
-        return localStorage.getItem("keymap.setting") || "";
+        return localStorage.getItem(this._setting) || "";
     },
     async writeSetting(s) {
-        localStorage.setItem("keymap.setting", s);
+        localStorage.setItem(this._setting, s);
     },
 };
 
@@ -4254,6 +4257,7 @@ async function webwin_init() {
     // IO layer: webwin fs
     window._PROFILE_ = {
         _data_fdr: "data",
+        _setting_file: "_keymap.setting",
 
         _datafile(filename) { return this._data_fdr + "\\" + filename; },
         _keymapfile(prof) { return this._datafile(prof + ".keymap"); },
@@ -4318,7 +4322,7 @@ async function webwin_init() {
         },
         async readSetting() {
             try {
-                return await webwin.fs.readfile(this._datafile("keymap.setting"), "utf-8");
+                return await webwin.fs.readfile(this._datafile(this._setting_file), "utf-8");
             } catch (e) {
                 console.log(e);
                 return "";
@@ -4326,20 +4330,20 @@ async function webwin_init() {
         },
         async writeSetting(s) {
             try {
-                await webwin.fs.writefile(this._datafile("keymap.setting"), s || "", "w", "utf-8");
+                await webwin.fs.writefile(this._datafile(this._setting_file), s || "", "w", "utf-8");
             } catch (e) {
                 console.log(e);
             }
         },
     }
     __loader__ = "【精装礼盒版 *^____^* 】";
-    UI.LaunchMode = "exe1";
+    UI.LaunchMode = "exe";
     await __init__();
 };
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "3.3.0-beta";
+var __version__ = "3.3.0";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
