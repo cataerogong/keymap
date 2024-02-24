@@ -1,0 +1,88 @@
+#Requires AutoHotkey v2.0
+#SingleInstance Force
+
+FileEncoding("UTF-8-RAW")
+DetectHiddenWindows True
+InstallKeybdHook
+
+KEYMAP_TITLE := "键谱 【精装礼盒版 *^____^* 】"
+
+SplitPath(A_ScriptFullPath, , &_DIR, &_EXT, &_NAME, &_DRIVE)
+
+IniFile := A_ScriptDir . "\" . _NAME . ".ini"
+
+ExeFile := A_ScriptDir . "\keymap.exe"
+If (FileExist(ExeFile))
+    ExeFile := "`"" . ExeFile . "`""
+Else {
+    MsgBox("Can not find 'keymap.exe' !")
+    ExitApp
+}
+
+hotkey1 := IniRead(IniFile, "Default", "hotkey1", "")
+hotkey2 := IniRead(IniFile, "Default", "hotkey2", "")
+kms := IniRead(IniFile, "Keymaps")
+keymaps := Array()
+Loop Parse, kms, "`n", A_Space A_Tab
+{
+    a := StrSplit(A_LoopField, "=", A_Space A_Tab, 2)
+    If (a.Length == 2) {
+        keymaps.Push(a)
+    }
+}
+
+ToggleKeyMap(params*) {
+    If WinActive(KEYMAP_TITLE)
+        HideKeymap()
+    Else
+        ShowKeymap()
+}
+ToggleKeyMap2(params*)
+{
+    if (A_ThisHotkey == A_PriorHotkey) && (A_TimeSincePriorHotkey < 300) {
+        ToggleKeyMap()
+    }
+}
+ShowKeymap(params*) {
+    Global keymaps
+    P := ""
+    For km In keymaps {
+        If km[1] && WinActive(km[1]) {
+            P := " " . km[2]
+            Break
+        }
+    }
+    Run(ExeFile . P)
+}
+HideKeymap(params*) {
+    If WinExist(KEYMAP_TITLE) {
+        WinHide(KEYMAP_TITLE)
+    }
+}
+ExitKeymap(ExitReason, ExitCode) {
+    If WinExist(KEYMAP_TITLE) {
+        WinClose(KEYMAP_TITLE)
+    }
+}
+
+If (hotkey1) {
+    Hotkey(hotkey1, ToggleKeyMap)
+}
+If (hotkey2) {
+    Hotkey("~" . hotkey2 . " UP", ToggleKeyMap2)
+}
+
+OnExit(ExitKeymap)
+
+A_TrayMenu.Insert("1&", "显示【键谱】", ShowKeymap)
+A_TrayMenu.Insert("2&", "隐藏【键谱】", HideKeymap)
+A_TrayMenu.Insert("3&")
+A_TrayMenu.Insert("4&")
+A_TrayMenu.Rename("4&", "热键(组合键): " . hotkey1)
+A_TrayMenu.Insert("5&")
+A_TrayMenu.Rename("5&", "热键(双击键): " . hotkey2)
+A_TrayMenu.Insert("6&")
+A_TrayMenu.Default := "1&"
+A_TrayMenu.Disable("4&")
+A_TrayMenu.Disable("5&")
+A_IconTip := "Keymap Tray"

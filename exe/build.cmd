@@ -13,3 +13,6 @@ mkdir dist\keymap\data
 "%base%" encode.ahk2 keymap.py keymap.pye
 "%compiler%" /base "%base%" /in keymap.ahk2 /out dist\keymap\keymap.exe %icon%
 xcopy /s _runtime dist\keymap\_runtime\
+
+"%compiler%" /base "%base%" /in keymapTray.ahk2 /out dist\keymap\keymapTray.exe %icon%
+copy /y keymapTray.ini dist\keymap\

@@ -7,6 +7,7 @@
 ;@Ahk2Exe-AddResource keymap.pye, #2
 
 FileEncoding("UTF-8-RAW")
+DetectHiddenWindows True
 
 Console := False
 stdout := 0
@@ -117,6 +118,7 @@ sys.argv[0] = r"{2}"
 }
 
 ActWin() {
+    WinShow("键谱 【精装礼盒版 *^____^* 】")
     If (Mod(A_Args.Length, 2)) {
         MsgBox("Error Args.")
         ExitApp
