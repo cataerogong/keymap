@@ -5,6 +5,10 @@
 #Include keymap.pye
 ;@Ahk2Exe-IgnoreEnd
 ;@Ahk2Exe-AddResource keymap.pye, #2
+;@Ahk2Exe-SetName keymap
+;@Ahk2Exe-SetDescription 谱匣 - “键谱”网页的辅助增强程序
+;@Ahk2Exe-SetCopyright Copyright (c) CataeroGong
+;@Ahk2Exe-SetVersion 3.3.0
 
 FileEncoding("UTF-8-RAW")
 DetectHiddenWindows True

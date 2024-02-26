@@ -46,12 +46,16 @@
 
 ```ini
 [Default]
+debug = False
 ; 两种【键谱】热键模式：
-;   注：使用 AHK 热键格式，=空 表示不设置该热键
-; 1. 组合键（常用 AHK 修饰键：^:Ctrl, !:Alt, +:Shift, #:Win）
+;   注: 使用 AHK 热键格式，=空 表示不设置该热键
+;       常用 AHK 修饰键: ^:Ctrl, !:Alt, +:Shift, #:Win
+; 1. 组合键
 hotkey1=^!k
 ; 2. 单键双击
 hotkey2=Esc
+; 获取当前窗口信息热键
+hotkey_GetWinInfo=^!i
 [Keymaps]
 ; “键谱”与应用窗口对应关系
 ; 应用窗口标题关键字 = “谱匣”参数

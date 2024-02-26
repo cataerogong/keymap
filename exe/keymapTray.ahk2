@@ -1,5 +1,9 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
+;@Ahk2Exe-SetName keymapTray
+;@Ahk2Exe-SetDescription keymapTray - “谱匣”的辅助增强程序
+;@Ahk2Exe-SetCopyright Copyright (c) CataeroGong
+;@Ahk2Exe-SetVersion 1.1.0
 
 FileEncoding("UTF-8-RAW")
 DetectHiddenWindows True
@@ -10,6 +14,7 @@ KEYMAP_TITLE := "键谱 【精装礼盒版 *^____^* 】"
 SplitPath(A_ScriptFullPath, , &_DIR, &_EXT, &_NAME, &_DRIVE)
 
 IniFile := A_ScriptDir . "\" . _NAME . ".ini"
+LogFile := A_ScriptDir . "\" . _NAME . ".log"
 
 ExeFile := A_ScriptDir . "\keymap.exe"
 If (FileExist(ExeFile))
@@ -19,8 +24,14 @@ Else {
     ExitApp
 }
 
+debug := StrLower(IniRead(IniFile, "Default", "debug", ""))
+If debug == "true" || debug == "1"
+    debug := True
+Else
+    debug := False
 hotkey1 := IniRead(IniFile, "Default", "hotkey1", "")
 hotkey2 := IniRead(IniFile, "Default", "hotkey2", "")
+hotkeyGWI := IniRead(IniFile, "Default", "hotkey_GetWinInfo", "")
 kms := IniRead(IniFile, "Keymaps")
 keymaps := Array()
 Loop Parse, kms, "`n", A_Space A_Tab
@@ -44,13 +55,18 @@ ToggleKeyMap2(params*)
     }
 }
 ShowKeymap(params*) {
-    Global keymaps
+    Global
+    T := ""
     P := ""
     For km In keymaps {
         If km[1] && WinActive(km[1]) {
+            T := km[1]
             P := " " . km[2]
             Break
         }
+    }
+    If (debug) {
+        FileAppend("窗口标题=" . WinGetTitle("A") . ", 关键字=" . T . ", 谱匣参数=" . P . "`n", LogFile)
     }
     Run(ExeFile . P)
 }
@@ -64,6 +80,79 @@ ExitKeymap(ExitReason, ExitCode) {
         WinClose(KEYMAP_TITLE)
     }
 }
+ShowActiveWindowInfo(params*) {
+    hwnd := WinExist("A")
+    If (!hwnd)
+        Return
+    id := "ahk_id " . hwnd
+    title := WinGetTitle(id)
+    exe := WinGetProcessName(id)
+    path := WinGetProcessPath(id)
+    cls := WinGetClass(id)
+    pid := WinGetPID(id)
+    MsgBox("【窗口标题】`n" . title . "`n`n"
+        . "【执行文件】`nahk_exe " . exe "`nahk_exe " . path . "`n`n"
+        . "【窗口类】`nahk_class " . cls . "`n`n"
+        . "【进程ID】`nahk_pid " . pid . "`n`n"
+        . "【窗口句柄】`nahk_id " . hwnd . "`n`n"
+        . "* Ctrl+C 复制信息`n`n"
+        , "当前窗口信息")
+}
+ShowHotkeys(params*) {
+    MsgBox("显示/隐藏【键谱】(组合键): " . hotkey1 . "`n`n"
+        . "显示/隐藏【键谱】(双击键): " . hotkey2 . "`n`n"
+        . "获取当前窗口信息：" . hotkeyGWI . "`n`n"
+        . "-------------------------`n"
+        . "常用 AHK 修饰键:`n^:Ctrl, !:Alt, +:Shift, #:Win"
+        , "keymapTray 热键")
+}
+EditConfig(params*) {
+    Run(IniFile)
+}
+ReloadConfig(params*) {
+    Global
+    debug := StrLower(IniRead(IniFile, "Default", "debug", ""))
+    If debug == "true" || debug == "1"
+        debug := True
+    Else
+        debug := False
+    hotkey1_new := IniRead(IniFile, "Default", "hotkey1", "")
+    hotkey2_new := IniRead(IniFile, "Default", "hotkey2", "")
+    hotkeyGWI_new := IniRead(IniFile, "Default", "hotkey_GetWinInfo", "")
+    kms := IniRead(IniFile, "Keymaps")
+    keymaps := Array()
+    Loop Parse, kms, "`n", A_Space A_Tab
+    {
+        a := StrSplit(A_LoopField, "=", A_Space A_Tab, 2)
+        If (a.Length == 2) {
+            keymaps.Push(a)
+        }
+    }
+    if (hotkey1 != hotkey1_new) {
+        Try
+            If (hotkey1)
+                Hotkey(hotkey1, "Off")
+        hotkey1 := hotkey1_new
+        if (hotkey1)
+            Hotkey(hotkey1, ToggleKeyMap, "On")
+    }
+    if (hotkey2 != hotkey2_new) {
+        Try
+            If (hotkey2)
+                Hotkey("~" . hotkey2 . " UP", "Off")
+        hotkey2 := hotkey2_new
+        if (hotkey2)
+            Hotkey("~" . hotkey2 . " UP", ToggleKeyMap2, "On")
+    }
+    if (hotkeyGWI != hotkeyGWI_new) {
+        Try
+            If (hotkeyGWI)
+                Hotkey(hotkeyGWI, "Off")
+        hotkeyGWI := hotkeyGWI_new
+        if (hotkeyGWI)
+            Hotkey(hotkeyGWI, ShowActiveWindowInfo, "On")
+    }
+}
 
 If (hotkey1) {
     Hotkey(hotkey1, ToggleKeyMap)
@@ -71,18 +160,19 @@ If (hotkey1) {
 If (hotkey2) {
     Hotkey("~" . hotkey2 . " UP", ToggleKeyMap2)
 }
+If (hotkeyGWI) {
+    Hotkey(hotkeyGWI, ShowActiveWindowInfo)
+}
 
 OnExit(ExitKeymap)
 
-A_TrayMenu.Insert("1&", "显示【键谱】", ShowKeymap)
-A_TrayMenu.Insert("2&", "隐藏【键谱】", HideKeymap)
-A_TrayMenu.Insert("3&")
-A_TrayMenu.Insert("4&")
-A_TrayMenu.Rename("4&", "热键(组合键): " . hotkey1)
-A_TrayMenu.Insert("5&")
-A_TrayMenu.Rename("5&", "热键(双击键): " . hotkey2)
-A_TrayMenu.Insert("6&")
+Pos := 0
+A_TrayMenu.Insert(++Pos . "&", "显示【键谱】", ShowKeymap)
+A_TrayMenu.Insert(++Pos . "&", "隐藏【键谱】", HideKeymap)
+A_TrayMenu.Insert(++Pos . "&")
+A_TrayMenu.Insert(++Pos . "&", "热键信息", ShowHotkeys)
+A_TrayMenu.Insert(++Pos . "&", "编辑配置文件", EditConfig)
+A_TrayMenu.Insert(++Pos . "&", "重新读取配置文件", ReloadConfig)
+A_TrayMenu.Insert(++Pos . "&")
 A_TrayMenu.Default := "1&"
-A_TrayMenu.Disable("4&")
-A_TrayMenu.Disable("5&")
 A_IconTip := "Keymap Tray"
