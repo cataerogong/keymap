@@ -1101,6 +1101,13 @@ dialog {
     display: none;
 }
 
+.ilink {
+    cursor: pointer;
+    /* color: blue; */
+    text-decoration: dashed underline var(--c2);
+    text-underline-offset: 3px;
+}
+
 /* exe mode */
 /* [data-launch-mode="exe"] :is(#btn_load_file, #btn_save_file, #btn_save_as_img) {
     display: none;
@@ -1642,6 +1649,18 @@ const HELP2 = `一些进阶小技巧
   * 启用修饰键颜色后，所有修饰键显示均会使用定义的背景颜色
     对未设置颜色的修饰键，默认为透明背景
   * 颜色和显示模式可以随意组合
+
+【内部超链】
+  快捷键信息文字增加“内部超链”功能，可以跳转到键盘层或打开快捷键编辑窗口。
+  格式类似于 markdown 的超链：[文字](链接)
+  "[]" 中是内部超链的显示文字，可以为空，为空时显示层名+组合键
+  "()" 中为链接，格式："(L层号, 组合键)"
+
+  例：
+  [](L1)
+  [](L1, Ctrl+1)
+  [层2](L2)
+  [层2-键](L2, Alt+1)
 `;
 const KeymapHelp = {
     "#NAME": HELP_KEYMAP,
@@ -1745,22 +1764,13 @@ const KeymapHelp = {
         "Ctrl+Shift+Q": "组1\n\n但不是主快捷键::g1",
         "RCtrl+Shift+Win+T": "组4\n::g4",
         "Ctrl+RShift+Win+T": "组5\n::g5",
+        "L": "内部超链\n\n[](L1)\n[](L1, Ctrl+1)\n[层2](L2)\n[层2-键](L2, Alt+1)",
         "#comment": HELP2
     },
     "#3": {
         "#name": "新增功能",
-        "Ctrl+1": "第1个键谱",
-        "Ctrl+2": "第2个键谱",
-        "Ctrl+3": "第3个键谱",
-        "Ctrl+4": "第4个键谱",
-        "Ctrl+5": "第5个键谱",
-        "Ctrl+6": "第6个键谱",
-        "Ctrl+7": "第7个键谱",
-        "Ctrl+8": "第8个键谱",
-        "Ctrl+9": "第9个键谱",
-        ",": "上一个键谱",
-        ".": "下一个键谱",
-        "#comment": `<Ctrl>+<1~9> 快速切换键谱列表中的第 1~9 个键谱\n\n<,> 切换上一个键谱\n\n<.> 切换下一个键谱`,
+        "L": "内部超链\n\n[](L1)\n[](L1, Ctrl+1)\n[层2](L2)\n[层2-键](L2, Alt+1)",
+        "#comment": `【内部超链】\n  快捷键信息文字增加“内部超链”功能，可以跳转到键盘层或打开快捷键编辑窗口。\n  格式类似于 markdown 的超链：[文字](链接)\n  "[]" 中是内部超链的显示文字，可以为空，为空时显示层名+组合键\n  "()" 中为链接，格式："(L层号, 组合键)"\n\n例：\n[](L1)\n[](L1, Ctrl+1)\n[层2](L2)\n[层2-键](L2, Alt+1)`,
     },
 };
 
@@ -2078,6 +2088,20 @@ var Keymap = {
             }
         }
         ret.digest = ret.digest.trim();
+        // 处理内部超链宏 "[文字](Ln)", "[文字](Ln,A+B+C)"
+        function replacer(match, p1, p2, p3, p4, offset, string, groups) {
+            let ln = Keymap.getLayerName(parseInt(groups.layer));
+            let txt = "L" + groups.layer + (ln ? ":" + ln : "") + (groups.combo ? "&lt;" + groups.combo + "&gt;" : "");
+            let js = `UI.Keyboard.clearTips();UI.changeLayer(${groups.layer});UI.update();` + (groups.combo ? `setmapping_dlg('${groups.combo}');` : "");
+            return `<a class="ilink" onclick="${js}" title="${txt}">${groups.text || txt}</a>`
+        }
+        re = /\[(?<text>[^\]]*)\]\(L(?<layer>\d+)(\s*,\s*(?<combo>[^\)]+))?\)/g
+        ret.digest = ret.digest.replaceAll(re, replacer);
+        ret.body = ret.body.replaceAll(re, replacer);
+        // ret.body = mi.body.replaceAll(/\[(?<text>.*)\]\(L(?<layer>\d+)\)/g,
+        //     `<a class="ilink" onclick="UI.Keyboard.clearTips();UI.changeLayer($<layer>);UI.update();">$<text></a>`);
+        // ret.body = mi.body.replaceAll(/\[(?<text>.*)\]\(L(?<layer>\d+),\s*(?<combo>.+)\)/g,
+        //     `<a class="ilink" onclick="UI.Keyboard.clearTips();UI.changeLayer($<layer>);UI.update();setmapping_dlg('$<combo>');">$<text></a>`);
         return ret;
     },
 
@@ -4343,7 +4367,7 @@ async function webwin_init() {
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "3.3.0";
+var __version__ = "3.4.0";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
