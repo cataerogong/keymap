@@ -886,13 +886,26 @@ dialog {
     /* padding-top: 5px; */
     background-color: #e0e0e0;
 }
-#comment {
+#comment, #pcomment {
+    box-sizing: border-box;
     flex: 1 0 15rem;
     /* height: 10rem; */
-    width: 100%;
+    width: var(--kbw);
     font-size: var(--cmnt-fs);
+    margin: 10px 0px;
+    border-radius: 10px;
 }
-[data-comment="false"] #comment {
+#pcomment {
+    /* display: none; */
+    white-space: pre-wrap;
+    padding: 5px;
+    background-color: #e0e0e0;
+    overflow: auto;
+}
+#comment {
+    display: none;
+}
+[data-comment="false"] #pcomment {
     display: none;
 }
 #row_name {
@@ -945,7 +958,7 @@ dialog {
     overflow: auto;
 }
 [data-ui="tab"] #row_name,
-[data-ui="single"] :is(#btn_load_file, #btn_save_file, #row_tabbar, #kb_ops, #comment, #mods, #json_ops, #tab_json, #sidebar, #btn_sidebar, #prof_name) {
+[data-ui="single"] :is(#btn_load_file, #btn_save_file, #row_tabbar, #kb_ops, #pcomment, #mods, #json_ops, #tab_json, #sidebar, #btn_sidebar, #prof_name) {
     display: none;
 }
 [data-ui="single"] :is(#tab_kb, #tab_list, keyboard) {
@@ -954,15 +967,6 @@ dialog {
     height: fit-content;
 }
 
-#pcomment {
-    display: none;
-    white-space: pre-wrap;
-    margin: 10px;
-    padding: 5px;
-    background-color: #e0e0e0;
-    border-radius: 10px;
-    font-size: var(--cmnt-fs);
-}
 [data-ui="single"] #tab_kb {
     border-color: transparent;
 }
@@ -1106,6 +1110,9 @@ dialog {
     /* color: blue; */
     text-decoration: dashed underline var(--c2);
     text-underline-offset: 3px;
+}
+.ilink:visited {
+    color: inherit;
 }
 
 /* exe mode */
@@ -1338,7 +1345,8 @@ dialog {
             </kb_mac>
         </keyboard>
         <keyboard id="kb_ext"></keyboard>
-        <textarea id="comment" placeholder="备注"></textarea>
+        <textarea id="comment" placeholder="在这里输入备注信息。(C 显示 / Shift+C 隐藏)"></textarea>
+        <div id="pcomment" title="“双击”编辑备注"></div>
     <!-- </div> -->
 </div>
 <div id="tab_list" class="tab">
@@ -1348,7 +1356,6 @@ dialog {
 <div id="tab_json" class="tab">
     <textarea id="json"></textarea>
 </div>
-<div id="pcomment"></div>
 <div class="about"></div>
 
 <script>
@@ -1555,6 +1562,29 @@ var Util = {
         }
         return s;
     },
+
+    formalizeText(text) {
+        // 处理 "<"
+        let ret = text.replaceAll("<", "&lt;").replace(">", "&gt;");
+        // 处理内部超链 "[文字](Ln)", "[文字](Ln,A+B+C)"
+        function replacer(match, p1, p2, p3, p4, p5, offset, string, groups) {
+            let ln = "";
+            try {
+                ln = Keymap.getLayerName(parseInt(groups.layer));
+            } catch {
+            }
+            let txt = "L" + groups.layer + (ln ? ":" + ln : "") + (groups.combo ? "&lt;" + groups.combo + "&gt;" : "");
+            let js = `UI.Keyboard.clearTips();UI.changeLayer(${groups.layer});UI.update();` + (groups.combo ? `setmapping_dlg('${groups.combo}');` : "");
+            return `<a class="ilink ${groups.combo ? "key" : "layer"}" onclick="${js}" title="（内链）${groups.link}">${groups.text || txt}</a>`
+        }
+        ret = ret.replaceAll(/\[(?<text>[^\]\r\n]*)\]\((?<link>L(?<layer>\d+)(\s*,\s*(?<combo>[^\)\r\n]+))?)\)/g, replacer);
+        // 处理超链 "[文字](链接)"
+        function replacer2(match, p1, p2, offset, string, groups) {
+            return `<a class="ilink link" href="${groups.link}" target="_blank" title="（外链）${groups.link}">${groups.text || groups.link}</a>`
+        }
+        ret = ret.replaceAll(/\[(?<text>[^\]\r\n]*)\]\((?<link>\S+)\)/g, replacer2);
+        return ret;
+    }
 };
 
 const NEW_KEYMAP = "+ 新建";
@@ -1598,7 +1628,7 @@ const HELP1 = `这里是键谱应用的“键谱”(^_^)，记录、展示本应
   * 右键点击按键，可以筛选包含该键的快捷键
   * 按住 \"Ctrl\" 可同时选择多个键进行筛选，结果为同时包含这些键的快捷键
 
-【备注】这里是备注框，可以为每个键盘层备注信息。
+【备注】这里是备注框，可以为每个键盘层备注信息，鼠标双击进行编辑。
 `;
 // * 所有映射：按 f / Shift+f 开关
 //   显示/隐藏 包含“非本键盘按键”的映射信息
@@ -1650,17 +1680,32 @@ const HELP2 = `一些进阶小技巧
     对未设置颜色的修饰键，默认为透明背景
   * 颜色和显示模式可以随意组合
 
-【内部超链】
-  快捷键信息文字增加“内部超链”功能，可以跳转到键盘层或打开快捷键编辑窗口。
-  格式类似于 markdown 的超链：[文字](链接)
-  "[]" 中是内部超链的显示文字，可以为空，为空时显示层名+组合键
-  "()" 中为链接，格式："(L层号, 组合键)"
+【超链】
+  快捷键信息文字增加“超链”功能，可以跳转到键盘层、打开快捷键编辑窗口 或 外部链接。
+  格式同 markdown 的超链：[文字](链 接)
+  "[]" 中是超链的显示文字，可以为空，为空时，内部链接显示层名+组合键，外部链接显示链接地址。
+  "()" 中为链接地址，内部链接（跳转到键盘层、打开快捷键编辑窗口）格式："(L层号, 组合键)"
 
-  例：
-  [](L1)
-  [](L1, Ctrl+1)
-  [层2](L2)
-  [层2-键](L2, Alt+1)
+  例：（双击进入编辑模式查看原文）
+    [](L1)
+    [](L1, Ctrl+1)
+    [层2](L2)
+    [层2-键](L2, Alt+1)
+    [bing](https://bing.com/)
+`;
+const HELP3 = `
+【超链】
+  快捷键信息文字增加“超链”功能，可以跳转到键盘层、打开快捷键编辑窗口 或 外部链接。
+  格式同 markdown 的超链：[文字](链 接)
+  "[]" 中是超链的显示文字，可以为空，为空时，内部链接显示层名+组合键，外部链接显示链接地址。
+  "()" 中为链接地址，内部链接（跳转到键盘层、打开快捷键编辑窗口）格式："(L层号, 组合键)"
+
+  例：（双击进入编辑模式查看原文）
+    [](L1)
+    [](L1, Ctrl+1)
+    [层2](L2)
+    [层2-键](L2, Alt+1)
+    [bing](https://bing.com/)
 `;
 const KeymapHelp = {
     "#NAME": HELP_KEYMAP,
@@ -1712,8 +1757,8 @@ const KeymapHelp = {
         "Shift+X": "隐藏扩展键盘",
         "shift+X": "隐藏扩展键盘",
         "C": "显示备注\n\n在页面最下方显示备注框",
-        "Shift+C": "隐藏备注框",
-        "shift+C": "隐藏备注框",
+        "Shift+C": "隐藏备注",
+        "shift+C": "隐藏备注",
         "G": "键表分组显示",
         "Shift+G": "关闭键表分组显示",
         "shift+G": "关闭键表分组显示",
@@ -1764,13 +1809,13 @@ const KeymapHelp = {
         "Ctrl+Shift+Q": "组1\n\n但不是主快捷键::g1",
         "RCtrl+Shift+Win+T": "组4\n::g4",
         "Ctrl+RShift+Win+T": "组5\n::g5",
-        "L": "内部超链\n\n[](L1)\n[](L1, Ctrl+1)\n[层2](L2)\n[层2-键](L2, Alt+1)",
+        "L": "超链\n\n[](L1)\n[](L1, Ctrl+1)\n[层2](L2)\n[层2-键](L2, Alt+1)\n[bing](https://bing.com/)",
         "#comment": HELP2
     },
     "#3": {
         "#name": "新增功能",
-        "L": "内部超链\n\n[](L1)\n[](L1, Ctrl+1)\n[层2](L2)\n[层2-键](L2, Alt+1)",
-        "#comment": `【内部超链】\n  快捷键信息文字增加“内部超链”功能，可以跳转到键盘层或打开快捷键编辑窗口。\n  格式类似于 markdown 的超链：[文字](链接)\n  "[]" 中是内部超链的显示文字，可以为空，为空时显示层名+组合键\n  "()" 中为链接，格式："(L层号, 组合键)"\n\n例：\n[](L1)\n[](L1, Ctrl+1)\n[层2](L2)\n[层2-键](L2, Alt+1)`,
+        "L": "超链\n\n[](L1)\n[](L1, Ctrl+1)\n[层2](L2)\n[层2-键](L2, Alt+1)\n[bing](https://bing.com/)",
+        "#comment": HELP3
     },
 };
 
@@ -2087,21 +2132,8 @@ var Keymap = {
                 break;
             }
         }
-        ret.digest = ret.digest.trim();
-        // 处理内部超链宏 "[文字](Ln)", "[文字](Ln,A+B+C)"
-        function replacer(match, p1, p2, p3, p4, offset, string, groups) {
-            let ln = Keymap.getLayerName(parseInt(groups.layer));
-            let txt = "L" + groups.layer + (ln ? ":" + ln : "") + (groups.combo ? "&lt;" + groups.combo + "&gt;" : "");
-            let js = `UI.Keyboard.clearTips();UI.changeLayer(${groups.layer});UI.update();` + (groups.combo ? `setmapping_dlg('${groups.combo}');` : "");
-            return `<a class="ilink ${groups.combo ? "key" : "layer"}" onclick="${js}" title="${txt}">${groups.text || txt}</a>`
-        }
-        re = /\[(?<text>[^\]]*)\]\(L(?<layer>\d+)(\s*,\s*(?<combo>[^\)]+))?\)/g
-        ret.digest = ret.digest.replaceAll(re, replacer);
-        ret.body = ret.body.replaceAll(re, replacer);
-        // ret.body = mi.body.replaceAll(/\[(?<text>.*)\]\(L(?<layer>\d+)\)/g,
-        //     `<a class="ilink" onclick="UI.Keyboard.clearTips();UI.changeLayer($<layer>);UI.update();">$<text></a>`);
-        // ret.body = mi.body.replaceAll(/\[(?<text>.*)\]\(L(?<layer>\d+),\s*(?<combo>.+)\)/g,
-        //     `<a class="ilink" onclick="UI.Keyboard.clearTips();UI.changeLayer($<layer>);UI.update();setmapping_dlg('$<combo>');">$<text></a>`);
+        ret.digest = Util.formalizeText(ret.digest.trim());
+        ret.body = Util.formalizeText(ret.body);
         return ret;
     },
 
@@ -2759,8 +2791,24 @@ var UI = {
                 await this.loadFile(f);
             }
         };
-        this.elm("#prof_name").onclick = async (evt) => { await this.showProfileList(); }
-        this.elm("#comment").onchange = async (evt) => { Keymap.setMapping("#comment", this.elm("#comment").value); await this.save(); this.update(); }
+        this.elm("#prof_name").onclick = async (evt) => { await this.showProfileList(); };
+        this.elm("#pcomment").ondblclick = (evt) => {
+            this.elm("#pcomment").style.display = "none";
+            let e = this.elm("#comment");
+            e.style.display = "unset";
+            e.focus();
+            e.scrollTo(0, 0);
+            e.setSelectionRange(0, 0);
+        };
+        this.elm("#comment").onchange = async (evt) => {
+            Keymap.setMapping("#comment", this.elm("#comment").value);
+            await this.save();
+            this.update();
+        };
+        this.elm("#comment").onblur = (evt) => {
+            this.elm("#comment").style.display = "none";
+            this.elm("#pcomment").style.removeProperty("display");
+        };
         this.elm("#pname_layer").onclick = (evt) => { this.showLayerList(); };
 
         this.Keyboard.init();
@@ -2900,11 +2948,9 @@ var UI = {
         Keymap._virtual = true;
         let cmt = Keymap.getMapping("#comment");
         if (cmt.text) {
-            this.elm("#pcomment").style.display = "initial";
-            this.elm("#pcomment").innerText = cmt.text;
+            this.elm("#pcomment").style.display = "unset";
         } else {
             this.elm("#pcomment").style.display = "none";
-            this.elm("#pcomment").innerText = "";
         }
         for (const e of this.Keyboard.Ks) {
             e.style.setProperty("cursor", "unset");
@@ -3466,7 +3512,7 @@ UI.Keyboard = {
         }
         let cmt = Keymap.getMapping("#comment")
         UI.elm("#comment").value = cmt.text;
-        UI.elm("#pcomment").innerText = cmt.text;
+        UI.elm("#pcomment").innerHTML = Util.formalizeText(cmt.text) || UI.elm("#comment").getAttribute("placeholder");
     },
 };
 
@@ -4367,7 +4413,7 @@ async function webwin_init() {
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "3.4.1";
+var __version__ = "3.4.2";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
