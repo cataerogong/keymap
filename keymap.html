@@ -2093,7 +2093,7 @@ var Keymap = {
             let ln = Keymap.getLayerName(parseInt(groups.layer));
             let txt = "L" + groups.layer + (ln ? ":" + ln : "") + (groups.combo ? "&lt;" + groups.combo + "&gt;" : "");
             let js = `UI.Keyboard.clearTips();UI.changeLayer(${groups.layer});UI.update();` + (groups.combo ? `setmapping_dlg('${groups.combo}');` : "");
-            return `<a class="ilink" onclick="${js}" title="${txt}">${groups.text || txt}</a>`
+            return `<a class="ilink ${groups.combo ? "key" : "layer"}" onclick="${js}" title="${txt}">${groups.text || txt}</a>`
         }
         re = /\[(?<text>[^\]]*)\]\(L(?<layer>\d+)(\s*,\s*(?<combo>[^\)]+))?\)/g
         ret.digest = ret.digest.replaceAll(re, replacer);
@@ -4367,7 +4367,7 @@ async function webwin_init() {
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "3.4.0";
+var __version__ = "3.4.1";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
