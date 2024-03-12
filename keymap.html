@@ -1574,7 +1574,7 @@ var Util = {
             } catch {
             }
             let txt = "L" + groups.layer + (ln ? ":" + ln : "") + (groups.combo ? "&lt;" + groups.combo + "&gt;" : "");
-            let js = `UI.Keyboard.clearTips();UI.changeLayer(${groups.layer});UI.update();` + (groups.combo ? `setmapping_dlg('${groups.combo}');` : "");
+            let js = `UI.Keyboard.clearTips();UI.changeLayer(${groups.layer});UI.update();` + (groups.combo ? `UI.setMapping('${groups.combo}');` : "");
             return `<a class="ilink ${groups.combo ? "key" : "layer"}" onclick="${js}" title="（内链）${groups.link}">${groups.text || txt}</a>`
         }
         ret = ret.replaceAll(/\[(?<text>[^\]\r\n]*)\]\((?<link>L(?<layer>\d+)(\s*,\s*(?<combo>[^\)\r\n]+))?)\)/g, replacer);
@@ -3255,18 +3255,21 @@ var UI = {
 
     // Keymapping Methods
     async setMapping(kn) {
-        let s = await setmapping_dlg(kn);
-        if (s != null) {
-            if (s.length > 0) {
-                Keymap.setMapping(...s);
-            } else {
-                for (const k in Keymap.getAllMappings(Util.get_mainkey(kn))) {
-                    Keymap.setMapping(k, "");
-                }
-            }
-            await this.save();
-            this.update();
-        }
+        // let s = await setmapping_dlg(kn);
+        // if (s != null) {
+        //     if (s.length > 0) {
+        //         Keymap.setMapping(...s);
+        //     } else {
+        //         for (const k in Keymap.getAllMappings(Util.get_mainkey(kn))) {
+        //             Keymap.setMapping(k, "");
+        //         }
+        //     }
+        //     await this.save();
+        //     this.update();
+        // }
+        await setmapping_dlg(kn);
+        await this.save();
+        this.update();
     },
 
     // File operation
@@ -3534,9 +3537,9 @@ UI.List = {
             if (Keymap.isKBKeys(k)) {
                 if (Keymap.ModKeyInListColorMode) {
                     let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
-                    mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn data-k="${k}" class="ck mod_color" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
+                    mods.push(`<label style="white-space: nowrap;cursor: pointer;"><input type="checkbox" value="${k}" /><kn data-k="${k}" class="ck mod_color" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
                 } else {
-                    mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn data-k="${k}" class="ck">${k}</kn></label>`)
+                    mods.push(`<label style="white-space: nowrap;cursor: pointer;"><input type="checkbox" value="${k}" /><kn data-k="${k}" class="ck">${k}</kn></label>`)
                 }
             }
         }
@@ -3742,17 +3745,57 @@ async function get_name_dlg(info, def_val = "", check_filename=true, allow_empty
 };
 
 async function setmapping_dlg(combo_str) {
+    let cks = Util.split_combo(combo_str);
+    let mk = cks.pop();
+    function setmapping_dlg_reset(dlg) {
+        for (const elm of dlg.querySelectorAll('input[type="checkbox"]')) {
+            elm.checked = false;
+        }
+        dlg.querySelector("#group").value = "";
+        dlg.querySelector("#st_mapping").value = "";
+    }
+    function setmapping_dlg_load(dlg) {
+        let st_mods = dlg.querySelector("#st_mods");
+        let selGrp = dlg.querySelector("#group");
+        let kn = [];
+        for (const e of st_mods.querySelectorAll('input[type="checkbox"]:checked')) {
+            kn.push(e.value);
+        }
+        kn.sort();
+        kn.push(mk);
+        let mi = Keymap.getMapping(kn.join("+"));
+        dlg.querySelector("#is_main").checked = mi.is_main;
+        selGrp.value = mi.group;
+        selGrp.style.backgroundColor = Keymap.getGroupColor(mi.group);
+        let m = dlg.querySelector("#st_mapping");
+        m.value = (mi.text || "").trim();
+        m.focus();
+    }
+    function setmapping_dlg_save(dlg) {
+        let st_mods = dlg.querySelector("#st_mods");
+        let selGrp = dlg.querySelector("#group");
+        let kn = [];
+        for (const e of st_mods.querySelectorAll('input[type="checkbox"]:checked')) {
+            kn.push(e.value);
+        }
+        kn.sort();
+        kn.push(mk);
+        let txt = dlg.querySelector("#st_mapping").value.trim();
+        if (dlg.querySelector("#is_main").checked)
+            txt = "* " + txt;
+        if (selGrp.value)
+            txt += "\n::" + selGrp.value;
+        Keymap.setMapping(kn.join("+"), txt);
+    }
     return new Promise((resolver) => {
-        let cks = Util.split_combo(combo_str);
-        let mk = cks.pop();
         let mods = [];
         for (const k of Keymap.ModKeys) {
             if (k != mk && Keymap.isKBKeys(k)) {
                 if (Keymap.ModKeyColorMode) {
                     let clr = Keymap.getModColor(k) || ["transparent", "transparent"];
-                    mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn data-k="${k}" class="ck mod_color" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
+                    mods.push(`<label style="white-space: nowrap;cursor: pointer;"><input type="checkbox" value="${k}" /><kn data-k="${k}" class="ck mod_color" style="${clr[0]?'--mod-c1:'+clr[0]+';':''}${clr[1]?'--mod-c2:'+clr[1]+';':''}">${k}</kn></label>`)
                 } else {
-                    mods.push(`<label style="white-space: nowrap;"><input type="checkbox" value="${k}" /><kn data-k="${k}" class="ck">${k}</kn></label>`)
+                    mods.push(`<label style="white-space: nowrap;cursor: pointer;"><input type="checkbox" value="${k}" /><kn data-k="${k}" class="ck">${k}</kn></label>`)
                 }
             }
         }
@@ -3760,8 +3803,7 @@ async function setmapping_dlg(combo_str) {
         for (const g in Keymap.Groups) {
             grps.push(`<option value="${g}" style="background-color: ${Keymap.getGroupColor(g)}">${Keymap.getGroupAlias(g)}</option>`);
         }
-        let mi = Keymap.getMapping(combo_str);
-        let html = `<dialog class="kmdlg">
+        let html = `<dialog class="kmdlg" id="kmdlg">
             <div style="flex: 1;display: flex;gap: 5px;">
                 <div id="st_mods" style="display:grid;grid-auto-flow:column;grid-template-rows:repeat(10, max-content);gap: 5px;width: fit-content;padding: 5px;background-color: #f0f0f0;">
                     ${mods.join("")}
@@ -3771,14 +3813,14 @@ async function setmapping_dlg(combo_str) {
                 <kn class="mk" style="grid-row: 1 / -1;">${mk}</kn>
                 </div>
                 <div style="flex:1;display:flex;flex-flow:column;">
-                    <textarea id="st_mapping" style="flex:1;border-width:1px;" autofocus placeholder="这里输入快捷键的说明信息。\n\n说明信息分为三部分：“简介”，“详细信息”和“备注”。\n“简介”部分会直接显示在键帽上，“简介”和“详细信息”会显示在快捷键列表里，“备注”只会在录入界面显示。\n--\n具体格式：\n简介（可以是连续的多行文字）\n（一个空行）\n详细信息\n--（连续多个“-”(英文减号)）\n备注信息">${mi.text || ""}</textarea>
+                    <textarea id="st_mapping" style="flex:1;border-width:1px;" autofocus placeholder="这里输入快捷键的说明信息。\n\n说明信息分为三部分：“简介”，“详细信息”和“备注”。\n“简介”部分会直接显示在键帽上，“简介”和“详细信息”会显示在快捷键列表里，“备注”只会在录入界面显示。\n--\n具体格式：\n简介（可以是连续的多行文字）\n（一个空行）\n详细信息\n--（连续多个“-”(英文减号)）\n备注信息"></textarea>
                     <div style="margin-top: 5px;">
-                        <label style="position: relative;" data-help="将快捷键设定为“主快捷键”\n在键图中，会在键帽上优先显示主快捷键的信息\n在键表中，主快捷键的右上角会有一个“★”标记">
+                        <label style="position: relative;cursor: pointer;" data-help="将快捷键设定为“主快捷键”\n在键图中，会在键帽上优先显示主快捷键的信息\n在键表中，主快捷键的右上角会有一个“★”标记">
                             <input type="checkbox" id="is_main">在键帽上优先显示
                         </label>
                         <label style="margin-left:20px;float: right">
                             分组
-                            <select id="group" style="width: 5rem;background-color: var(--c1);">${grps.join("")}</select>
+                            <select id="group" style="width: 5rem;background-color: var(--c1);cursor: pointer;">${grps.join("")}</select>
                         </label>
                     </div>
                 </div>
@@ -3790,9 +3832,10 @@ async function setmapping_dlg(combo_str) {
                 <button class="btn btnclr danger" style="float:left;">清空本键所有快捷键</button>
                 <button class="btn btndel danger">删除</button>
                 <button class="btn btnok">保存</button>
-                <button class="btn btncancel">取消</button>
+                <button class="btn btncancel">关闭</button>
             </div>
         </dialog>`;
+        let changed = false;
         let tmp = document.createElement("div");
         tmp.innerHTML = html;
         let dlg = tmp.children[0];
@@ -3803,45 +3846,28 @@ async function setmapping_dlg(combo_str) {
             }
         }
         let st_mods = dlg.querySelector("#st_mods");
-        dlg.querySelector("#is_main").checked = mi.is_main;
         let selGrp = dlg.querySelector("#group");
-        selGrp.value = mi.group;
-        selGrp.style.backgroundColor = Keymap.getGroupColor(mi.group);
         selGrp.onchange = (evt) => {
             selGrp.style.backgroundColor = selGrp.options[selGrp.selectedIndex].style.backgroundColor;
+            changed = true;
         }
+        dlg.querySelector("#is_main").onchange = (evt) => { changed = true; };
+        dlg.querySelector("#st_mapping").onchange = (evt) => { changed = true; };
         st_mods.querySelectorAll('input[type="checkbox"]').forEach(elm => {
             if (cks.includes(elm.value)) elm.checked = true;
             elm.onclick = (evt) => {
-                let kn = [];
-                for (const elm of dlg.querySelectorAll('input[type="checkbox"]:checked')) {
-                    kn.push(elm.value);
+                if (changed && confirm("修改未保存，是否保存？")) {
+                    elm.checked = !elm.checked;
+                    setmapping_dlg_save(dlg);
+                    elm.checked = !elm.checked;
                 }
-                kn.sort();
-                kn.push(mk);
-                let mi = Keymap.getMapping(kn.join("+"));
-                dlg.querySelector("#is_main").checked = mi.is_main;
-                selGrp.value = mi.group;
-                selGrp.style.backgroundColor = Keymap.getGroupColor(mi.group);
-                let m = dlg.querySelector("#st_mapping");
-                m.value = (mi.text || "").trim();
-                m.focus();
+                setmapping_dlg_load(dlg);
+                changed = false;
             }
         });
         dlg.querySelector(".btnok").onclick = (evt) => {
-            let kn = [];
-            for (const elm of st_mods.querySelectorAll('input[type="checkbox"]:checked')) {
-                kn.push(elm.value);
-            }
-            kn.sort();
-            kn.push(mk);
-            let txt = dlg.querySelector("#st_mapping").value.trim();
-            dlg.remove();
-            if (dlg.querySelector("#is_main").checked)
-                txt = "* " + txt;
-            if (selGrp.value)
-                txt += "\n::" + selGrp.value;
-            resolver([kn.join("+"), txt]);
+            setmapping_dlg_save(dlg);
+            changed = false;
         };
         dlg.querySelector(".btndel").onclick = (evt) => {
             let kn = [];
@@ -3851,22 +3877,35 @@ async function setmapping_dlg(combo_str) {
             kn.sort();
             kn.push(mk);
             if (!confirm(`确认要清除快捷键【 ${kn.join("+")} 】？`)) return;
-            dlg.remove();
-            resolver([kn.join("+"), ""]);
+            // dlg.remove();
+            // resolver([kn.join("+"), ""]);
+            Keymap.setMapping(kn.join("+"), "");
+            setmapping_dlg_reset(dlg);
         };
         dlg.querySelector(".btnclr").onclick = (evt) => {
             if (!confirm(`确认要清空键【 ${mk} 】上的所有快捷键？`)) return;
-            dlg.remove();
-            resolver([]);
+            // dlg.remove();
+            // resolver([]);
+            for (const k in Keymap.getAllMappings(mk)) {
+                Keymap.setMapping(k, "");
+            }
+            setmapping_dlg_reset(dlg);
         };
         dlg.querySelector(".btncancel").onclick = (evt) => {
+            if (changed && confirm("修改未保存，是否保存？")) {
+                setmapping_dlg_save(dlg);
+            }
             dlg.remove();
             resolver();
         };
         dlg.onclose = (evt) => {
+            if (changed && confirm("修改未保存，是否保存？")) {
+                setmapping_dlg_save(dlg);
+            }
             dlg.remove();
             resolver();
         }
+        setmapping_dlg_load(dlg);
         document.body.appendChild(dlg);
         dlg.showModal();
     });
@@ -4413,7 +4452,7 @@ async function webwin_init() {
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "3.4.2";
+var __version__ = "3.4.3";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
