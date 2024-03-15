@@ -20,7 +20,7 @@ xcopy /y /s js\ pack_tmp\js\
 xcopy /y /s keymaps\ pack_tmp\keymaps\
 copy /y exe\dist\keymap\keymap.exe pack_tmp\
 xcopy /y /s exe\dist\keymap\_runtime\ pack_tmp\_runtime\
-copy /y exe\README.md pack_tmp\README-keymap-exe.md
+copy /y exe\README.md pack_tmp\README-exe.md
 copy /y exe\dist\keymap\keymapTray.exe pack_tmp\
 copy /y exe\dist\keymap\keymapTray.ini pack_tmp\
 

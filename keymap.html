@@ -495,7 +495,7 @@ kn.na,
     height: fit-content;
     padding: 5px;
     display: grid;
-    grid-template-columns: max-content 1fr;
+    grid-template-columns: max-content max-content 1fr;
     gap: 3px 1px;
     align-content: flex-start;
     /* pointer-events: none; */
@@ -671,11 +671,12 @@ kn.na,
 }
 #list .shortcut {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr max-content 1fr;
     gap: 5px;
     padding: 1px;
     margin-bottom: 5px;
     overflow-y: auto;
+    align-items: start;
 }
 #list kn.mk, 
 #list kn.ck.sel {
@@ -1042,9 +1043,9 @@ dialog {
 [data-list-by="group"] #btn_list_by,
 [data-sidebar-enable="true"] #btn_sidebar,
 [data-sidebar-pin="true"] #btn_pin,
-.btn_icon:hover {
+.btn_icon1:hover {
     font-weight: bold;
-    color:  var(--ui-bdc);
+    color: var(--ui-bdc);
     border-color: var(--ui-bdc);
     background-color: var(--ui-bgc);
 }
@@ -1054,9 +1055,10 @@ dialog {
 [data-list-by="group"] #btn_list_by svg,
 [data-sidebar-enable="true"] #btn_sidebar svg,
 [data-sidebar-pin="true"] #btn_pin svg,
-.btn_icon:hover svg {
+.btn_icon1:hover svg {
     fill: var(--ui-bdc);
 }
+
 .btn_chk {
     color: lightgray;
 }
@@ -1071,6 +1073,40 @@ dialog {
     width: 20px;
 }
 
+[data-view="k"] #btn_multi_ops {
+    display: none;
+}
+#lst_multi_ops {
+    box-sizing: content-box;
+    padding: 3px;
+    position: absolute;
+    right: 0px;
+    background-color: whitesmoke;
+    border: 1px solid darkgray;
+    border-radius: 5px;
+    box-shadow: 2px 2px 4px darkgray;
+    visibility: hidden;
+}
+#lst_multi_ops div {
+    align-items: center;
+    white-space: nowrap;
+    display: flex;
+    gap: 5px;
+    border: 0px;
+    color: var(--ui-fc);
+}
+#lst_multi_ops div svg {
+    height: 24px;
+    width: 24px;
+}
+#btn_multi_ops:hover svg {
+    fill: var(--ui-bdc);
+}
+#btn_multi_ops:hover #lst_multi_ops {
+    visibility: visible;
+    z-index: 1;
+}
+
 [data-help]:hover::after {
     content: attr(data-help);
     position: absolute;
@@ -1083,7 +1119,7 @@ dialog {
     display: block;
     border: 1px solid darkgray;
     background-color: whitesmoke;
-    box-shadow: 2px 2px 4px;
+    box-shadow: 2px 2px 4px darkgray;
     padding: 3px;
     white-space: pre;
     z-index: 1;
@@ -1183,12 +1219,15 @@ dialog {
         <span id="btn_save_file" class="btn_icon BIND-CLICK" data-help="保存至文件">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.75 3h-1A2.75 2.75 0 0 0 3 5.75v12.5A2.75 2.75 0 0 0 5.75 21H6v-6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 15v6h.25A2.75 2.75 0 0 0 21 18.25V8.286a3.25 3.25 0 0 0-.952-2.299l-2.035-2.035A3.25 3.25 0 0 0 15.75 3v4.5a2.25 2.25 0 0 1-2.25 2.25H9A2.25 2.25 0 0 1 6.75 7.5zm7.5 0v4.5a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75V3zm2.25 18v-6a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0-.75.75v6z"/></svg>
         </span>
-        <span id="btn_saveas" class="btn_icon BIND-CLICK" data-help="复制到">
+        <span id="btn_saveas" class="btn_icon BIND-CLICK" data-help="另存为/复制到新键谱">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 12a5.5 5.5 0 1 1 0 11a5.5 5.5 0 0 1 0-11M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25l2.985.001a6.521 6.521 0 0 0 1.08 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123m12.781 9.962a.5.5 0 0 0-.568 0l-.07.057l-.057.07a.5.5 0 0 0 0 .568l.057.07l1.646 1.645l-4.798.001l-.09.008a.5.5 0 0 0-.402.402l-.008.09l.008.09a.5.5 0 0 0 .402.402l.09.008l4.8-.001l-1.648 1.647l-.057.07a.5.5 0 0 0 .695.695l.07-.057l2.53-2.533l.036-.05l.042-.08l.026-.083l.01-.064v-.088l-.01-.064l-.011-.043l-.032-.078l-.024-.042l-.038-.05l-2.53-2.533zM17.75 2A2.25 2.25 0 0 1 20 4.25v7.248a6.5 6.5 0 0 0-8.687 8.002H8.75a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2z"/></svg>
         </span>
         <span style="border: 0px solid darkgray;border-left-width: 1px;margin:5px 5px;"></span>
         <span id="btn_setting" class="btn_icon BIND-CLICK" data-help="键谱设置">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.5 2a5.5 5.5 0 0 0-5.348 6.789L2.841 17.1a2.871 2.871 0 1 0 4.06 4.06l4.115-4.113a6.5 6.5 0 0 1 9.172-5.467A5.486 5.486 0 0 0 22 7.5a5.51 5.51 0 0 0-.282-1.745a.75.75 0 0 0-1.242-.292l-2.444 2.444a.75.75 0 0 1-1.06 0l-.879-.878a.75.75 0 0 1 0-1.06l2.445-2.445a.75.75 0 0 0-.293-1.241A5.495 5.495 0 0 0 16.5 2m-2.223 11.976a2 2 0 0 1-1.441 2.496l-.584.144a5.728 5.728 0 0 0 .006 1.808l.54.13a2 2 0 0 1 1.45 2.51l-.187.631c.44.386.94.699 1.485.922l.493-.519a2 2 0 0 1 2.899 0l.499.525a5.277 5.277 0 0 0 1.482-.913l-.198-.686a2 2 0 0 1 1.442-2.496l.583-.144a5.729 5.729 0 0 0-.006-1.808l-.54-.13a2 2 0 0 1-1.449-2.51l.186-.63a5.282 5.282 0 0 0-1.484-.922l-.493.518a2 2 0 0 1-2.9 0l-.498-.525c-.544.22-1.044.53-1.483.912zM17.5 19c-.8 0-1.45-.672-1.45-1.5S16.7 16 17.5 16c.8 0 1.45.672 1.45 1.5S18.3 19 17.5 19"/></svg>
+        </span>
+        <span id="btn_rename" class="btn_icon BIND-CLICK" data-help="重命名键谱">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.75 2h3.998a.75.75 0 0 1 .102 1.493l-.102.007H12.5v17h1.246a.75.75 0 0 1 .743.648l.007.102a.75.75 0 0 1-.648.743l-.102.007H9.75a.75.75 0 0 1-.102-1.493l.102-.007h1.249v-17H9.75a.75.75 0 0 1-.743-.648L9 2.75a.75.75 0 0 1 .648-.743zm8.496 2.997a3.253 3.253 0 0 1 3.25 3.25l.004 7.504a3.249 3.249 0 0 1-3.064 3.246l-.186.005h-4.745V4.996zm-8.249 0L9.992 19H5.25A3.25 3.25 0 0 1 2 15.751V8.247a3.25 3.25 0 0 1 3.25-3.25z"/></svg>
         </span>
         <span id="btn_clr" class="btn_icon danger BIND-CLICK" data-help="清空键谱">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m15.87 2.669l4.968 4.968a2.25 2.25 0 0 1 0 3.182l-8.682 8.68l6.098.001a.75.75 0 0 1 .743.648l.007.102a.75.75 0 0 1-.648.743l-.102.007l-8.41.001a2.244 2.244 0 0 1-1.714-.655l-4.969-4.969a2.25 2.25 0 0 1 0-3.182l9.527-9.526a2.25 2.25 0 0 1 3.182 0m-4.172 15.09l-5.955-5.956l-1.507 1.467a.75.75 0 0 0 0 1.06l4.946 4.946a.75.75 0 0 0 1.06-.016z"/></svg>
@@ -1227,9 +1266,20 @@ dialog {
         <span id="btn_list_by" class="btn_icon btn_chk BIND-CLICK" data-help="按分组显示">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m3.001 11.996l3 .004a1 1 0 0 1 .114 1.993L6 14l-2-.004v5.003L6 19a1 1 0 0 1 .993.883L7 20a1 1 0 0 1-.883.993L6 21H3a1 1 0 0 1-.993-.883L2 20v-7.004a1 1 0 0 1 .885-.994zM21 17a1 1 0 0 1 .117 1.993L21 19H9a1 1 0 0 1-.117-1.993L9 17zm0-3a1 1 0 0 1 .117 1.993L21 16H9a1 1 0 0 1-.117-1.993L9 14zM6 2a1 1 0 0 1 .117 1.993L6 4H4v4.995h2a1 1 0 0 1 .993.883L7 9.995a1 1 0 0 1-.883.993L6 10.995H3a1 1 0 0 1-.993-.883L2 9.995V3a1 1 0 0 1 .883-.993L3 2zm15 5a1 1 0 0 1 .117 1.993L21 9H9a1 1 0 0 1-.117-1.993L9 7zm0-3a1 1 0 0 1 .117 1.993L21 6H9a1 1 0 0 1-.117-1.993L9 4z"/></svg>
         </span>
-        <!-- <span id="btn_showall" class="btn_icon btn_chk BIND-CLICK" title="所有映射">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path d="m28.89 20.91l-5-2.91l4.87-2.86a3.11 3.11 0 0 0 1.14-1.08a3 3 0 0 0-4.09-4.15L21 12.76V7a3 3 0 0 0-6 0v5.76l-4.85-2.85a3 3 0 1 0-3 5.18l5 2.91l-4.95 2.86a3.11 3.11 0 0 0-1.14 1.08a3 3 0 0 0 4.09 4.14L15 23.24v5.66a3 3 0 0 0 2 2.94A3 3 0 0 0 21 29v-5.76l4.85 2.85a3 3 0 1 0 3-5.18Z" /></svg>
-        </span> -->
+        <span id="btn_multi_ops" class="btn_icon" style="position: relative;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="m8 9.076l.085-.107a.751.751 0 1 0-1.171-.937L5.438 9.877L5.03 9.47a.747.747 0 0 0-1.06 0a.75.75 0 0 0 0 1.06l.407.408l.593.592a.75.75 0 0 0 1.116-.061l.522-.654h.001L8 9.074Z"/><path fill-rule="evenodd" d="M12 11a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3v1H4a3 3 0 0 0-3 3v4a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3v-1zM4 6.5A1.5 1.5 0 0 0 2.5 8v4A1.5 1.5 0 0 0 4 13.5h4A1.5 1.5 0 0 0 9.5 12V8A1.498 1.498 0 0 0 8 6.5zM13.5 4A1.5 1.5 0 0 0 12 2.5H8A1.5 1.5 0 0 0 6.5 4v1H8a3 3 0 0 1 3 3v1.5h1A1.498 1.498 0 0 0 13.5 8z" /></svg>
+            <div id="lst_multi_ops">
+                <span style="color: gray;">批量操作</span>
+                <div id="btn_del_shortcuts" class="btn BIND-CLICK">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.47 3.47a.75.75 0 0 1 1.06 0L8 6.94l3.47-3.47a.75.75 0 1 1 1.06 1.06L9.06 8l3.47 3.47a.75.75 0 1 1-1.06 1.06L8 9.06l-3.47 3.47a.75.75 0 0 1-1.06-1.06L6.94 8L3.47 4.53a.75.75 0 0 1 0-1.06" /></svg>
+                    删除
+                </div>
+                <div id="btn_set_group" class="btn BIND-CLICK">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11 7h4v2h-4v6h2v-4h2v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zm2 0v14h14V5z"/></svg>
+                    分组
+                </div>
+            </div>
+        </span>
         <span style="flex: 1;">&nbsp;</span>
     </div>
     <div id="json_ops">
@@ -1524,7 +1574,7 @@ var Util = {
         }
     },
 
-    gen_combo_kn_elm(kn, group_color = true, mod_color = true) {
+    gen_combo_kn_elm(kn, group_color = true, mod_color = true, checkbox = false) {
         let ck = this.split_combo(kn);
         let mk = ck.pop();
         let l = [];
@@ -1552,7 +1602,9 @@ var Util = {
             s = `<span class="modkeys">` + l.join("") + `</span>`;
         }
         s += `<kn data-k="${mk}" class="mk">${mk}</kn>`;
-        return `<kcombo data-mainkey="${mk}" data-combo="${kn}" class="f-end ${g}" style="${c}" title="点击修改">${s}</kcombo><kinfo data-mainkey="${mk}" data-combo="${kn}">${mi.body}</kinfo>`;
+        return `<kcombo data-mainkey="${mk}" data-combo="${kn}" class="f-end ${g}" style="${c}" title="点击修改">${s}</kcombo>
+            ${checkbox?"<input type='checkbox' data-combo='"+kn+"' />":"<span></span>"}
+            <kinfo data-mainkey="${mk}" data-combo="${kn}">${mi.body}</kinfo>`;
     },
 
     parseVersion(v) {
@@ -2137,6 +2189,12 @@ var Keymap = {
         return ret;
     },
 
+    /**
+     * @param text {string}
+     * @param is_main {boolean}
+     * @param group {string}
+     * 
+     */
     packMappingInfo(text, is_main, group) {
         let ret = text.trim();
         if (is_main) {
@@ -2714,6 +2772,9 @@ var UI = {
                 await this.setting();
                 this.Keyboard.build();
                 break;
+            case "btn_rename":
+                await this.rename();
+                break;
             case "btn_clr":
                 await this.clear();
                 break;
@@ -2767,6 +2828,12 @@ var UI = {
             case "btn_size_b":
                 await this.resizeSidebar(50);
                 Util.setCSS("--sidebar-width", Setting.SidebarWidth + "px");
+                break;
+            case "btn_del_shortcuts":
+                upd = await this.del_shortcuts();
+                break;
+            case "btn_set_group":
+                upd = await this.set_group();
                 break;
             default:
                 upd = false;
@@ -2993,7 +3060,7 @@ var UI = {
 
     // Data Operation Methods
     async new() {
-        let name = await get_name_dlg("请输入键谱名：");
+        let name = await get_name_dlg("请输入新键谱名：");
         if (name) {
             if (await _PROFILE_.isExist(name)) {
                 if (!confirm(`已存在键谱《${name}》！\n\n如果继续，该键谱的原有数据将被清空。\n\n是否继续？`)) return;
@@ -3033,28 +3100,31 @@ var UI = {
     async import() {
         let json_ = this.Json.Value;
         if (!json_)
-            return;
+            return false;
         if (Keymap.loadJSON(json_)) {
             await this.save();
+            return true;
         }
+        return false;
     },
 
-    async import2() {
+    async import2(def_name = "") {
         let json_ = this.Json.Value;
         if (!json_)
-            return;
-        let name = await get_name_dlg("请输入键谱名：");
+            return false;
+        let name = await get_name_dlg("请输入新键谱名：", def_name || Keymap.Name);
         if (name) {
-            if (await _PROFILE_.isExist(name)) {
-                if (!confirm(`已存在键谱《${name}》！\n\n如果继续，该键谱的原有数据将被清空。\n\n是否继续？`)) return;
-            }
+            if ((await _PROFILE_.isExist(name)) && !confirm(`已存在键谱《${name}》！\n\n如果继续，该键谱的原有数据将被清空。\n\n是否继续？`))
+                return false;
             Keymap.init();
             if (!Keymap.loadJSON(json_))
-                return;
+                return false;
             Keymap.Name = name;
             await this.save();
             await _PROFILE_.setLast(Keymap.Name);
+            return true;
         }
+        return false;
     },
 
     async save_present_js() {
@@ -3067,6 +3137,13 @@ var UI = {
         if (!confirm(`确认要清空整个键谱《${Keymap.Name}》？`)) return;
         Keymap.clear();
         await this.save(false);
+    },
+
+    async rename() {
+        let old_name = Keymap.Name;
+        if (await this.import2()) {
+            await _PROFILE_.del(old_name);
+        }
     },
 
     /**
@@ -3238,7 +3315,6 @@ var UI = {
     },
 
     toggleFilter(mk, multi) {
-        // this.List.toggleMapping(this.Keyboard.toggleMapping(mk));
         if (Keymap.isFilterKey(mk)) {
             if (multi)
                 Keymap.delFilterKey(mk);
@@ -3255,21 +3331,39 @@ var UI = {
 
     // Keymapping Methods
     async setMapping(kn) {
-        // let s = await setmapping_dlg(kn);
-        // if (s != null) {
-        //     if (s.length > 0) {
-        //         Keymap.setMapping(...s);
-        //     } else {
-        //         for (const k in Keymap.getAllMappings(Util.get_mainkey(kn))) {
-        //             Keymap.setMapping(k, "");
-        //         }
-        //     }
-        //     await this.save();
-        //     this.update();
-        // }
         await setmapping_dlg(kn);
         await this.save();
         this.update();
+    },
+
+    async del_shortcuts() {
+        let elms = this.elms(`#list .shortcut input[type="checkbox"]:checked`);
+        if (!elms.length) {
+            alert("请先选中要操作的快捷键");
+            return false;
+        }
+        if (!confirm("确实要删除选中的快捷键吗？")) return false;
+        for (const e of elms) {
+            Keymap.setMapping(e.dataset.combo, "");
+        }
+        await this.save();
+        return true;
+    },
+
+    async set_group() {
+        let elms = this.elms(`#list .shortcut input[type="checkbox"]:checked`);
+        if (!elms.length) {
+            alert("请先选中要操作的快捷键");
+            return false;
+        }
+        let grp = await select_group_dlg();
+        if (grp == null) return false;
+        for (const e of elms) {
+            let mi = Keymap.getMapping(e.dataset.combo);
+            Keymap.setMapping(e.dataset.combo, Keymap.packMappingInfo(mi.text, mi.is_main, grp));
+        }
+        await this.save();
+        return true;
     },
 
     // File operation
@@ -3643,7 +3737,7 @@ UI.List = {
                 s.push(`<div class="group_label" style="--gc: var(--c1);">${by}</div>`);
             }
             for (const mi of ks[by]) {
-                s.push(`<span class="shortcut">${Util.gen_combo_kn_elm(mi.combo, group_color, Keymap.ModKeyInListColorMode)}</span>`);
+                s.push(`<span class="shortcut" data-combo="${mi.combo}">${Util.gen_combo_kn_elm(mi.combo, group_color, Keymap.ModKeyInListColorMode, true)}</span>`);
             }
             s.push(`</div>`);
         }
@@ -3744,6 +3838,40 @@ async function get_name_dlg(info, def_val = "", check_filename=true, allow_empty
     });
 };
 
+function select_group_dlg() {
+    return new Promise((resolver) => {
+        let grps = ['<option value="" style="background-color: var(--c1);">未分组</option>'];
+        for (const g in Keymap.Groups) {
+            grps.push(`<option value="${g}" style="background-color: ${Keymap.getGroupColor(g)}">${Keymap.getGroupAlias(g)}</option>`);
+        }
+        let html = `<dialog class="select_group_dlg">
+            <div style="font-weight: bold;">请选择分组：
+                <select style="width: fit-content;background-color: var(--c1);cursor: pointer;">${grps.join("")}</select>
+            </div>
+            <div style="text-align: right;">
+                <button class="btn btnok">确定</button>
+                <button class="btn btncancel">取消</button>
+            </div>
+            </dialog>`;
+        let tmp = document.createElement("div");
+        tmp.innerHTML = html;
+        let dlg = tmp.children[0];
+        function _ok() {
+            dlg.remove();
+            resolver(dlg.querySelector("select").value.trim());
+        }
+        function _cancel() {
+            dlg.remove();
+            resolver();
+        }
+        dlg.querySelector(".btnok").onclick = _ok;
+        dlg.querySelector(".btncancel").onclick = _cancel;
+        dlg.onclose = _cancel;
+        document.body.appendChild(dlg);
+        dlg.showModal();
+    });
+};
+
 async function setmapping_dlg(combo_str) {
     let cks = Util.split_combo(combo_str);
     let mk = cks.pop();
@@ -3772,20 +3900,20 @@ async function setmapping_dlg(combo_str) {
         m.focus();
     }
     function setmapping_dlg_save(dlg) {
-        let st_mods = dlg.querySelector("#st_mods");
-        let selGrp = dlg.querySelector("#group");
         let kn = [];
-        for (const e of st_mods.querySelectorAll('input[type="checkbox"]:checked')) {
+        for (const e of dlg.querySelectorAll('#st_mods input[type="checkbox"]:checked')) {
             kn.push(e.value);
         }
         kn.sort();
         kn.push(mk);
-        let txt = dlg.querySelector("#st_mapping").value.trim();
-        if (dlg.querySelector("#is_main").checked)
-            txt = "* " + txt;
-        if (selGrp.value)
-            txt += "\n::" + selGrp.value;
-        Keymap.setMapping(kn.join("+"), txt);
+        Keymap.setMapping(
+            kn.join("+"),
+            Keymap.packMappingInfo(
+                dlg.querySelector("#st_mapping").value.trim(),
+                dlg.querySelector("#is_main").checked,
+                dlg.querySelector("#group").value
+            )
+        );
     }
     return new Promise((resolver) => {
         let mods = [];
@@ -4452,7 +4580,7 @@ async function webwin_init() {
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "3.4.3";
+var __version__ = "3.5.0";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
