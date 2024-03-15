@@ -711,6 +711,10 @@ dialog {
 .kmdlg {
     width: 40rem;
 }
+.kmdlg .message {
+    transition: all 0.3s;
+    color: var(--ui-bdc);
+}
 
 .name_dlg input[type="text"] {
     font-size: 1rem;
@@ -894,17 +898,20 @@ dialog {
     width: var(--kbw);
     font-size: var(--cmnt-fs);
     margin: 10px 0px;
+    padding: 5px;
     border-radius: 10px;
+    background-color: cornsilk;
 }
 #pcomment {
     /* display: none; */
     white-space: pre-wrap;
-    padding: 5px;
-    background-color: #e0e0e0;
     overflow: auto;
+    border: 1px solid gray;
 }
 #comment {
     display: none;
+    border: 1px solid var(--ui-bdc);
+    box-shadow: 0px 0px 5px #333;
 }
 [data-comment="false"] #pcomment {
     display: none;
@@ -1080,7 +1087,7 @@ dialog {
     box-sizing: content-box;
     padding: 3px;
     position: absolute;
-    right: 0px;
+    right: -1px;
     background-color: whitesmoke;
     border: 1px solid darkgray;
     border-radius: 5px;
@@ -2709,6 +2716,10 @@ var UI = {
                     handled = false;
                 break;
             case "C":
+                if (evt.ctrlKey || evt.altKey || evt.metaKey) {
+                    handled = false;
+                    break;
+                }
                 if (evt.shiftKey) {
                     await this.setShowComment(false);
                 } else {
@@ -3900,6 +3911,8 @@ async function setmapping_dlg(combo_str) {
         m.focus();
     }
     function setmapping_dlg_save(dlg) {
+        if (!dlg.querySelector("#st_mapping").value.trim())
+            return;
         let kn = [];
         for (const e of dlg.querySelectorAll('#st_mods input[type="checkbox"]:checked')) {
             kn.push(e.value);
@@ -3914,6 +3927,13 @@ async function setmapping_dlg(combo_str) {
                 dlg.querySelector("#group").value
             )
         );
+        show_msg(dlg, `快捷键【 ${kn.join("+")} 】已保存`);
+    }
+    function show_msg(dlg, msg) {
+        let msgbox = dlg.querySelector(".message");
+        msgbox.innerHTML = msg;
+        msgbox.style.opacity = 1;
+        setTimeout(() => { msgbox.style.opacity = 0; }, 2000);
     }
     return new Promise((resolver) => {
         let mods = [];
@@ -3956,8 +3976,9 @@ async function setmapping_dlg(combo_str) {
             <div style="color: #666;">
             
             </div>
-            <div style="text-align: right;">
-                <button class="btn btnclr danger" style="float:left;">清空本键所有快捷键</button>
+            <div style="display: flex;gap: 5px;">
+                <button class="btn btnclr danger">清空本键所有快捷键</button>
+                <span class="message" style="flex: 1;text-align: center;"></span>
                 <button class="btn btndel danger">删除</button>
                 <button class="btn btnok">保存</button>
                 <button class="btn btncancel">关闭</button>
@@ -4004,11 +4025,12 @@ async function setmapping_dlg(combo_str) {
             }
             kn.sort();
             kn.push(mk);
-            if (!confirm(`确认要清除快捷键【 ${kn.join("+")} 】？`)) return;
+            if (!confirm(`确认要删除快捷键【 ${kn.join("+")} 】？`)) return;
             // dlg.remove();
             // resolver([kn.join("+"), ""]);
             Keymap.setMapping(kn.join("+"), "");
             setmapping_dlg_reset(dlg);
+            show_msg(dlg, `快捷键【 ${kn.join("+")} 】已删除`);
         };
         dlg.querySelector(".btnclr").onclick = (evt) => {
             if (!confirm(`确认要清空键【 ${mk} 】上的所有快捷键？`)) return;
@@ -4018,6 +4040,7 @@ async function setmapping_dlg(combo_str) {
                 Keymap.setMapping(k, "");
             }
             setmapping_dlg_reset(dlg);
+            show_msg(dlg, `键【 ${mk} 】上的所有快捷键已清空`);
         };
         dlg.querySelector(".btncancel").onclick = (evt) => {
             if (changed && confirm("修改未保存，是否保存？")) {
@@ -4580,7 +4603,7 @@ async function webwin_init() {
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "3.5.0";
+var __version__ = "3.5.1";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
