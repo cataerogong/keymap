@@ -669,6 +669,12 @@ kn.na,
     margin-right: 10px;
     align-self: center;
 }
+#list .group_label .num {
+    color: #333;
+    font-weight: normal;
+    font-size: 75%;
+    margin: auto auto auto 5px;
+}
 #list .shortcut {
     display: grid;
     grid-template-columns: 1fr max-content 1fr;
@@ -1623,8 +1629,9 @@ var Util = {
     },
 
     formalizeText(text) {
-        // 处理 "<"
-        let ret = text.replaceAll("<", "&lt;").replace(">", "&gt;");
+        let ret = text;
+        // // 处理 "<"
+        // ret = ret.replaceAll("<", "&lt;").replace(">", "&gt;");
         // 处理内部超链 "[文字](Ln)", "[文字](Ln,A+B+C)"
         function replacer(match, p1, p2, p3, p4, p5, offset, string, groups) {
             let ln = "";
@@ -3747,9 +3754,11 @@ UI.List = {
                 s.push(`<div class="group" style="--gc: var(--c1);">`);
                 s.push(`<div class="group_label" style="--gc: var(--c1);">${by}</div>`);
             }
+            let p_label = s.length - 1;
             for (const mi of ks[by]) {
                 s.push(`<span class="shortcut" data-combo="${mi.combo}">${Util.gen_combo_kn_elm(mi.combo, group_color, Keymap.ModKeyInListColorMode, true)}</span>`);
             }
+            s[p_label] = s[p_label].replace(`</div>`, `<span class="num">(${s.length - p_label - 1})</span></div>`);
             s.push(`</div>`);
         }
         // 显示
@@ -4603,7 +4612,7 @@ async function webwin_init() {
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "3.5.1";
+var __version__ = "3.5.2";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
