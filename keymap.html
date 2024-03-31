@@ -714,6 +714,12 @@ dialog {
     transform: translateX(-50%);
 }
 
+dialog .btn_box {
+    text-align: right;
+    /* padding: 3px;
+    border-top: 1px solid darkgray; */
+}
+
 .kmdlg {
     width: 40rem;
 }
@@ -2678,7 +2684,7 @@ var UI = {
                 break;
             case "P":
                 if (evt.ctrlKey) {
-                    printAsPng(2, Keymap.getLayerPrintName());
+                    await printAsPng(2, Keymap.getLayerPrintName());
                     upd = false;
                 } else if (evt.shiftKey) {
                     await this.setUIMode("tab");
@@ -2707,7 +2713,8 @@ var UI = {
                 if (evt.altKey) {
                     evt.stopPropagation();
                     evt.preventDefault();
-                    let pn = prompt();
+                    // let pn = prompt();
+                    let pn = await prompt_dlg();
                     if (pn) {
                         await this.load(pn);
                     }
@@ -2810,7 +2817,7 @@ var UI = {
                 await this.save_present_js();
                 break;
             case "btn_save_as_img":
-                printAsPng(2, Keymap.getLayerPrintName());
+                await printAsPng(2, Keymap.getLayerPrintName());
                 upd = false;
                 break;
             case "btn_load_file":
@@ -3081,7 +3088,8 @@ var UI = {
         let name = await get_name_dlg("请输入新键谱名：");
         if (name) {
             if (await _PROFILE_.isExist(name)) {
-                if (!confirm(`已存在键谱《${name}》！\n\n如果继续，该键谱的原有数据将被清空。\n\n是否继续？`)) return;
+                // if (!confirm(`已存在键谱《${name}》！\n\n如果继续，该键谱的原有数据将被清空。\n\n是否继续？`)) return;
+                if (!(await confirm_dlg(`已存在键谱《${name}》！\n\n如果继续，该键谱的原有数据将被清空。\n\n是否继续？`))) return;
             }
             Keymap.init(name);
             await Keymap.save();
@@ -3100,7 +3108,8 @@ var UI = {
 
     async load(name) {
         if (!await Keymap.load(name)) {
-            alert(`无法载入键谱《${name}》`);
+            // alert(`无法载入键谱《${name}》`);
+            await alert_dlg(`无法载入键谱《${name}》`);
             // await this.loadFirstProf();
             await this.loadLastProf();
             return;
@@ -3110,7 +3119,8 @@ var UI = {
     },
 
     async delete() {
-        if (!confirm(`确认要删除键谱《${Keymap.Name}》？`)) return;
+        // if (!confirm(`确认要删除键谱《${Keymap.Name}》？`)) return;
+        if (!(await confirm_dlg(`确认要删除键谱《${Keymap.Name}》？`))) return;
         await Keymap.del();
         await this.loadFirstProf();
     },
@@ -3132,7 +3142,8 @@ var UI = {
             return false;
         let name = await get_name_dlg("请输入新键谱名：", def_name || Keymap.Name);
         if (name) {
-            if ((await _PROFILE_.isExist(name)) && !confirm(`已存在键谱《${name}》！\n\n如果继续，该键谱的原有数据将被清空。\n\n是否继续？`))
+            // if ((await _PROFILE_.isExist(name)) && !confirm(`已存在键谱《${name}》！\n\n如果继续，该键谱的原有数据将被清空。\n\n是否继续？`))
+            if ((await _PROFILE_.isExist(name)) && !(await confirm_dlg(`已存在键谱《${name}》！\n\n如果继续，该键谱的原有数据将被清空。\n\n是否继续？`)))
                 return false;
             Keymap.init();
             if (!Keymap.loadJSON(json_))
@@ -3152,7 +3163,8 @@ var UI = {
     },
 
     async clear() {
-        if (!confirm(`确认要清空整个键谱《${Keymap.Name}》？`)) return;
+        // if (!confirm(`确认要清空整个键谱《${Keymap.Name}》？`)) return;
+        if (!(await confirm_dlg(`确认要清空整个键谱《${Keymap.Name}》？`))) return;
         Keymap.clear();
         await this.save(false);
     },
@@ -3224,7 +3236,8 @@ var UI = {
     },
 
     async clearLayer() {
-        if (!confirm(`确认要清空键盘层【 ${Keymap.CurLayer} 】？`)) return;
+        // if (!confirm(`确认要清空键盘层【 ${Keymap.CurLayer} 】？`)) return;
+        if (!(await confirm_dlg(`确认要清空键盘层【 ${Keymap.CurLayer} 】？`))) return;
         Keymap.clearLayer();
         await this.save(false);
     },
@@ -3357,10 +3370,12 @@ var UI = {
     async del_shortcuts() {
         let elms = this.elms(`#list .shortcut input[type="checkbox"]:checked`);
         if (!elms.length) {
-            alert("请先选中要操作的快捷键");
+            // alert("请先选中要操作的快捷键");
+            await alert_dlg("请先选中要操作的快捷键");
             return false;
         }
-        if (!confirm("确实要删除选中的快捷键吗？")) return false;
+        // if (!confirm("确实要删除选中的快捷键吗？")) return false;
+        if (!(await confirm_dlg("确实要删除选中的快捷键吗？"))) return false;
         for (const e of elms) {
             Keymap.setMapping(e.dataset.combo, "");
         }
@@ -3371,7 +3386,8 @@ var UI = {
     async set_group() {
         let elms = this.elms(`#list .shortcut input[type="checkbox"]:checked`);
         if (!elms.length) {
-            alert("请先选中要操作的快捷键");
+            // alert("请先选中要操作的快捷键");
+            await alert_dlg("请先选中要操作的快捷键");
             return false;
         }
         let grp = await select_group_dlg();
@@ -3389,20 +3405,20 @@ var UI = {
         if (file.name.toLowerCase().endsWith(".keymap")) {
             let name = file.name.slice(0, -7); //
             if (await _PROFILE_.isExist(name)) {
-                if (!confirm(`已存在键谱《${name}》！\n\n如果继续，该键谱的原有数据将被清空。\n\n是否继续？`)) return;
+                // if (!confirm(`已存在键谱《${name}》！\n\n如果继续，该键谱的原有数据将被清空。\n\n是否继续？`)) return;
+                if (!(await confirm_dlg(`已存在键谱《${name}》！\n\n如果继续，该键谱的原有数据将被清空。\n\n是否继续？`))) return;
             }
-            // if (confirm(`是否载入键谱《${name}》？\n\n【*】如果存在同名键谱将被覆盖`)) {
-                let json_ = await file.text();
-                Keymap.init();
-                if (!Keymap.loadJSON(json_))
-                    return;
-                Keymap.Name = name;
-                await this.save();
-                await _PROFILE_.setLast(Keymap.Name);
-                this.update();
-            // }
+            let json_ = await file.text();
+            Keymap.init();
+            if (!Keymap.loadJSON(json_))
+                return;
+            Keymap.Name = name;
+            await this.save();
+            await _PROFILE_.setLast(Keymap.Name);
+            this.update();
         } else {
-            alert("仅支持 '.keymap' 文件");
+            // alert("仅支持 '.keymap' 文件");
+            await alert_dlg("仅支持 '.keymap' 文件");
         }
     },
 }
@@ -3806,12 +3822,104 @@ UI.Json = {
     },
 };
 
+async function alert_dlg(info) {
+    return new Promise((resolver) => {
+        let html = `<dialog class="alert_dlg">
+            <div style="font-weight: bold;white-space:pre-wrap;"">${info}</div>
+            <div class="btn_box">
+                <button class="btn btnok">确定</button>
+            </div>
+            </dialog>`;
+        let tmp = document.createElement("div");
+        tmp.innerHTML = html;
+        let dlg = tmp.children[0];
+        function _close() {
+            dlg.remove();
+            resolver();
+        }
+        dlg.querySelector(".btnok").onclick = _close;
+        dlg.onclose = _close;
+        document.body.appendChild(dlg);
+        dlg.showModal();
+    });
+}
+
+async function confirm_dlg(info) {
+    return new Promise((resolver) => {
+        let html = `<dialog class="confirm_dlg">
+            <div style="font-weight: bold;white-space:pre-wrap;">${info}</div>
+            <div class="btn_box">
+                <button class="btn btnok">确定</button>
+                <button class="btn btncancel">取消</button>
+            </div>
+            </dialog>`;
+        let tmp = document.createElement("div");
+        tmp.innerHTML = html;
+        let dlg = tmp.children[0];
+        async function _ok() {
+            dlg.remove();
+            resolver(true);
+        }
+        function _cancel() {
+            dlg.remove();
+            resolver(false);
+        }
+        dlg.querySelector(".btnok").onclick = _ok;
+        dlg.querySelector(".btncancel").onclick = _cancel;
+        dlg.onclose = _cancel;
+        document.body.appendChild(dlg);
+        dlg.showModal();
+    });
+}
+
+async function prompt_dlg(info = "", def_val = "") {
+    return new Promise((resolver) => {
+        let html = `<dialog class="prompt_dlg">
+            <div style="font-weight: bold">${info}</div>
+            <div><input type="text" id="answer" size="50" autofocus /></div>
+            <div class="btn_box">
+                <button class="btn btnok">确定</button>
+                <button class="btn btncancel">取消</button>
+            </div>
+            </dialog>`;
+        let tmp = document.createElement("div");
+        tmp.innerHTML = html;
+        let dlg = tmp.children[0];
+        let elm_answer = dlg.querySelector("#answer");
+        if (def_val) {
+            elm_answer.value = def_val;
+        }
+        async function _ok() {
+            let answer = elm_answer.value;
+            dlg.remove();
+            resolver(answer.trim());
+        }
+        function _cancel() {
+            dlg.remove();
+            resolver();
+        }
+        dlg.querySelector(".btnok").onclick = _ok;
+        elm_answer.onkeydown = (evt) => {
+            if (evt.key == "Enter") {
+                evt.preventDefault();
+                evt.stopPropagation();
+                _ok();
+                return;
+            }
+        }
+        dlg.querySelector(".btncancel").onclick = _cancel;
+        dlg.onclose = _cancel;
+        document.body.appendChild(dlg);
+        dlg.showModal();
+    });
+};
+
 async function get_name_dlg(info, def_val = "", check_filename=true, allow_empty = false) {
     return new Promise((resolver) => {
         let html = `<dialog class="name_dlg">
             <div style="font-weight: bold">${info || "请输入："}</div>
             <div><input type="text" id="name" size="50" autofocus /></div>
-            <div style="text-align: right;">
+            <div class="btn_box">
                 <button class="btn btnok">确定</button>
                 <button class="btn btncancel">取消</button>
             </div>
@@ -3823,15 +3931,17 @@ async function get_name_dlg(info, def_val = "", check_filename=true, allow_empty
         if (def_val) {
             elm_name.value = def_val;
         }
-        function _ok() {
+        async function _ok() {
             let name = elm_name.value;
             if (!name && !allow_empty) {
-                alert("不能为空！");
+                // alert("不能为空！");
+                await alert_dlg("不能为空！");
                 elm_name.focus();
                 return;
             }
             if (check_filename && name.search(/[\*\?\\\/\:\"\<\>\|]/) >= 0) {
-                alert(`名字中不能包含 \* \? \\ \/ \: \" \< \> \|`);
+                // alert(`名字中不能包含 \* \? \\ \/ \: \" \< \> \|`);
+                await alert_dlg(`名字中不能包含 \* \? \\ \/ \: \" \< \> \|`);
                 elm_name.focus();
                 return;
             }
@@ -3868,7 +3978,7 @@ function select_group_dlg() {
             <div style="font-weight: bold;">请选择分组：
                 <select style="width: fit-content;background-color: var(--c1);cursor: pointer;">${grps.join("")}</select>
             </div>
-            <div style="text-align: right;">
+            <div class="btn_box">
                 <button class="btn btnok">确定</button>
                 <button class="btn btncancel">取消</button>
             </div>
@@ -4013,8 +4123,9 @@ async function setmapping_dlg(combo_str) {
         dlg.querySelector("#st_mapping").onchange = (evt) => { changed = true; };
         st_mods.querySelectorAll('input[type="checkbox"]').forEach(elm => {
             if (cks.includes(elm.value)) elm.checked = true;
-            elm.onclick = (evt) => {
-                if (changed && confirm("修改未保存，是否保存？")) {
+            elm.onclick = async (evt) => {
+                // if (changed && confirm("修改未保存，是否保存？")) {
+                if (changed && (await confirm_dlg("修改未保存，是否保存？"))) {
                     elm.checked = !elm.checked;
                     setmapping_dlg_save(dlg);
                     elm.checked = !elm.checked;
@@ -4027,22 +4138,24 @@ async function setmapping_dlg(combo_str) {
             setmapping_dlg_save(dlg);
             changed = false;
         };
-        dlg.querySelector(".btndel").onclick = (evt) => {
+        dlg.querySelector(".btndel").onclick = async (evt) => {
             let kn = [];
             for (const elm of st_mods.querySelectorAll('input[type="checkbox"]:checked')) {
                 kn.push(elm.value);
             }
             kn.sort();
             kn.push(mk);
-            if (!confirm(`确认要删除快捷键【 ${kn.join("+")} 】？`)) return;
+            // if (!confirm(`确认要删除快捷键【 ${kn.join("+")} 】？`)) return;
+            if (!(await confirm_dlg(`确认要删除快捷键【 ${kn.join("+")} 】？`))) return;
             // dlg.remove();
             // resolver([kn.join("+"), ""]);
             Keymap.setMapping(kn.join("+"), "");
             setmapping_dlg_reset(dlg);
             show_msg(dlg, `快捷键【 ${kn.join("+")} 】已删除`);
         };
-        dlg.querySelector(".btnclr").onclick = (evt) => {
-            if (!confirm(`确认要清空键【 ${mk} 】上的所有快捷键？`)) return;
+        dlg.querySelector(".btnclr").onclick = async (evt) => {
+            // if (!confirm(`确认要清空键【 ${mk} 】上的所有快捷键？`)) return;
+            if (!(await confirm_dlg(`确认要清空键【 ${mk} 】上的所有快捷键？`))) return;
             // dlg.remove();
             // resolver([]);
             for (const k in Keymap.getAllMappings(mk)) {
@@ -4051,15 +4164,17 @@ async function setmapping_dlg(combo_str) {
             setmapping_dlg_reset(dlg);
             show_msg(dlg, `键【 ${mk} 】上的所有快捷键已清空`);
         };
-        dlg.querySelector(".btncancel").onclick = (evt) => {
-            if (changed && confirm("修改未保存，是否保存？")) {
+        dlg.querySelector(".btncancel").onclick = async (evt) => {
+            // if (changed && confirm("修改未保存，是否保存？")) {
+            if (changed && (await confirm_dlg("修改未保存，是否保存？"))) {
                 setmapping_dlg_save(dlg);
             }
             dlg.remove();
             resolver();
         };
-        dlg.onclose = (evt) => {
-            if (changed && confirm("修改未保存，是否保存？")) {
+        dlg.onclose = async (evt) => {
+            // if (changed && confirm("修改未保存，是否保存？")) {
+            if (changed && (await confirm_dlg("修改未保存，是否保存？"))) {
                 setmapping_dlg_save(dlg);
             }
             dlg.remove();
@@ -4354,8 +4469,9 @@ async function setting_dlg() {
             dlg.remove();
             resolver(true);
         };
-        dlg.querySelector(".btnclr").onclick = (evt) => {
-            if (!confirm(`确认要清空所有设置？`)) return;
+        dlg.querySelector(".btnclr").onclick = async (evt) => {
+            // if (!confirm(`确认要清空所有设置？`)) return;
+            if (!(await confirm_dlg(`确认要清空所有设置？`))) return;
             Keymap.resetConfig();
             dlg.remove();
             resolver(true);
@@ -4374,9 +4490,10 @@ async function setting_dlg() {
 };
 
 // Convert to img
-function printAsPng(imgScale, imgName) {
+async function printAsPng(imgScale, imgName) {
     if (!("html2canvas" in window)) {
-        alert("截图功能不可用！可能缺失 'js/html2canvas.js' 文件。");
+        // alert("截图功能不可用！可能缺失 'js/html2canvas.js' 文件。");
+        await alert_dlg("截图功能不可用！可能缺失 'js/html2canvas.js' 文件。");
         return;
     }
     // change uimode to 'single'
@@ -4612,7 +4729,7 @@ async function webwin_init() {
 window.on_webwin_loaded = webwin_init;
 
 var __appname__ = "键谱";
-var __version__ = "3.5.2";
+var __version__ = "3.5.3";
 var __homepage__ = "https://github.com/cataerogong/keymap";
 var __loader__ = "";
 
