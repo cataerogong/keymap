@@ -29,3 +29,4 @@ Visual Studio Code.keymap | | [DfQ](https://meta.appinn.net/u/dfq)@[小众论坛
 Word.keymap | | [DfQ](https://meta.appinn.net/u/dfq)@[小众论坛](https://meta.appinn.net)
 WPS.keymap | | [DfQ](https://meta.appinn.net/u/dfq)@[小众论坛](https://meta.appinn.net)
 剪映.keymap | | [DfQ](https://meta.appinn.net/u/dfq)@[小众论坛](https://meta.appinn.net)
+CapsLock+.keymap | CapsLock+ 快捷键 | [AAFF00](https://meta.appinn.net/u/AAFF00)@[小众论坛](https://meta.appinn.net)
