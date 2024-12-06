@@ -4491,21 +4491,22 @@ async function setting_dlg() {
 
 // Convert to img
 async function printAsPng(imgScale, imgName) {
-    if (!("html2canvas" in window)) {
-        // alert("截图功能不可用！可能缺失 'js/html2canvas.js' 文件。");
-        await alert_dlg("截图功能不可用！可能缺失 'js/html2canvas.js' 文件。");
-        return;
-    }
-    // change uimode to 'single'
-    Util.setFlag('ui', 'single');
-    //hide button
-    document.getElementById("btn_save_as_img").style.visibility = "hidden";
+  if (!("html2canvas" in window)) {
+    // alert("截图功能不可用！可能缺失 'js/html2canvas.js' 文件。");
+    await alert_dlg("截图功能不可用！可能缺失 'js/html2canvas.js' 文件。");
+    return;
+  }
+  // change uimode to 'single'
+  Util.setFlag("ui", "single");
+  //hide button
+  document.getElementById("btn_save_as_img").style.visibility = "hidden";
+  setTimeout(() => {
     html2canvas(document.body, {
-        backgroundColor: null,
-        scale: imgScale,
-        windowWidth: document.body.style.width,
-        windowHeight: document.body.style.height,
-        removeContainer: true
+      backgroundColor: null,
+      scale: imgScale,
+      windowWidth: document.body.style.width,
+      windowHeight: document.body.style.height,
+      removeContainer: true
     }).then(canvas => {
         if (UI.LaunchMode == "exe" || !("saveAs" in window)) {
             let h=canvas.height/2, w=canvas.width/2, s=1;
@@ -4536,8 +4537,10 @@ async function printAsPng(imgScale, imgName) {
     //show button
     document.getElementById("btn_save_as_img").style.visibility = "visible";
     // recover uimode
-    Util.setFlag('ui', Keymap.Config.uimode);
+    Util.setFlag("ui", Keymap.Config.uimode);
+  }, 10);
 }
+
 // open file
 async function openFile() {
     return new Promise((resolver) => {
