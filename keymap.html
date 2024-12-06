@@ -4492,8 +4492,8 @@ async function setting_dlg() {
 // Convert to img
 async function printAsPng(imgScale, imgName) {
   if (!("html2canvas" in window)) {
-    // alert("截图功能不可用！可能缺失 'js/html2canvas.js' 文件。");
-    await alert_dlg("截图功能不可用！可能缺失 'js/html2canvas.js' 文件。");
+    // alert("截图功能不可用！可能缺失 'js/html2canvas.min.js' 文件。");
+    await alert_dlg("截图功能不可用！可能缺失 'js/html2canvas.min.js' 文件。");
     return;
   }
   // change uimode to 'single'
@@ -4748,7 +4748,7 @@ __init__();
 
 </script>
 <!-- Img convert libraries -->
-<script src="js/html2canvas.js"></script>
+<script src="js/html2canvas.min.js"></script>
 <script src="js/FileSaver.min.js"></script>
 <script>
 if (!("html2canvas" in window)) {
