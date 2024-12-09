@@ -4228,13 +4228,13 @@ async function setting_dlg() {
                     </keyboard>
                 </div>
                 <div class="subttl">键盘配色</div>
-                <span>键盘底色</span><input type="text" id="kb-bgc" style="width: 6rem;" />
-                <span>键盘边框</span><input type="text" id="kb-bdc" style="width: 6rem;" />
-                <span>默认键帽色</span><input type="text" id="c4" style="width: 6rem;" />
-                <span>默认字符色</span><input type="text" id="c3" style="width: 6rem;" />
-                <span>高亮键帽色</span><input type="text" id="c1" style="width: 6rem;" />
-                <span>高亮字符色</span><input type="text" id="c0" style="width: 6rem;" />
-                <!--<span>高亮键帽边框</span><input type="text" id="c2" style="width: 6rem;" />-->
+                <span>键盘底色</span><input type="color" id="kb-bgc" style="width: 6rem; height: 1.4rem;" />
+                <span>键盘边框</span><input type="color" id="kb-bdc" style="width: 6rem; height: 1.4rem;" />
+                <span>默认键帽色</span><input type="color" id="c4" style="width: 6rem; height: 1.4rem;" />
+                <span>默认字符色</span><input type="color" id="c3" style="width: 6rem; height: 1.4rem;" />
+                <span>高亮键帽色</span><input type="color" id="c1" style="width: 6rem; height: 1.4rem;" />
+                <span>高亮字符色</span><input type="color" id="c0" style="width: 6rem; height: 1.4rem;" />
+                <!--<span>高亮键帽边框</span><input type="color" id="c2" style="width: 6rem; height: 1.4rem;" />-->
                 <div class="subttl">键帽标准模式</div>
                 <span>键帽宽</span><input type="number" id="kw1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>键帽高</span><input type="number" id="kh1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
@@ -4486,8 +4486,67 @@ async function setting_dlg() {
         }
         document.body.appendChild(dlg);
         dlg.showModal();
+        initKeyBoardColors();
     })
 };
+
+function initKeyBoardColors() {
+    const root = document.documentElement;
+    const computedStyle = getComputedStyle(root);
+
+    const color_kbbgc = computedStyle.getPropertyValue('--kb-bgc');
+    const color_kbbdc = computedStyle.getPropertyValue('--kb-bdc');
+    const color_c4 = computedStyle.getPropertyValue('--c4');
+    const color_c3 = computedStyle.getPropertyValue('--c3');
+    const color_c1 = computedStyle.getPropertyValue('--c1');
+    const color_c0 = computedStyle.getPropertyValue('--c0');
+    const color_c2 = computedStyle.getPropertyValue('--c2');
+
+    const kbbgc = document.getElementById('kb-bgc');
+    const kbbdc = document.getElementById('kb-bdc');
+    const c4 = document.getElementById('c4');
+    const c3 = document.getElementById('c3');
+    const c1 = document.getElementById('c1');
+    const c0 = document.getElementById('c0');
+    const c2 = document.getElementById('c2');
+
+    // 键盘底色
+    kbbgc.value = getHexColor(color_kbbgc);
+    // 键盘边框
+    kbbdc.value = getHexColor(color_kbbdc);
+    // 默认键帽色
+    c4.value = getHexColor(color_c4);
+    // 默认字符色
+    c3.value = getHexColor(color_c3);
+    // 高亮键帽色
+    c1.value = getHexColor(color_c1);
+    // 高亮字符色
+    c0.value = getHexColor(color_c0);
+    // 高亮键帽边框
+    // c2.value = getHexColor(color_c2);
+}
+
+function isHexColor(color) {
+    return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(color);
+}
+
+function rgbToHex(rgb) {
+    const [r, g, b] = rgb.match(/\d+/g).map(v => parseInt(v, 10));
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+}
+
+function getHexColor(color) {
+    if (isHexColor(color)) {
+        return color;
+    }
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 1, 1);
+    const data = ctx.getImageData(0, 0, 1, 1).data;
+    return rgbToHex(`rgb(${data[0]}, ${data[1]}, ${data[2]})`);
+}
 
 // Convert to img
 async function printAsPng(imgScale, imgName) {
