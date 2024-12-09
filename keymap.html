@@ -4203,7 +4203,17 @@ async function setting_dlg() {
                 <span>键盘层数</span><input type="number" id="layers" min="1" step="1" style="width: 3rem;" />
                 <label style="grid-column: span 2;"><input type="checkbox" id="showall" />显示不属于当前键盘布局的按键</label>
                 <span>扩展键盘</span><textarea id="extkeys" style="white-space: nowrap;grid-column: 2 / -1;"></textarea>
-                <span>分组</span><textarea id="groups" style="grid-column: 2 / -1;"></textarea>
+                <span>分组</span><textarea id="groups" style="grid-column: 2 / -1; display: none;"></textarea>
+
+                <select id="groupSelector" style="height: 100%">
+                    <option value="">选择分组</option>
+                </select>
+                <input type="text" id="currentGroupName" placeholder="当前组名" style="height: 100%">
+                <input type="color" id="currentGroupColor" style="height: 100%; width: 100%">
+                <button id="renameGroupButton" style="height: 100%">重命名分组</button>
+                <button id="addGroupButton" style="height: 100%">添加分组</button>
+                <button id="deleteGroupButton" style="height: 100%;background-color: #ffb6b6;">删除分组</button>
+
                 <!--<span>键表列数</span><input type="number" id="cols" min="1" max="10" step="1" style="width: 3rem;" />-->
                 <label style="grid-column: 2 / -1;"><input type="checkbox" id="list_by" />键表按分组显示</label>
                 <label style="grid-column: 2;"><input type="checkbox" id="show_comment" />显示备注</label>
@@ -4487,6 +4497,8 @@ async function setting_dlg() {
         document.body.appendChild(dlg);
         dlg.showModal();
         initKeyBoardColors();
+        initKeyboardGroups();
+        initKeyBoardGroupsSelector();
     })
 };
 
@@ -4546,6 +4558,144 @@ function getHexColor(color) {
     ctx.fillRect(0, 0, 1, 1);
     const data = ctx.getImageData(0, 0, 1, 1).data;
     return rgbToHex(`rgb(${data[0]}, ${data[1]}, ${data[2]})`);
+}
+
+function initKeyboardGroups() {
+    document.getElementById('currentGroupName').value = '';
+    document.getElementById('currentGroupColor').value = '#000000';
+    addKeyBoardGroup();
+    renameKeyBoardGroup();
+    deleteKeyBoardGroup();
+}
+
+function initKeyBoardGroupsSelector() {
+    let groups = getGroupsFromRawData();
+    for (const gn in groups) {
+        addGroupToSelector(gn);
+    }
+
+    onGroupSelectorChange();
+}
+
+function getGroupsFromRawData() {
+    let rawData = document.getElementById('groups').value;
+    let groups = {};
+    for (const g of rawData.trim().split(/\s*,\s*/)) {
+        let gg = g.split("::", 3);
+        if (gg[0])
+            groups[gg[0]] = [gg[1] || "", gg[2] || ""];
+    }
+    return groups;
+}
+
+function addGroupToSelector(name) {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    document.getElementById('groupSelector').appendChild(option);
+}
+
+function deleteGroupFromSelector(name) {
+    const selector = document.getElementById('groupSelector');
+    for (let i = 0; i < selector.options.length; i++) {
+        if (selector.options[i].value === name) {
+            selector.remove(i);
+            break;
+        }
+    }
+}
+
+function onGroupSelectorChange() {
+    document.getElementById('groupSelector').addEventListener('change', function() {
+        const gn = this.value;
+        const groups = getGroupsFromRawData();
+
+        const currentGroupNameElement = document.getElementById('currentGroupName');
+        const currentGroupColorElement = document.getElementById('currentGroupColor');
+
+        if (gn in groups) {
+            const color = groups[gn][0];
+            currentGroupNameElement.value = gn;
+            currentGroupColorElement.value = getHexColor(color);
+            currentGroupColorElement.style.display = 'inline';
+
+            currentGroupColorElement.oninput = function() {
+                groups[gn][0] = currentGroupColorElement.value;
+                saveGroups(groups);
+            };
+        } else {
+            currentGroupNameElement.value = '';
+            currentGroupColorElement.value = '#000000';
+        }
+    });
+}
+
+function saveGroups(groups) {
+    let newGroup = [];
+    for (const gn in groups) {
+        if (gn)
+            newGroup.push(gn+"::"+groups[gn].join("::"));
+    }
+    let newRawData = newGroup.join(", ");
+    document.getElementById('groups').value = newRawData;
+}
+
+function renameKeyBoardGroup() {
+    document.getElementById('renameGroupButton').addEventListener('click', function() {
+        const oldName = document.getElementById('groupSelector').value;
+        const newName = document.getElementById('currentGroupName').value;
+        const groups = getGroupsFromRawData();
+
+        if (oldName && newName && oldName != newName && !groups[newName]) {
+            groups[newName] = groups[oldName];
+            delete groups[oldName];
+
+            saveGroups(groups);
+            addGroupToSelector(newName);
+            document.getElementById('groupSelector').value = newName;
+            deleteGroupFromSelector(oldName);
+        } else {
+            alert("组名已存在或未输入！");
+        }
+    });
+}
+
+function addKeyBoardGroup() {
+    document.getElementById('addGroupButton').addEventListener('click', function() {
+        let groups = getGroupsFromRawData();
+
+        const gn = document.getElementById('currentGroupName').value;
+        const color = document.getElementById('currentGroupColor').value;
+
+        if (gn && !groups[gn]) {
+            groups[gn] = [color, ""];
+            addGroupToSelector(gn);
+
+            saveGroups(groups);
+            document.getElementById('groupSelector').value = gn;
+        } else {
+            alert("组名已存在或未输入！");
+        }
+    });
+}
+
+function deleteKeyBoardGroup() {
+    document.getElementById('deleteGroupButton').addEventListener('click', function() {
+        let groups = getGroupsFromRawData();
+
+        const gn = document.getElementById('groupSelector').value;
+
+        if (gn && groups[gn]) {
+            delete groups[gn]; // delete group
+            saveGroups(groups);
+            deleteGroupFromSelector(gn);
+            document.getElementById('groupSelector').value = '';
+            document.getElementById('currentGroupName').value = '';
+            document.getElementById('currentGroupColor').value = '#000000';
+        } else {
+            alert("未选择组！");
+        }
+    });
 }
 
 // Convert to img
