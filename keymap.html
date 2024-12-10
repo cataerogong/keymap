@@ -4204,7 +4204,6 @@ async function setting_dlg() {
                 <label style="grid-column: span 2;"><input type="checkbox" id="showall" />显示不属于当前键盘布局的按键</label>
                 <span>扩展键盘</span><textarea id="extkeys" style="white-space: nowrap;grid-column: 2 / -1;"></textarea>
                 <span>分组</span><textarea id="groups" style="grid-column: 2 / -1; display: none;"></textarea>
-
                 <select id="groupSelector" style="height: 100%">
                     <option value="">选择分组</option>
                 </select>
@@ -4213,7 +4212,6 @@ async function setting_dlg() {
                 <button id="renameGroupButton" style="height: 100%">重命名分组</button>
                 <button id="addGroupButton" style="height: 100%">添加分组</button>
                 <button id="deleteGroupButton" style="height: 100%;background-color: #ffb6b6;">删除分组</button>
-
                 <!--<span>键表列数</span><input type="number" id="cols" min="1" max="10" step="1" style="width: 3rem;" />-->
                 <label style="grid-column: 2 / -1;"><input type="checkbox" id="list_by" />键表按分组显示</label>
                 <label style="grid-column: 2;"><input type="checkbox" id="show_comment" />显示备注</label>
@@ -4266,7 +4264,8 @@ async function setting_dlg() {
                 <span>字符大小</span><input type="number" id="mod-cs2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <span>颜色块大小</span><input type="number" id="mod-ds2" min="0.1" max="10" step="0.05" style="width: 3rem;grid-column: 6 / -1;" />
                 <span>缩写</span><textarea id="modkey_chars" style="grid-column: 2 / -1;"></textarea>
-                <span>颜色</span><textarea id="modkey_colors" style="grid-column: 2 / -1;"></textarea>
+                <div id="colorPicker" style="position: absolute; z-index: 1000; display: none;"></div>
+                <span>颜色</span><textarea id="modkey_colors" style="grid-column: 2 / -1; height: 2.2rem;"></textarea>
                 <label style="grid-column: 2 / span 2;"><input type="checkbox" id="modkey_clr" />在键图中启用颜色</label>
                 <label style="grid-column: span 2;"><input type="checkbox" id="modkey_clr_list" />在键表中启用颜色</label>
             </div>
@@ -4499,6 +4498,7 @@ async function setting_dlg() {
         initKeyBoardColors();
         initKeyboardGroups();
         initKeyBoardGroupsSelector();
+        initKeyCapColorPicker();
     })
 };
 
@@ -4696,6 +4696,65 @@ function deleteKeyBoardGroup() {
             alert("未选择组！");
         }
     });
+}
+
+function initKeyCapColorPicker() {
+    const colorPickerContainer = document.getElementById('colorPicker');
+    const colorPicker = document.createElement('input');
+    colorPicker.type = 'color';
+    colorPicker.style.display = 'block';
+    colorPickerContainer.appendChild(colorPicker);
+    const textArea = document.getElementById('modkey_colors');
+    textArea.title = '双击色值快速选中，点击跳出的颜色选择器来更改颜色';
+
+    colorPicker.addEventListener('input', function() {
+        const selectedText = getSelectedText(textArea);
+        
+        const newColor = colorPicker.value;
+        if (isHexColor(selectedText) || isHexColor("#" + selectedText)) {
+            var containsHash = selectedText.startsWith("#");
+            replaceSelectedText(textArea, newColor, containsHash);
+        }
+    });
+
+    textArea.addEventListener('mouseup', function(event) {
+        const selectedText = getSelectedText(textArea);
+        if (isHexColor(selectedText) || isHexColor("#" + selectedText)) {
+            colorPicker.value = "#" + removeFirstHash(selectedText);
+            colorPickerContainer.style.display = 'block';
+
+            colorPickerContainer.style.left = `${event.pageX}px`;
+            colorPickerContainer.style.top = `${event.pageY}px`;
+        } else {
+            colorPickerContainer.style.display = 'none';
+        }
+    });
+}
+
+function removeFirstHash(text) {
+        return text.replace(/^#/, '');
+}
+
+function getSelectedText(textArea) {
+    const start = textArea.selectionStart;
+    const end = textArea.selectionEnd;
+    return textArea.value.substring(start, end);
+}
+
+function replaceSelectedText(textArea, newColor, containsHash) {
+    let start = textArea.selectionStart;
+    let end = textArea.selectionEnd;
+    let textBefore = textArea.value.substring(0, start);
+    let textAfter = textArea.value.substring(end);
+    if (!containsHash) {
+        start = textArea.selectionStart - 1;
+        textBefore = textArea.value.substring(0, start);
+    }
+    textArea.value = textBefore + newColor + textAfter;
+    
+    let newEnd = start + newColor.length;
+    textArea.setSelectionRange(start, newEnd);
+    textArea.focus();
 }
 
 // Convert to img
