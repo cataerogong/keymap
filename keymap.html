@@ -35,7 +35,7 @@
 body {
     font-family: Consolas, sans-serif;
     font-size: 0.9rem;
-    margin: 0px;
+    margin: 0 auto;
     height: 100%;
     background-color: whitesmoke;
     overflow-y: hidden;
@@ -710,8 +710,8 @@ dialog {
     border: 2px solid var(--ui-bdc);
     border-radius: 10px;
     box-shadow: 0px 5px 5px;
-    margin-left: calc(var(--w) / 2);
-    transform: translateX(-50%);
+    /* margin-left: calc(var(--w) / 2); */
+    /* transform: translateX(-50%); */
 }
 
 dialog .btn_box {
@@ -1147,12 +1147,12 @@ dialog .btn_box {
     pointer-events: none;
 }
 
-[data-sidebar-enable="true"][data-sidebar-pin="true"] body {
+/* [data-sidebar-enable="true"][data-sidebar-pin="true"] body {
     margin-left: calc(var(--sw) + 2px);
 }
 [data-sidebar-enable="true"][data-sidebar-pin="false"] body {
     margin-left: 30px;
-}
+} */
 [data-sidebar-enable="true"] #prof_name {
     display: none;
 }
@@ -2840,10 +2840,12 @@ var UI = {
                 break;
             case "btn_sidebar":
                 await this.toggleSidebarEnable();
+                initSideBarWidth();
                 Util.setFlag("sidebar-enable", Setting.SidebarEnable);
                 break;
             case "btn_pin":
                 await this.toggleSidebarPin();
+                initSideBarWidth();
                 Util.setFlag("sidebar-pin", Setting.SidebarPin);
                 break;
             case "btn_size_s":
@@ -3004,8 +3006,11 @@ var UI = {
         elm_list.onmouseleave = hideList;
         let elm_prof = this.elm("#prof_name");
         document.body.appendChild(elm_list);
-        elm_list.style.left = elm_prof.offsetLeft - 5;
-        elm_list.style.top = elm_prof.offsetTop - 5; // - elm_new.offsetHeight - 5;
+        const body = document.body;
+        style = window.getComputedStyle(body);
+        const marginLeft = parseInt(style.marginLeft.split("px")[0]);
+        elm_list.style.left = marginLeft + elm_prof.offsetLeft;
+        elm_list.style.top = elm_prof.offsetTop + 26; // - elm_new.offsetHeight - 5;
         elm_list.style.opacity = 1;
     },
 
@@ -4757,6 +4762,25 @@ function replaceSelectedText(textArea, newColor, containsHash) {
     textArea.focus();
 }
 
+function initSideBarWidth() {
+    if (Setting.SidebarEnable && Setting.SidebarPin) {
+        updateSideBarWidth();
+        window.addEventListener('resize', updateSideBarWidth);
+    } else {
+        Util.setCSS("--sidebar-width", Setting.SidebarWidth + "px");
+        document.getElementById("sidebar").style.width = '';
+        window.removeEventListener('resize', updateSideBarWidth);
+    }
+}
+
+function updateSideBarWidth() {
+    const body = document.body;
+    style = window.getComputedStyle(body);
+    const marginLeft = parseInt(style.marginLeft.split("px")[0]);
+    Util.setCSS("--sidebar-width", marginLeft + "px");
+    document.getElementById("sidebar").style.width = marginLeft + "px";
+}
+
 // Convert to img
 async function printAsPng(imgScale, imgName) {
   if (!("html2canvas" in window)) {
@@ -5022,6 +5046,9 @@ __init__();
 if (!("html2canvas" in window)) {
     UI.elm("#btn_save_as_img").style.display = "none";
 }
+document.addEventListener('DOMContentLoaded', function() {
+    initSideBarWidth();
+});
 </script>
 <script src="custom.js"></script>
 <script src="present.js"></script>
