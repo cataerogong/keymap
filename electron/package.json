@@ -1,0 +1,42 @@
+{
+  "name": "keymap",
+  "version": "3.5.3",
+  "main": "main.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=production electron .",
+    "dev": "cross-env NODE_ENV=development electron .",
+    "build": "cross-env NODE_ENV=production electron-builder"
+  },
+  "keywords": [],
+  "author": "Cataerogong",
+  "license": "MIT",
+  "description": "键谱是一个记录、展示软件快捷键的应用",
+  "devDependencies": {
+    "asar": "^3.2.0",
+    "cross-env": "^7.0.3",
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.github.cataerogong.keymap",
+    "asar": true,
+    "files": [
+      "!js/html2canvas.js",
+      "!build.bat"
+    ],
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "icon.ico",
+      "uninstallerIcon": "icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}

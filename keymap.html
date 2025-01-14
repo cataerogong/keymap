@@ -35,7 +35,7 @@
 body {
     font-family: Consolas, sans-serif;
     font-size: 0.9rem;
-    margin: 0px;
+    margin: 0 auto;
     height: 100%;
     background-color: whitesmoke;
     overflow-y: hidden;
@@ -710,8 +710,8 @@ dialog {
     border: 2px solid var(--ui-bdc);
     border-radius: 10px;
     box-shadow: 0px 5px 5px;
-    margin-left: calc(var(--w) / 2);
-    transform: translateX(-50%);
+    /* margin-left: calc(var(--w) / 2); */
+    /* transform: translateX(-50%); */
 }
 
 dialog .btn_box {
@@ -1147,12 +1147,12 @@ dialog .btn_box {
     pointer-events: none;
 }
 
-[data-sidebar-enable="true"][data-sidebar-pin="true"] body {
+/* [data-sidebar-enable="true"][data-sidebar-pin="true"] body {
     margin-left: calc(var(--sw) + 2px);
 }
 [data-sidebar-enable="true"][data-sidebar-pin="false"] body {
     margin-left: 30px;
-}
+} */
 [data-sidebar-enable="true"] #prof_name {
     display: none;
 }
@@ -2840,10 +2840,12 @@ var UI = {
                 break;
             case "btn_sidebar":
                 await this.toggleSidebarEnable();
+                initSideBarWidth();
                 Util.setFlag("sidebar-enable", Setting.SidebarEnable);
                 break;
             case "btn_pin":
                 await this.toggleSidebarPin();
+                initSideBarWidth();
                 Util.setFlag("sidebar-pin", Setting.SidebarPin);
                 break;
             case "btn_size_s":
@@ -3004,8 +3006,11 @@ var UI = {
         elm_list.onmouseleave = hideList;
         let elm_prof = this.elm("#prof_name");
         document.body.appendChild(elm_list);
-        elm_list.style.left = elm_prof.offsetLeft - 5;
-        elm_list.style.top = elm_prof.offsetTop - 5; // - elm_new.offsetHeight - 5;
+        const body = document.body;
+        style = window.getComputedStyle(body);
+        const marginLeft = parseInt(style.marginLeft.split("px")[0]);
+        elm_list.style.left = marginLeft + elm_prof.offsetLeft;
+        elm_list.style.top = elm_prof.offsetTop + 26; // - elm_new.offsetHeight - 5;
         elm_list.style.opacity = 1;
     },
 
@@ -4203,7 +4208,15 @@ async function setting_dlg() {
                 <span>键盘层数</span><input type="number" id="layers" min="1" step="1" style="width: 3rem;" />
                 <label style="grid-column: span 2;"><input type="checkbox" id="showall" />显示不属于当前键盘布局的按键</label>
                 <span>扩展键盘</span><textarea id="extkeys" style="white-space: nowrap;grid-column: 2 / -1;"></textarea>
-                <span>分组</span><textarea id="groups" style="grid-column: 2 / -1;"></textarea>
+                <span>分组</span><textarea id="groups" style="grid-column: 2 / -1; display: none;"></textarea>
+                <select id="groupSelector" style="height: 100%">
+                    <option value="">选择分组</option>
+                </select>
+                <input type="text" id="currentGroupName" placeholder="当前组名" style="height: 100%">
+                <input type="color" id="currentGroupColor" style="height: 100%; width: 100%">
+                <button id="renameGroupButton" style="height: 100%">重命名分组</button>
+                <button id="addGroupButton" style="height: 100%">添加分组</button>
+                <button id="deleteGroupButton" style="height: 100%;background-color: #ffb6b6;">删除分组</button>
                 <!--<span>键表列数</span><input type="number" id="cols" min="1" max="10" step="1" style="width: 3rem;" />-->
                 <label style="grid-column: 2 / -1;"><input type="checkbox" id="list_by" />键表按分组显示</label>
                 <label style="grid-column: 2;"><input type="checkbox" id="show_comment" />显示备注</label>
@@ -4228,13 +4241,13 @@ async function setting_dlg() {
                     </keyboard>
                 </div>
                 <div class="subttl">键盘配色</div>
-                <span>键盘底色</span><input type="text" id="kb-bgc" style="width: 6rem;" />
-                <span>键盘边框</span><input type="text" id="kb-bdc" style="width: 6rem;" />
-                <span>默认键帽色</span><input type="text" id="c4" style="width: 6rem;" />
-                <span>默认字符色</span><input type="text" id="c3" style="width: 6rem;" />
-                <span>高亮键帽色</span><input type="text" id="c1" style="width: 6rem;" />
-                <span>高亮字符色</span><input type="text" id="c0" style="width: 6rem;" />
-                <!--<span>高亮键帽边框</span><input type="text" id="c2" style="width: 6rem;" />-->
+                <span>键盘底色</span><input type="color" id="kb-bgc" style="width: 6rem; height: 1.4rem;" />
+                <span>键盘边框</span><input type="color" id="kb-bdc" style="width: 6rem; height: 1.4rem;" />
+                <span>默认键帽色</span><input type="color" id="c4" style="width: 6rem; height: 1.4rem;" />
+                <span>默认字符色</span><input type="color" id="c3" style="width: 6rem; height: 1.4rem;" />
+                <span>高亮键帽色</span><input type="color" id="c1" style="width: 6rem; height: 1.4rem;" />
+                <span>高亮字符色</span><input type="color" id="c0" style="width: 6rem; height: 1.4rem;" />
+                <!--<span>高亮键帽边框</span><input type="color" id="c2" style="width: 6rem; height: 1.4rem;" />-->
                 <div class="subttl">键帽标准模式</div>
                 <span>键帽宽</span><input type="number" id="kw1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
                 <span>键帽高</span><input type="number" id="kh1" min="0.1" max="10" step="0.1" style="width: 3rem;" />
@@ -4256,7 +4269,8 @@ async function setting_dlg() {
                 <span>字符大小</span><input type="number" id="mod-cs2" min="0.1" max="10" step="0.05" style="width: 3rem;" />
                 <span>颜色块大小</span><input type="number" id="mod-ds2" min="0.1" max="10" step="0.05" style="width: 3rem;grid-column: 6 / -1;" />
                 <span>缩写</span><textarea id="modkey_chars" style="grid-column: 2 / -1;"></textarea>
-                <span>颜色</span><textarea id="modkey_colors" style="grid-column: 2 / -1;"></textarea>
+                <div id="colorPicker" style="position: absolute; z-index: 1000; display: none;"></div>
+                <span>颜色</span><textarea id="modkey_colors" style="grid-column: 2 / -1; height: 2.2rem;"></textarea>
                 <label style="grid-column: 2 / span 2;"><input type="checkbox" id="modkey_clr" />在键图中启用颜色</label>
                 <label style="grid-column: span 2;"><input type="checkbox" id="modkey_clr_list" />在键表中启用颜色</label>
             </div>
@@ -4486,14 +4500,292 @@ async function setting_dlg() {
         }
         document.body.appendChild(dlg);
         dlg.showModal();
+        initKeyBoardColors();
+        initKeyboardGroups();
+        initKeyBoardGroupsSelector();
+        initKeyCapColorPicker();
     })
 };
+
+function initKeyBoardColors() {
+    const root = document.documentElement;
+    const computedStyle = getComputedStyle(root);
+
+    const color_kbbgc = computedStyle.getPropertyValue('--kb-bgc');
+    const color_kbbdc = computedStyle.getPropertyValue('--kb-bdc');
+    const color_c4 = computedStyle.getPropertyValue('--c4');
+    const color_c3 = computedStyle.getPropertyValue('--c3');
+    const color_c1 = computedStyle.getPropertyValue('--c1');
+    const color_c0 = computedStyle.getPropertyValue('--c0');
+    const color_c2 = computedStyle.getPropertyValue('--c2');
+
+    const kbbgc = document.getElementById('kb-bgc');
+    const kbbdc = document.getElementById('kb-bdc');
+    const c4 = document.getElementById('c4');
+    const c3 = document.getElementById('c3');
+    const c1 = document.getElementById('c1');
+    const c0 = document.getElementById('c0');
+    const c2 = document.getElementById('c2');
+
+    // 键盘底色
+    kbbgc.value = getHexColor(color_kbbgc);
+    // 键盘边框
+    kbbdc.value = getHexColor(color_kbbdc);
+    // 默认键帽色
+    c4.value = getHexColor(color_c4);
+    // 默认字符色
+    c3.value = getHexColor(color_c3);
+    // 高亮键帽色
+    c1.value = getHexColor(color_c1);
+    // 高亮字符色
+    c0.value = getHexColor(color_c0);
+    // 高亮键帽边框
+    // c2.value = getHexColor(color_c2);
+}
+
+function isHexColor(color) {
+    return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(color);
+}
+
+function rgbToHex(rgb) {
+    const [r, g, b] = rgb.match(/\d+/g).map(v => parseInt(v, 10));
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+}
+
+function getHexColor(color) {
+    if (isHexColor(color)) {
+        return color;
+    }
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 1, 1);
+    const data = ctx.getImageData(0, 0, 1, 1).data;
+    return rgbToHex(`rgb(${data[0]}, ${data[1]}, ${data[2]})`);
+}
+
+function initKeyboardGroups() {
+    document.getElementById('currentGroupName').value = '';
+    document.getElementById('currentGroupColor').value = '#000000';
+    addKeyBoardGroup();
+    renameKeyBoardGroup();
+    deleteKeyBoardGroup();
+}
+
+function initKeyBoardGroupsSelector() {
+    let groups = getGroupsFromRawData();
+    for (const gn in groups) {
+        addGroupToSelector(gn);
+    }
+
+    onGroupSelectorChange();
+}
+
+function getGroupsFromRawData() {
+    let rawData = document.getElementById('groups').value;
+    let groups = {};
+    for (const g of rawData.trim().split(/\s*,\s*/)) {
+        let gg = g.split("::", 3);
+        if (gg[0])
+            groups[gg[0]] = [gg[1] || "", gg[2] || ""];
+    }
+    return groups;
+}
+
+function addGroupToSelector(name) {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    document.getElementById('groupSelector').appendChild(option);
+}
+
+function deleteGroupFromSelector(name) {
+    const selector = document.getElementById('groupSelector');
+    for (let i = 0; i < selector.options.length; i++) {
+        if (selector.options[i].value === name) {
+            selector.remove(i);
+            break;
+        }
+    }
+}
+
+function onGroupSelectorChange() {
+    document.getElementById('groupSelector').addEventListener('change', function() {
+        const gn = this.value;
+        const groups = getGroupsFromRawData();
+
+        const currentGroupNameElement = document.getElementById('currentGroupName');
+        const currentGroupColorElement = document.getElementById('currentGroupColor');
+
+        if (gn in groups) {
+            const color = groups[gn][0];
+            currentGroupNameElement.value = gn;
+            currentGroupColorElement.value = getHexColor(color);
+            currentGroupColorElement.style.display = 'inline';
+
+            currentGroupColorElement.oninput = function() {
+                groups[gn][0] = currentGroupColorElement.value;
+                saveGroups(groups);
+            };
+        } else {
+            currentGroupNameElement.value = '';
+            currentGroupColorElement.value = '#000000';
+        }
+    });
+}
+
+function saveGroups(groups) {
+    let newGroup = [];
+    for (const gn in groups) {
+        if (gn)
+            newGroup.push(gn+"::"+groups[gn].join("::"));
+    }
+    let newRawData = newGroup.join(", ");
+    document.getElementById('groups').value = newRawData;
+}
+
+function renameKeyBoardGroup() {
+    document.getElementById('renameGroupButton').addEventListener('click', function() {
+        const oldName = document.getElementById('groupSelector').value;
+        const newName = document.getElementById('currentGroupName').value;
+        const groups = getGroupsFromRawData();
+
+        if (oldName && newName && oldName != newName && !groups[newName]) {
+            groups[newName] = groups[oldName];
+            delete groups[oldName];
+
+            saveGroups(groups);
+            addGroupToSelector(newName);
+            document.getElementById('groupSelector').value = newName;
+            deleteGroupFromSelector(oldName);
+        } else {
+            alert("组名已存在或未输入！");
+        }
+    });
+}
+
+function addKeyBoardGroup() {
+    document.getElementById('addGroupButton').addEventListener('click', function() {
+        let groups = getGroupsFromRawData();
+
+        const gn = document.getElementById('currentGroupName').value;
+        const color = document.getElementById('currentGroupColor').value;
+
+        if (gn && !groups[gn]) {
+            groups[gn] = [color, ""];
+            addGroupToSelector(gn);
+
+            saveGroups(groups);
+            document.getElementById('groupSelector').value = gn;
+        } else {
+            alert("组名已存在或未输入！");
+        }
+    });
+}
+
+function deleteKeyBoardGroup() {
+    document.getElementById('deleteGroupButton').addEventListener('click', function() {
+        let groups = getGroupsFromRawData();
+
+        const gn = document.getElementById('groupSelector').value;
+
+        if (gn && groups[gn]) {
+            delete groups[gn]; // delete group
+            saveGroups(groups);
+            deleteGroupFromSelector(gn);
+            document.getElementById('groupSelector').value = '';
+            document.getElementById('currentGroupName').value = '';
+            document.getElementById('currentGroupColor').value = '#000000';
+        } else {
+            alert("未选择组！");
+        }
+    });
+}
+
+function initKeyCapColorPicker() {
+    const colorPickerContainer = document.getElementById('colorPicker');
+    const colorPicker = document.createElement('input');
+    colorPicker.type = 'color';
+    colorPicker.style.display = 'block';
+    colorPickerContainer.appendChild(colorPicker);
+    const textArea = document.getElementById('modkey_colors');
+    textArea.title = '双击色值快速选中，点击跳出的颜色选择器来更改颜色';
+
+    colorPicker.addEventListener('input', function() {
+        const selectedText = getSelectedText(textArea);
+        
+        const newColor = colorPicker.value;
+        if (isHexColor(selectedText) || isHexColor("#" + selectedText)) {
+            var containsHash = selectedText.startsWith("#");
+            replaceSelectedText(textArea, newColor, containsHash);
+        }
+    });
+
+    textArea.addEventListener('mouseup', function(event) {
+        const selectedText = getSelectedText(textArea);
+        if (isHexColor(selectedText) || isHexColor("#" + selectedText)) {
+            colorPicker.value = "#" + removeFirstHash(selectedText);
+            colorPickerContainer.style.display = 'block';
+
+            colorPickerContainer.style.left = `${event.pageX}px`;
+            colorPickerContainer.style.top = `${event.pageY}px`;
+        } else {
+            colorPickerContainer.style.display = 'none';
+        }
+    });
+}
+
+function removeFirstHash(text) {
+        return text.replace(/^#/, '');
+}
+
+function getSelectedText(textArea) {
+    const start = textArea.selectionStart;
+    const end = textArea.selectionEnd;
+    return textArea.value.substring(start, end);
+}
+
+function replaceSelectedText(textArea, newColor, containsHash) {
+    let start = textArea.selectionStart;
+    let end = textArea.selectionEnd;
+    let textBefore = textArea.value.substring(0, start);
+    let textAfter = textArea.value.substring(end);
+    if (!containsHash) {
+        start = textArea.selectionStart - 1;
+        textBefore = textArea.value.substring(0, start);
+    }
+    textArea.value = textBefore + newColor + textAfter;
+    
+    let newEnd = start + newColor.length;
+    textArea.setSelectionRange(start, newEnd);
+    textArea.focus();
+}
+
+function initSideBarWidth() {
+    if (Setting.SidebarEnable && Setting.SidebarPin) {
+        updateSideBarWidth();
+        window.addEventListener('resize', updateSideBarWidth);
+    } else {
+        Util.setCSS("--sidebar-width", Setting.SidebarWidth + "px");
+        document.getElementById("sidebar").style.width = '';
+        window.removeEventListener('resize', updateSideBarWidth);
+    }
+}
+
+function updateSideBarWidth() {
+    const body = document.body;
+    style = window.getComputedStyle(body);
+    const marginLeft = parseInt(style.marginLeft.split("px")[0]);
+    Util.setCSS("--sidebar-width", marginLeft + "px");
+    document.getElementById("sidebar").style.width = marginLeft + "px";
+}
 
 // Convert to img
 async function printAsPng(imgScale, imgName) {
   if (!("html2canvas" in window)) {
-    // alert("截图功能不可用！可能缺失 'js/html2canvas.js' 文件。");
-    await alert_dlg("截图功能不可用！可能缺失 'js/html2canvas.js' 文件。");
+    // alert("截图功能不可用！可能缺失 'js/html2canvas.min.js' 文件。");
+    await alert_dlg("截图功能不可用！可能缺失 'js/html2canvas.min.js' 文件。");
     return;
   }
   // change uimode to 'single'
@@ -4748,12 +5040,15 @@ __init__();
 
 </script>
 <!-- Img convert libraries -->
-<script src="js/html2canvas.js"></script>
+<script src="js/html2canvas.min.js"></script>
 <script src="js/FileSaver.min.js"></script>
 <script>
 if (!("html2canvas" in window)) {
     UI.elm("#btn_save_as_img").style.display = "none";
 }
+document.addEventListener('DOMContentLoaded', function() {
+    initSideBarWidth();
+});
 </script>
 <script src="custom.js"></script>
 <script src="present.js"></script>

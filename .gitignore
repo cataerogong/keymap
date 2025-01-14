@@ -161,3 +161,10 @@ cython_debug/
 
 # folder
 .vs/
+
+# electron
+electron/node_modules/
+electron/js/
+electron/dist
+electron/index.html
+electron/icon.ico
